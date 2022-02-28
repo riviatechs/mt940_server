@@ -1,3 +1,18 @@
+directive @goModel(model: String, models: [String!]) on OBJECT
+    | INPUT_OBJECT
+    | SCALAR
+    | ENUM
+    | INTERFACE
+    | UNION
+
+directive @goField(forceResolver: Boolean, name: String) on INPUT_FIELD_DEFINITION
+    | FIELD_DEFINITION
+
+directive @goTag(
+	key: String!
+	value: String
+) on INPUT_FIELD_DEFINITION | FIELD_DEFINITION
+
 """
 Customer Statement Message
 """
@@ -17,41 +32,51 @@ type CustStmtMsg @goModel(model: "github.com/riviatechs/mt940-server/graph/model
   """
   Account Identification
   """
-  ai: Ai
+  ai: Ai!
 
   """
   Statement Number/Sequence Number
   """
-  sn: String @goField(name: "Sn")
+  sn: String! @goField(name: "Sn")
 
   """
   Opening Balance
+
+  The D/C Mark, Currency and Amount in this field must always be the same as the D/C Mark, Currency and Amount in field 62a (closing balance) of the previous customer statement message for this account.
+
+  The first customer statement message for a specified period must contain field 60F (first opening balance); additional statement messages for the same statement period must contain field 60M(intermediate opening balance)
   """
-  ob: Ob
+  ob: Transaction! @goField(name: "Ob")
 
   """
   Statement Line and Information to Account Owner
   """
-  sl: [Sl]
+  sl: [Sl] @goField(name: "Sl", forceResolver: true)
 
-    """
-  Closing Balance (Booked Funds)
   """
-  cb: Cb
+  Closing Balance (Booked Funds)
+
+  This field specifies, for the (intermediate) closing balance, whether it is a debit or credit balance, the date, the currency and the amount of the balance.
+  """
+  cb: Transaction! @goField(name: "Cb")
 
   """
   Closing Available Balance (Available Funds)
+
+  This field indicates the funds which are available to the account owner (if credit balance) or the balance which is subject to interest charges (if debit balance)
   """
-  cab: Cab
+  cab: Transaction @goField(name: "Cab")
 
   """
   Forward Available Balance
+
+  This field indicates the funds which are available to the account owner (if a credit or debit balance) for the specified forward value date.
   """
-  fwab: [Fwab]
+  fwab: [Transaction] @goField(name: "Fwab", forceResolver: true)
 
   """
   Information to Account Owner
   """
-  iao String @goField(name: "Iao")
+  iao String @goField(name: "Iao") @goField(name: "Iao")
 
 }

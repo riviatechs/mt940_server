@@ -1,5 +1,6 @@
 package model
 
-type Ai struct{
-	
+type Ai struct {
+	Account string
+	Ic      *string
 }

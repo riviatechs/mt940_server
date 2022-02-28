@@ -1,12 +1,8 @@
 """
 Statement Line and Information to Account Owner
 """
-type Sl {
+type Sl @goModel(model: "github.com/riviatechs/mt940-server/graph/model.Sl") {
   id: ID!
-  """
-  Customer Statement Message which it belongs to
-  """
-  custStmtMsg: String!
 
   """
   Value Date
@@ -17,33 +13,33 @@ type Sl {
 
   The SWIFT System validates, Entry Date (Date in reduced ISO form) using current System Year
   """
-  valueDate: String
+  valueDate: String @goField(name: "ValueDate")
 
   """
   Entry Date
 
   It is the date on which the transaction is booked to the account
   """
-  entryDate: String
+  entryDate: String @goField(name: "EntryDate")
 
   """
   Debit/Credit Mark
   """
-  mark: String!
+  mark: String! @goField(name: "Mark")
 
   """
   Funds Code
 
   It is the 3rd character of the currency code
   """
-  fundsCode: String
+  fundsCode: String @goField(name: "FundsCode")
 
   """
   Amount
 
   It is the amount of the transaction
   """
-  amount: Float32!
+  amount: Float32! @goField(name: "Amount")
 
   """
   (Transaction Type)(Identification Code)
@@ -56,7 +52,7 @@ type Sl {
     F First advice
         For entries being first advised by the statement (items originated by  the account servicing institution)
   """
-  ttic: String
+  ttic: String @goField(name: "Ttic")
 
   """
     Reference for the Account Owner
@@ -64,16 +60,17 @@ type Sl {
     It  is the reference of the message (SWIFT or any other) or
   document that resulted in this entry. This is a reference that the account owner can use to identify the reason for the entry.
   """
-  refOwner: String
+  refOwner: String @goField(name: "RefOwner")
 
   """
   Reference of the Account Servicing Institution
   """
-  refAsi: String
+  refAsi: String @goField(name: "RefAsi")
 
   """
   Supplementary Details
   """
-  supp: String
-  iao: String
+  supp: String @goField(name: "Supp")
+
+  iao: String @goField(name: "Iao")
 }
