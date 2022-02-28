@@ -3,7 +3,7 @@ Forward Available Balance
 
 This field indicates the funds which are available to the account owner (if a credit or debit balance) for the specified forward value date.
 """
-type fwab {
+type Fwab {
   id: ID!
 
   """

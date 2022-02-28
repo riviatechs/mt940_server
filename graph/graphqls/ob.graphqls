@@ -5,7 +5,7 @@ The D/C Mark, Currency and Amount in this field must always be the same as the D
 
 The first customer statement message for a specified period must contain field 60F (first opening balance); additional statement messages for the same statement period must contain field 60M(intermediate opening balance).
 """
-type ob {
+type Ob {
   id: ID!
 
   """

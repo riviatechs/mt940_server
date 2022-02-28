@@ -3,7 +3,7 @@ Closing Balance (Booked Funds)
 
 This field specifies, for the (intermediate) closing balance, whether it is a debit or credit balance, the date, the currency and the amount of the balance.
 """
-type cb {
+type Cb {
   id: ID!
 
   """

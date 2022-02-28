@@ -3,7 +3,7 @@ Closing Available Balance (Available Funds)
 
 This field indicates the funds which are available to the account owner (if credit balance) or the balance which is subject to interest charges (if debit balance).
 """
-type cab {
+type Cab {
   id: ID!
 
   """

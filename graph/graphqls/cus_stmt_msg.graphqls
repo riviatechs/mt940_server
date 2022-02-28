@@ -15,12 +15,43 @@ type CustStmtMsg @goModel(model: "github.com/riviatechs/mt940-server/graph/model
   rr: String @goField(name: "Rr")
 
   """
+  Account Identification
+  """
+  ai: Ai
+
+  """
   Statement Number/Sequence Number
   """
   sn: String @goField(name: "Sn")
 
   """
+  Opening Balance
+  """
+  ob: Ob
+
+  """
+  Statement Line and Information to Account Owner
+  """
+  sl: [Sl]
+
+    """
+  Closing Balance (Booked Funds)
+  """
+  cb: Cb
+
+  """
+  Closing Available Balance (Available Funds)
+  """
+  cab: Cab
+
+  """
+  Forward Available Balance
+  """
+  fwab: [Fwab]
+
+  """
   Information to Account Owner
   """
   iao String @goField(name: "Iao")
+
 }

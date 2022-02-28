@@ -1,7 +1,7 @@
 """
 Statement Line and Information to Account Owner
 """
-type sl {
+type Sl {
   id: ID!
   """
   Customer Statement Message which it belongs to
