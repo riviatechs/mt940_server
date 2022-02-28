@@ -1,0 +1,38 @@
+"""
+Opening Balance
+
+The D/C Mark, Currency and Amount in this field must always be the same as the D/C Mark, Currency and Amount in field 62a (closing balance) of the previous customer statement message for this account.
+
+The first customer statement message for a specified period must contain field 60F (first opening balance); additional statement messages for the same statement period must contain field 60M(intermediate opening balance).
+"""
+type ob {
+  id: ID!
+
+  """
+  Customer Statement Message which it belongs to
+  """
+  custStmtMsg: String!
+
+  """
+  D/C Mark refers to Credit/Debit
+
+  For C Credit The (intermediate) opening balance is a credit balance
+  For D Debit The (intermediate) opening balance is a debit balance
+  """
+  mark: String!
+
+  """
+  Date must be a valid date expressed as YYMMDD
+  """
+  dateY: String!
+
+  """
+  Currency must be a valid ISO 4217 currency code
+  """
+  currency: String!
+
+  """
+  The integer part of Amount must contain at least one digit. The decimal comma ',' is mandatory and is  included in the maximum length. The number of digits following the comma must not exceed the maximum number allowed for that specific currency as specified in ISO 4217
+  """
+  amount: Float32!
+}
