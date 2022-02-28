@@ -2,7 +2,7 @@
 Statement Line and Information to Account Owner
 """
 type Sl @goModel(model: "github.com/riviatechs/mt940-server/graph/model.Sl") {
-  id: ID!
+  id: Int @goField(name: "ID")
 
   """
   Value Date

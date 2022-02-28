@@ -1,0 +1,28 @@
+type Cab @goModel(model: "github.com/riviatechs/mt940-server/graph/model.Cab") {
+  id: Int! @goField(name: "ID")
+
+  custStmtMsgID: string! @goField(name: "CustStmtMsgID")
+
+  """
+  D/C Mark refers to Credit/Debit
+
+  For C Credit The (intermediate) opening balance is a credit balance
+  For D Debit The (intermediate) opening balance is a debit balance
+  """
+  mark: String! @goField(name: "Mark")
+
+  """
+  Date must be a valid date expressed as YYMMDD
+  """
+  dateY: String! @goField(name: "DateY")
+
+  """
+  Currency must be a valid ISO 4217 currency code
+  """
+  currency: String! @goField(name: "Currency")
+
+  """
+  The integer part of Amount must contain at least one digit. The decimal comma ',' is mandatory and is  included in the maximum length. The number of digits following the comma must not exceed the maximum number allowed for that specific currency as specified in ISO 4217
+  """
+  amount: Float32! @goField(name: "Amount")
+}
