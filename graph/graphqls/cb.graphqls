@@ -1,0 +1,36 @@
+"""
+Closing Balance (Booked Funds)
+
+This field specifies, for the (intermediate) closing balance, whether it is a debit or credit balance, the date, the currency and the amount of the balance.
+"""
+type cb {
+  id: ID!
+
+  """
+  Customer Statement Message which it belongs to
+  """
+  custStmtMsg: String!
+
+  """
+  D/C Mark refers to Credit/Debit
+
+  For C Credit The (intermediate) opening balance is a credit balance
+  For D Debit The (intermediate) opening balance is a debit balance
+  """
+  mark: String!
+
+  """
+  Date must be a valid date expressed as YYMMDD
+  """
+  dateY: String!
+
+  """
+  Currency must be a valid ISO 4217 currency code
+  """
+  currency: String!
+
+  """
+  The integer part of Amount must contain at least one digit. The decimal comma ',' is mandatory and is  included in the maximum length. The number of digits following the comma must not exceed the maximum number allowed for that specific currency as specified in ISO 4217
+  """
+  amount: Float32!
+}
