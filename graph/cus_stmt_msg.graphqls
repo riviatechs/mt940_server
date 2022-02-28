@@ -1,0 +1,26 @@
+"""
+Customer Statement Message
+"""
+type CustStmtMsg {
+  id: ID!
+
+  """
+  Transaction Reference Number
+  """
+  trn: String!
+
+  """
+  Related Reference
+  """
+  rr: String
+
+  """
+  Statement Number/Sequence Number
+  """
+  sn: String
+
+  """
+  Information to Account Owner
+  """
+  iao String
+}
