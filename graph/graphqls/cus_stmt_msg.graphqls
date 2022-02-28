@@ -1,26 +1,26 @@
 """
 Customer Statement Message
 """
-type CustStmtMsg {
+type CustStmtMsg @goModel(model: "github.com/riviatechs/mt940-server/graph/model.CustStmtMsg") {
   id: ID!
 
   """
   Transaction Reference Number
   """
-  trn: String!
+  trn: String! @goField(name: "Trn")
 
   """
   Related Reference
   """
-  rr: String
+  rr: String @goField(name: "Rr")
 
   """
   Statement Number/Sequence Number
   """
-  sn: String
+  sn: String @goField(name: "Sn")
 
   """
   Information to Account Owner
   """
-  iao String
+  iao String @goField(name: "Iao")
 }
