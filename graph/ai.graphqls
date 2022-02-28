@@ -1,0 +1,21 @@
+"""
+Account Identification
+"""
+type ai {
+  id: ID!
+
+  """
+  Customer Statement Message which it belongs to
+  """
+  custStmtMsg: String!
+
+  """
+  Account
+  """
+  account: String!
+
+  """
+  Identifier Code
+  """
+  ic: String
+}
