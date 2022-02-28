@@ -7,9 +7,9 @@ import (
 
 type Ai struct {
 	gorm.Model
-	CustStmtMsgID string  `gorm:"column:cus_stmt_msg"`
-	Account       string  `gorm:"column:account"`
-	Ic            *string `gorm:"column:ic"`
+	CustStmtMsgID string  `gorm:"column:cus_stmt_msg;unique"`
+	Account       string  `gorm:"column:account;not null"`
+	Ic            *string `gorm:"column:ic;default null"`
 }
 
 func (Ai) TableName() string {
