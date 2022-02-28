@@ -1,0 +1,79 @@
+"""
+Statement Line and Information to Account Owner
+"""
+type sl {
+  id: ID!
+  """
+  Customer Statement Message which it belongs to
+  """
+  custStmtMsg: String!
+
+  """
+  Value Date
+
+  It is the date on which the debit/credit is effective
+
+  must be a valid date expressed as YYMMDD
+
+  The SWIFT System validates, Entry Date (Date in reduced ISO form) using current System Year
+  """
+  valueDate: String
+
+  """
+  Entry Date
+
+  It is the date on which the transaction is booked to the account
+  """
+  entryDate: String
+
+  """
+  Debit/Credit Mark
+  """
+  mark: String!
+
+  """
+  Funds Code
+
+  It is the 3rd character of the currency code
+  """
+  fundsCode: String
+
+  """
+  Amount
+
+  It is the amount of the transaction
+  """
+  amount: Float32!
+
+  """
+  (Transaction Type)(Identification Code)
+
+  Transaction Type must contain one
+    S SWIFT transfer
+        For entries related to SWIFT transfer instructions and subsequent charge messages
+    N Non-SWIFT transfer
+        For entries related to payment and transfer instructions, including  related charges messages, not sent through SWIFT or where an  alpha description is preferred.
+    F First advice
+        For entries being first advised by the statement (items originated by  the account servicing institution)
+  """
+  ttic: String
+
+  """
+    Reference for the Account Owner
+
+    It  is the reference of the message (SWIFT or any other) or
+  document that resulted in this entry. This is a reference that the account owner can use to identify the reason for the entry.
+  """
+  refOwner: String
+
+  """
+  Reference of the Account Servicing Institution
+  """
+  refAsi: String
+
+  """
+  Supplementary Details
+  """
+  supp: String
+  iao: String
+}
