@@ -2,4 +2,42 @@
 
 package model
 
+type AiInput struct {
+	Account string  `json:"account"`
+	Ic      *string `json:"ic"`
+}
 
+type CustStmtMsgInput struct {
+	Trn  string        `json:"trn"`
+	Rr   *string       `json:"rr"`
+	Ai   *AiInput      `json:"ai"`
+	Sn   string        `json:"sn"`
+	Ob   *TransInput   `json:"ob"`
+	Sl   []*SlInput    `json:"sl"`
+	Cb   *TransInput   `json:"cb"`
+	Cab  *TransInput   `json:"cab"`
+	Fwab []*TransInput `json:"fwab"`
+	Iao  *string       `json:"iao"`
+}
+
+type SlInput struct {
+	CustStmtMsgID string  `json:"custStmtMsgID"`
+	ValueDate     *string `json:"valueDate"`
+	EntryDate     *string `json:"entryDate"`
+	Mark          string  `json:"mark"`
+	FundsCode     *string `json:"fundsCode"`
+	Amount        float64 `json:"amount"`
+	Ttic          *string `json:"ttic"`
+	RefOwner      *string `json:"refOwner"`
+	RefAsi        *string `json:"refAsi"`
+	Supp          *string `json:"supp"`
+	Iao           *string `json:"iao"`
+}
+
+type TransInput struct {
+	CustStmtMsgID string  `json:"custStmtMsgID"`
+	Mark          string  `json:"mark"`
+	DateY         string  `json:"dateY"`
+	Currency      string  `json:"currency"`
+	Amount        float64 `json:"amount"`
+}

@@ -4,6 +4,8 @@ Statement Line and Information to Account Owner
 type Sl @goModel(model: "github.com/riviatechs/mt940-server/graph/model.Sl") {
   id: Int @goField(name: "ID")
 
+  custStmtMsgID: String! @goField(name: "CustStmtMsgID")
+
   """
   Value Date
 
@@ -39,7 +41,7 @@ type Sl @goModel(model: "github.com/riviatechs/mt940-server/graph/model.Sl") {
 
   It is the amount of the transaction
   """
-  amount: Float32! @goField(name: "Amount")
+  amount: Float! @goField(name: "Amount")
 
   """
   (Transaction Type)(Identification Code)
@@ -73,4 +75,18 @@ type Sl @goModel(model: "github.com/riviatechs/mt940-server/graph/model.Sl") {
   supp: String @goField(name: "Supp")
 
   iao: String @goField(name: "Iao")
+}
+
+input SlInput {
+  custStmtMsgID: String!
+  valueDate: String
+  entryDate: String
+  mark: String!
+  fundsCode: String
+  amount: Float!
+  ttic: String
+  refOwner: String
+  refAsi: String
+  supp: String
+  iao: String
 }

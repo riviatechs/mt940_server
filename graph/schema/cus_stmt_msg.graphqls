@@ -1,7 +1,10 @@
 """
 Customer Statement Message
 """
-type CustStmtMsg @goModel(model: "github.com/riviatechs/mt940-server/graph/model.CustStmtMsg") {
+type CustStmtMsg
+  @goModel(
+    model: "github.com/riviatechs/mt940-server/graph/model.CustStmtMsg"
+  ) {
   id: Int @goField(name: "ID")
 
   """
@@ -62,6 +65,18 @@ type CustStmtMsg @goModel(model: "github.com/riviatechs/mt940-server/graph/model
   """
   Information to Account Owner
   """
-  iao String @goField(name: "Iao") @goField(name: "Iao")
+  iao: String @goField(name: "Iao") @goField(name: "Iao")
+}
 
+input CustStmtMsgInput {
+  trn: String!
+  rr: String
+  ai: AiInput!
+  sn: String!
+  ob: TransInput!
+  sl: [SlInput]
+  cb: TransInput!
+  cab: TransInput
+  fwab: [TransInput]
+  iao: String
 }

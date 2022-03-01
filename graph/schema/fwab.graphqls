@@ -2,7 +2,7 @@ type Fwab
   @goModel(model: "github.com/riviatechs/mt940-server/graph/model.Fwab") {
   id: Int! @goField(name: "ID")
 
-  custStmtMsgID: string! @goField(name: "CustStmtMsgID")
+  custStmtMsgID: String! @goField(name: "CustStmtMsgID")
 
   """
   D/C Mark refers to Credit/Debit
@@ -25,5 +25,5 @@ type Fwab
   """
   The integer part of Amount must contain at least one digit. The decimal comma ',' is mandatory and is  included in the maximum length. The number of digits following the comma must not exceed the maximum number allowed for that specific currency as specified in ISO 4217
   """
-  amount: Float32! @goField(name: "Amount")
+  amount: Float! @goField(name: "Amount")
 }

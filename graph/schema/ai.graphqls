@@ -14,3 +14,8 @@ type Ai @goModel(model: "github.com/riviatechs/mt940-server/graph/model.Ai") {
   """
   ic: String @goField(name: "Ic")
 }
+
+input AiInput {
+  account: String!
+  ic: String
+}

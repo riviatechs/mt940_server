@@ -1,0 +1,7 @@
+input TransInput {
+  custStmtMsgID: String!
+  mark: String!
+  dateY: String!
+  currency: String!
+  amount: Float!
+}

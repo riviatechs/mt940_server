@@ -2,14 +2,10 @@
 #
 # https://gqlgen.com/getting-started/
 
-
-
 type Query {
-
+  custStmtMsg(id: Int!): CustStmtMsg
 }
 
-
-
 type Mutation {
- 
+  createCustStmtMsg(input: CustStmtMsgInput): Int
 }
