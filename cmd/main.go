@@ -15,7 +15,7 @@ import (
 	"github.com/gorilla/mux"
 	"github.com/riviatechs/mt940_server/db"
 	"github.com/riviatechs/mt940_server/graph/generated"
-	resolver "github.com/riviatechs/mt940_server/graph/resolvers"
+	resolver "github.com/riviatechs/mt940_server/resolvers"
 	"github.com/riviatechs/mt940_server/util"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"

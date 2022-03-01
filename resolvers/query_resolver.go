@@ -11,3 +11,7 @@ type queryResolver struct{ *Resolver }
 func (r *queryResolver) CustStmtMsg(ctx context.Context, id int) (*models.CustStmtMsg, error) {
 	panic("not implemented")
 }
+
+func (r *queryResolver) CustStmtMsgs(ctx context.Context) ([]*models.CustStmtMsg, error) {
+	panic("not implemented")
+}

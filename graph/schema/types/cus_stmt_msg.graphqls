@@ -37,7 +37,7 @@ type CustStmtMsg
   """
   Statement Line and Information to Account Owner
   """
-  sl: [Sl] @goField(name: "Sl", forceResolver: true)
+  sl: [Sl!] @goField(name: "Sl", forceResolver: true)
 
   """
   Closing Balance (Booked Funds)
@@ -58,7 +58,7 @@ type CustStmtMsg
 
   This field indicates the funds which are available to the account owner (if a credit or debit balance) for the specified forward value date.
   """
-  fwab: [Fwab] @goField(name: "Fwab", forceResolver: true)
+  fwab: [Fwab!] @goField(name: "Fwab", forceResolver: true)
 
   """
   Information to Account Owner
@@ -67,17 +67,15 @@ type CustStmtMsg
 }
 
 input CustStmtMsgInput
-  @goModel(
-    model: "github.com/riviatechs/mt940_server/models.CustStmtMsgInput"
-  ) {
+  @goModel(model: "github.com/riviatechs/mt940_server/models.CustStmtMsg") {
   trn: String! @goField(name: "Trn")
   rr: String @goField(name: "Rr")
   ai: AiInput! @goField(name: "Ai")
   sn: String! @goField(name: "Sn")
-  ob: TransInput! @goField(name: "Ob")
-  sl: [SlInput] @goField(name: "Sl", forceResolver: true)
-  cb: TransInput! @goField(name: "Cb")
-  cab: TransInput @goField(name: "Cab")
-  fwab: [TransInput] @goField(name: "Fwab", forceResolver: true)
+  ob: ObInput! @goField(name: "Ob")
+  sl: [SlInput!] @goField(name: "Sl", forceResolver: true)
+  cb: CbInput! @goField(name: "Cb")
+  cab: CabInput @goField(name: "Cab")
+  fwab: [FwabInput!] @goField(name: "Fwab", forceResolver: true)
   iao: String @goField(name: "Iao") @goField(name: "Iao")
 }

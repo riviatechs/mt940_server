@@ -2,7 +2,9 @@
 Account Identification
 """
 type Ai @goModel(model: "github.com/riviatechs/mt940_server/models.Ai") {
-  id: Int! @goField(name: "ID")
+  id: Int @goField(name: "ID")
+
+  custStmtMsgID: String! @goField(name: "CustStmtMsgID")
 
   """
   Account
@@ -18,8 +20,8 @@ type Ai @goModel(model: "github.com/riviatechs/mt940_server/models.Ai") {
   updatedAt: String @goField(name: "UpdatedAt")
 }
 
-input AiInput
-  @goModel(model: "github.com/riviatechs/mt940_server/models.AiInput") {
+input AiInput @goModel(model: "github.com/riviatechs/mt940_server/models.Ai") {
+  custStmtMsgID: String! @goField(name: "CustStmtMsgID")
   account: String! @goField(name: "Account")
   ic: String @goField(name: "Ic")
 }

@@ -77,8 +77,7 @@ type Sl @goModel(model: "github.com/riviatechs/mt940_server/models.Sl") {
   iao: String @goField(name: "Iao")
 }
 
-input SlInput
-  @goModel(model: "github.com/riviatechs/mt940_server/models.SlInput") {
+input SlInput @goModel(model: "github.com/riviatechs/mt940_server/models.Sl") {
   custStmtMsgID: String! @goField(name: "CustStmtMsgID")
   valueDate: String @goField(name: "ValueDate")
   entryDate: String @goField(name: "EntryDate")

@@ -1,3 +1,4 @@
 type Query {
   custStmtMsg(id: Int!): CustStmtMsg
+  custStmtMsgs: [CustStmtMsg]
 }

@@ -52,3 +52,11 @@ func (r *Resolver) CustStmtMsgInput() generated.CustStmtMsgInputResolver {
 }
 
 func (r *Resolver) SlInput() generated.SlInputResolver { return &SlInputResolver{r} }
+
+func (r *Resolver) CabInput() generated.CabInputResolver { return &CabInputResolver{r} }
+
+func (r *Resolver) CbInput() generated.CbInputResolver { return &CbInputResolver{r} }
+
+func (r *Resolver) FwabInput() generated.FwabInputResolver { return &FwabInputResolver{r} }
+
+func (r *Resolver) ObInput() generated.ObInputResolver { return &ObInputResolver{r} }

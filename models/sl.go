@@ -1,12 +1,18 @@
 package models
 
 import (
+	"time"
+
 	"github.com/riviatechs/mt940_server/util"
 	"gorm.io/gorm"
 )
 
 type Sl struct {
-	gorm.Model
+	ID        *uint `gorm:"primarykey"`
+	CreatedAt *time.Time
+	UpdatedAt *time.Time
+	DeletedAt *gorm.DeletedAt `gorm:"index"`
+
 	CustStmtMsgID string  `gorm:"column:cus_stmt_msg"`
 	ValueDate     *string `gorm:"column:value_date;not null"`
 	EntryDate     *string `gorm:"column:entry_date;default null"`
