@@ -6,6 +6,6 @@
         "ttic"
     ],
     "[graphql]": {
-        "editor.formatOnSave": true
+        "editor.formatOnSave": false
     }
 }

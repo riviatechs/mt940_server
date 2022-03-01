@@ -625,7 +625,7 @@ func (ec *executionContext) introspectType(name string) (*introspection.Type, er
 }
 
 var sources = []*ast.Source{
-	{Name: "graph/schema/ai.graphqls", Input: `"""
+	{Name: "graph/schema/types/ai.graphqls", Input: `"""
 Account Identification
 """
 type Ai @goModel(model: "github.com/riviatechs/mt940_server/models.Ai") {
@@ -647,7 +647,7 @@ input AiInput {
   ic: String
 }
 `, BuiltIn: false},
-	{Name: "graph/schema/cab.graphqls", Input: `type Cab @goModel(model: "github.com/riviatechs/mt940_server/models.Cab"){
+	{Name: "graph/schema/types/cab.graphqls", Input: `type Cab @goModel(model: "github.com/riviatechs/mt940_server/models.Cab"){
   id: Int! @goField(name: "ID")
 
   custStmtMsgID: String! @goField(name: "CustStmtMsgID")
@@ -676,7 +676,7 @@ input AiInput {
   amount: Float! @goField(name: "Amount")
 }
 `, BuiltIn: false},
-	{Name: "graph/schema/cb.graphqls", Input: `type Cb @goModel(model: "github.com/riviatechs/mt940_server/models.Cb") {
+	{Name: "graph/schema/types/cb.graphqls", Input: `type Cb @goModel(model: "github.com/riviatechs/mt940_server/models.Cb") {
   id: Int! @goField(name: "ID")
 
   custStmtMsgID: String! @goField(name: "CustStmtMsgID")
@@ -705,11 +705,10 @@ input AiInput {
   amount: Float! @goField(name: "Amount")
 }
 `, BuiltIn: false},
-	{Name: "graph/schema/cus_stmt_msg.graphqls", Input: `"""
+	{Name: "graph/schema/types/cus_stmt_msg.graphqls", Input: `"""
 Customer Statement Message
 """
-type CustStmtMsg
-  @goModel(model: "github.com/riviatechs/mt940_server/models.CustStmtMsg") {
+type CustStmtMsg @goModel(model: "github.com/riviatechs/mt940_server/models.CustStmtMsg"){
   id: Int @goField(name: "ID")
 
   """
@@ -786,7 +785,7 @@ input CustStmtMsgInput {
   iao: String
 }
 `, BuiltIn: false},
-	{Name: "graph/schema/directives.graphqls", Input: `directive @goModel(
+	{Name: "graph/schema/types/directives.graphqls", Input: `directive @goModel(
   model: String
   models: [String!]
 ) on OBJECT | INPUT_OBJECT | SCALAR | ENUM | INTERFACE | UNION
@@ -801,7 +800,7 @@ directive @goTag(
   value: String
 ) on INPUT_FIELD_DEFINITION | FIELD_DEFINITION
 `, BuiltIn: false},
-	{Name: "graph/schema/fwab.graphqls", Input: `type Fwab @goModel(model: "github.com/riviatechs/mt940_server/models.Fwab") {
+	{Name: "graph/schema/types/fwab.graphqls", Input: `type Fwab @goModel(model: "github.com/riviatechs/mt940_server/models.Fwab") {
   id: Int! @goField(name: "ID")
 
   custStmtMsgID: String! @goField(name: "CustStmtMsgID")
@@ -830,7 +829,10 @@ directive @goTag(
   amount: Float! @goField(name: "Amount")
 }
 `, BuiltIn: false},
-	{Name: "graph/schema/ob.graphqls", Input: `type Ob @goModel(model: "github.com/riviatechs/mt940_server/models.Ob") {
+	{Name: "graph/schema/types/mutation.graphqls", Input: `type Mutation {
+  createCustStmtMsg(input: CustStmtMsgInput): Int
+}`, BuiltIn: false},
+	{Name: "graph/schema/types/ob.graphqls", Input: `type Ob @goModel(model: "github.com/riviatechs/mt940_server/models.Ob") {
   id: Int! @goField(name: "ID")
 
   custStmtMsgID: String! @goField(name: "CustStmtMsgID")
@@ -859,24 +861,18 @@ directive @goTag(
   amount: Float! @goField(name: "Amount")
 }
 `, BuiltIn: false},
-	{Name: "graph/schema/schema.graphqls", Input: `# GraphQL schema example
+	{Name: "graph/schema/types/query.graphqls", Input: `type Query {
+  custStmtMsg(id: Int!): CustStmtMsg
+}`, BuiltIn: false},
+	{Name: "graph/schema/types/schema.graphqls", Input: `# GraphQL schema example
 #
 # https://gqlgen.com/getting-started/
 
 schema {
   query: Query
   mutation: Mutation
-}
-
-type Query {
-  custStmtMsg(id: Int!): CustStmtMsg
-}
-
-type Mutation {
-  createCustStmtMsg(input: CustStmtMsgInput): Int
-}
-`, BuiltIn: false},
-	{Name: "graph/schema/sl.graphqls", Input: `"""
+}`, BuiltIn: false},
+	{Name: "graph/schema/types/sl.graphqls", Input: `"""
 Statement Line and Information to Account Owner
 """
 type Sl @goModel(model: "github.com/riviatechs/mt940_server/models.Sl") {
@@ -969,7 +965,7 @@ input SlInput {
   iao: String
 }
 `, BuiltIn: false},
-	{Name: "graph/schema/trans.graphqls", Input: `input TransInput {
+	{Name: "graph/schema/types/trans.graphqls", Input: `input TransInput {
   custStmtMsgID: String!
   mark: String!
   dateY: String!
