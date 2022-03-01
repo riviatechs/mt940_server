@@ -12,7 +12,6 @@ import (
 
 	"github.com/99designs/gqlgen/graphql"
 	"github.com/99designs/gqlgen/graphql/introspection"
-	main "github.com/riviatechs/mt940_server"
 	"github.com/riviatechs/mt940_server/models"
 	gqlparser "github.com/vektah/gqlparser/v2"
 	"github.com/vektah/gqlparser/v2/ast"
@@ -99,7 +98,7 @@ type ComplexityRoot struct {
 	}
 
 	Mutation struct {
-		CreateCustStmtMsg func(childComplexity int, input *main.CustStmtMsgInput) int
+		CreateCustStmtMsg func(childComplexity int, input *models.CustStmtMsgInput) int
 	}
 
 	Ob struct {
@@ -157,7 +156,7 @@ type FwabResolver interface {
 	Amount(ctx context.Context, obj *models.Fwab) (float64, error)
 }
 type MutationResolver interface {
-	CreateCustStmtMsg(ctx context.Context, input *main.CustStmtMsgInput) (*int, error)
+	CreateCustStmtMsg(ctx context.Context, input *models.CustStmtMsgInput) (*int, error)
 }
 type ObResolver interface {
 	ID(ctx context.Context, obj *models.Ob) (int, error)
@@ -422,7 +421,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Mutation.CreateCustStmtMsg(childComplexity, args["input"].(*main.CustStmtMsgInput)), true
+		return e.complexity.Mutation.CreateCustStmtMsg(childComplexity, args["input"].(*models.CustStmtMsgInput)), true
 
 	case "Ob.amount":
 		if e.complexity.Ob.Amount == nil {
@@ -988,10 +987,10 @@ var parsedSchema = gqlparser.MustLoadSchema(sources...)
 func (ec *executionContext) field_Mutation_createCustStmtMsg_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
-	var arg0 *main.CustStmtMsgInput
+	var arg0 *models.CustStmtMsgInput
 	if tmp, ok := rawArgs["input"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
-		arg0, err = ec.unmarshalOCustStmtMsgInput2ᚖgithubᚗcomᚋriviatechsᚋmt940_serverᚐCustStmtMsgInput(ctx, tmp)
+		arg0, err = ec.unmarshalOCustStmtMsgInput2ᚖgithubᚗcomᚋriviatechsᚋmt940_serverᚋmodelsᚐCustStmtMsgInput(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -2192,7 +2191,7 @@ func (ec *executionContext) _Mutation_createCustStmtMsg(ctx context.Context, fie
 	fc.Args = args
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().CreateCustStmtMsg(rctx, args["input"].(*main.CustStmtMsgInput))
+		return ec.resolvers.Mutation().CreateCustStmtMsg(rctx, args["input"].(*models.CustStmtMsgInput))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -4041,8 +4040,8 @@ func (ec *executionContext) ___Type_ofType(ctx context.Context, field graphql.Co
 
 // region    **************************** input.gotpl *****************************
 
-func (ec *executionContext) unmarshalInputAiInput(ctx context.Context, obj interface{}) (main.AiInput, error) {
-	var it main.AiInput
+func (ec *executionContext) unmarshalInputAiInput(ctx context.Context, obj interface{}) (models.AiInput, error) {
+	var it models.AiInput
 	asMap := map[string]interface{}{}
 	for k, v := range obj.(map[string]interface{}) {
 		asMap[k] = v
@@ -4072,8 +4071,8 @@ func (ec *executionContext) unmarshalInputAiInput(ctx context.Context, obj inter
 	return it, nil
 }
 
-func (ec *executionContext) unmarshalInputCustStmtMsgInput(ctx context.Context, obj interface{}) (main.CustStmtMsgInput, error) {
-	var it main.CustStmtMsgInput
+func (ec *executionContext) unmarshalInputCustStmtMsgInput(ctx context.Context, obj interface{}) (models.CustStmtMsgInput, error) {
+	var it models.CustStmtMsgInput
 	asMap := map[string]interface{}{}
 	for k, v := range obj.(map[string]interface{}) {
 		asMap[k] = v
@@ -4101,7 +4100,7 @@ func (ec *executionContext) unmarshalInputCustStmtMsgInput(ctx context.Context, 
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("ai"))
-			it.Ai, err = ec.unmarshalNAiInput2ᚖgithubᚗcomᚋriviatechsᚋmt940_serverᚐAiInput(ctx, v)
+			it.Ai, err = ec.unmarshalNAiInput2ᚖgithubᚗcomᚋriviatechsᚋmt940_serverᚋmodelsᚐAiInput(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -4117,7 +4116,7 @@ func (ec *executionContext) unmarshalInputCustStmtMsgInput(ctx context.Context, 
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("ob"))
-			it.Ob, err = ec.unmarshalNTransInput2ᚖgithubᚗcomᚋriviatechsᚋmt940_serverᚐTransInput(ctx, v)
+			it.Ob, err = ec.unmarshalNTransInput2ᚖgithubᚗcomᚋriviatechsᚋmt940_serverᚋmodelsᚐTransInput(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -4125,7 +4124,7 @@ func (ec *executionContext) unmarshalInputCustStmtMsgInput(ctx context.Context, 
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("sl"))
-			it.Sl, err = ec.unmarshalOSlInput2ᚕᚖgithubᚗcomᚋriviatechsᚋmt940_serverᚐSlInput(ctx, v)
+			it.Sl, err = ec.unmarshalOSlInput2ᚕᚖgithubᚗcomᚋriviatechsᚋmt940_serverᚋmodelsᚐSlInput(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -4133,7 +4132,7 @@ func (ec *executionContext) unmarshalInputCustStmtMsgInput(ctx context.Context, 
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("cb"))
-			it.Cb, err = ec.unmarshalNTransInput2ᚖgithubᚗcomᚋriviatechsᚋmt940_serverᚐTransInput(ctx, v)
+			it.Cb, err = ec.unmarshalNTransInput2ᚖgithubᚗcomᚋriviatechsᚋmt940_serverᚋmodelsᚐTransInput(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -4141,7 +4140,7 @@ func (ec *executionContext) unmarshalInputCustStmtMsgInput(ctx context.Context, 
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("cab"))
-			it.Cab, err = ec.unmarshalOTransInput2ᚖgithubᚗcomᚋriviatechsᚋmt940_serverᚐTransInput(ctx, v)
+			it.Cab, err = ec.unmarshalOTransInput2ᚖgithubᚗcomᚋriviatechsᚋmt940_serverᚋmodelsᚐTransInput(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -4149,7 +4148,7 @@ func (ec *executionContext) unmarshalInputCustStmtMsgInput(ctx context.Context, 
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("fwab"))
-			it.Fwab, err = ec.unmarshalOTransInput2ᚕᚖgithubᚗcomᚋriviatechsᚋmt940_serverᚐTransInput(ctx, v)
+			it.Fwab, err = ec.unmarshalOTransInput2ᚕᚖgithubᚗcomᚋriviatechsᚋmt940_serverᚋmodelsᚐTransInput(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -4167,8 +4166,8 @@ func (ec *executionContext) unmarshalInputCustStmtMsgInput(ctx context.Context, 
 	return it, nil
 }
 
-func (ec *executionContext) unmarshalInputSlInput(ctx context.Context, obj interface{}) (main.SlInput, error) {
-	var it main.SlInput
+func (ec *executionContext) unmarshalInputSlInput(ctx context.Context, obj interface{}) (models.SlInput, error) {
+	var it models.SlInput
 	asMap := map[string]interface{}{}
 	for k, v := range obj.(map[string]interface{}) {
 		asMap[k] = v
@@ -4270,8 +4269,8 @@ func (ec *executionContext) unmarshalInputSlInput(ctx context.Context, obj inter
 	return it, nil
 }
 
-func (ec *executionContext) unmarshalInputTransInput(ctx context.Context, obj interface{}) (main.TransInput, error) {
-	var it main.TransInput
+func (ec *executionContext) unmarshalInputTransInput(ctx context.Context, obj interface{}) (models.TransInput, error) {
+	var it models.TransInput
 	asMap := map[string]interface{}{}
 	for k, v := range obj.(map[string]interface{}) {
 		asMap[k] = v
@@ -5586,7 +5585,7 @@ func (ec *executionContext) marshalNAi2githubᚗcomᚋriviatechsᚋmt940_server�
 	return ec._Ai(ctx, sel, &v)
 }
 
-func (ec *executionContext) unmarshalNAiInput2ᚖgithubᚗcomᚋriviatechsᚋmt940_serverᚐAiInput(ctx context.Context, v interface{}) (*main.AiInput, error) {
+func (ec *executionContext) unmarshalNAiInput2ᚖgithubᚗcomᚋriviatechsᚋmt940_serverᚋmodelsᚐAiInput(ctx context.Context, v interface{}) (*models.AiInput, error) {
 	res, err := ec.unmarshalInputAiInput(ctx, v)
 	return &res, graphql.ErrorOnPath(ctx, err)
 }
@@ -5659,7 +5658,7 @@ func (ec *executionContext) marshalNString2string(ctx context.Context, sel ast.S
 	return res
 }
 
-func (ec *executionContext) unmarshalNTransInput2ᚖgithubᚗcomᚋriviatechsᚋmt940_serverᚐTransInput(ctx context.Context, v interface{}) (*main.TransInput, error) {
+func (ec *executionContext) unmarshalNTransInput2ᚖgithubᚗcomᚋriviatechsᚋmt940_serverᚋmodelsᚐTransInput(ctx context.Context, v interface{}) (*models.TransInput, error) {
 	res, err := ec.unmarshalInputTransInput(ctx, v)
 	return &res, graphql.ErrorOnPath(ctx, err)
 }
@@ -5957,7 +5956,7 @@ func (ec *executionContext) marshalOCustStmtMsg2ᚖgithubᚗcomᚋriviatechsᚋm
 	return ec._CustStmtMsg(ctx, sel, v)
 }
 
-func (ec *executionContext) unmarshalOCustStmtMsgInput2ᚖgithubᚗcomᚋriviatechsᚋmt940_serverᚐCustStmtMsgInput(ctx context.Context, v interface{}) (*main.CustStmtMsgInput, error) {
+func (ec *executionContext) unmarshalOCustStmtMsgInput2ᚖgithubᚗcomᚋriviatechsᚋmt940_serverᚋmodelsᚐCustStmtMsgInput(ctx context.Context, v interface{}) (*models.CustStmtMsgInput, error) {
 	if v == nil {
 		return nil, nil
 	}
@@ -6077,7 +6076,7 @@ func (ec *executionContext) marshalOSl2ᚖgithubᚗcomᚋriviatechsᚋmt940_serv
 	return ec._Sl(ctx, sel, v)
 }
 
-func (ec *executionContext) unmarshalOSlInput2ᚕᚖgithubᚗcomᚋriviatechsᚋmt940_serverᚐSlInput(ctx context.Context, v interface{}) ([]*main.SlInput, error) {
+func (ec *executionContext) unmarshalOSlInput2ᚕᚖgithubᚗcomᚋriviatechsᚋmt940_serverᚋmodelsᚐSlInput(ctx context.Context, v interface{}) ([]*models.SlInput, error) {
 	if v == nil {
 		return nil, nil
 	}
@@ -6086,10 +6085,10 @@ func (ec *executionContext) unmarshalOSlInput2ᚕᚖgithubᚗcomᚋriviatechsᚋ
 		vSlice = graphql.CoerceList(v)
 	}
 	var err error
-	res := make([]*main.SlInput, len(vSlice))
+	res := make([]*models.SlInput, len(vSlice))
 	for i := range vSlice {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithIndex(i))
-		res[i], err = ec.unmarshalOSlInput2ᚖgithubᚗcomᚋriviatechsᚋmt940_serverᚐSlInput(ctx, vSlice[i])
+		res[i], err = ec.unmarshalOSlInput2ᚖgithubᚗcomᚋriviatechsᚋmt940_serverᚋmodelsᚐSlInput(ctx, vSlice[i])
 		if err != nil {
 			return nil, err
 		}
@@ -6097,7 +6096,7 @@ func (ec *executionContext) unmarshalOSlInput2ᚕᚖgithubᚗcomᚋriviatechsᚋ
 	return res, nil
 }
 
-func (ec *executionContext) unmarshalOSlInput2ᚖgithubᚗcomᚋriviatechsᚋmt940_serverᚐSlInput(ctx context.Context, v interface{}) (*main.SlInput, error) {
+func (ec *executionContext) unmarshalOSlInput2ᚖgithubᚗcomᚋriviatechsᚋmt940_serverᚋmodelsᚐSlInput(ctx context.Context, v interface{}) (*models.SlInput, error) {
 	if v == nil {
 		return nil, nil
 	}
@@ -6169,7 +6168,7 @@ func (ec *executionContext) marshalOString2ᚖstring(ctx context.Context, sel as
 	return res
 }
 
-func (ec *executionContext) unmarshalOTransInput2ᚕᚖgithubᚗcomᚋriviatechsᚋmt940_serverᚐTransInput(ctx context.Context, v interface{}) ([]*main.TransInput, error) {
+func (ec *executionContext) unmarshalOTransInput2ᚕᚖgithubᚗcomᚋriviatechsᚋmt940_serverᚋmodelsᚐTransInput(ctx context.Context, v interface{}) ([]*models.TransInput, error) {
 	if v == nil {
 		return nil, nil
 	}
@@ -6178,10 +6177,10 @@ func (ec *executionContext) unmarshalOTransInput2ᚕᚖgithubᚗcomᚋriviatechs
 		vSlice = graphql.CoerceList(v)
 	}
 	var err error
-	res := make([]*main.TransInput, len(vSlice))
+	res := make([]*models.TransInput, len(vSlice))
 	for i := range vSlice {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithIndex(i))
-		res[i], err = ec.unmarshalOTransInput2ᚖgithubᚗcomᚋriviatechsᚋmt940_serverᚐTransInput(ctx, vSlice[i])
+		res[i], err = ec.unmarshalOTransInput2ᚖgithubᚗcomᚋriviatechsᚋmt940_serverᚋmodelsᚐTransInput(ctx, vSlice[i])
 		if err != nil {
 			return nil, err
 		}
@@ -6189,7 +6188,7 @@ func (ec *executionContext) unmarshalOTransInput2ᚕᚖgithubᚗcomᚋriviatechs
 	return res, nil
 }
 
-func (ec *executionContext) unmarshalOTransInput2ᚖgithubᚗcomᚋriviatechsᚋmt940_serverᚐTransInput(ctx context.Context, v interface{}) (*main.TransInput, error) {
+func (ec *executionContext) unmarshalOTransInput2ᚖgithubᚗcomᚋriviatechsᚋmt940_serverᚋmodelsᚐTransInput(ctx context.Context, v interface{}) (*models.TransInput, error) {
 	if v == nil {
 		return nil, nil
 	}
