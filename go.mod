@@ -1,4 +1,4 @@
-module github.com/riviatechs/mt940-server
+module github.com/riviatechs/mt940_server
 
 go 1.17
 

@@ -4,7 +4,7 @@ package graph
 // will be copied through when generating and any unknown code will be moved to the end.
 
 import (
-	"github.com/riviatechs/mt940-server/graph/generated"
+	"github.com/riviatechs/mt940_server/graph/generated"
 )
 
 // Mutation returns generated.MutationResolver implementation.

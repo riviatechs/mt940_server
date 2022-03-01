@@ -1,7 +1,7 @@
 package model
 
 import (
-	"github.com/riviatechs/mt940-server/util"
+	"github.com/riviatechs/mt940_server/util"
 	"gorm.io/gorm"
 )
 

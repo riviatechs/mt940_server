@@ -7,8 +7,8 @@ import (
 
 	"github.com/99designs/gqlgen/graphql/handler"
 	"github.com/99designs/gqlgen/graphql/playground"
-	"github.com/riviatechs/mt940-server/graph"
-	"github.com/riviatechs/mt940-server/graph/generated"
+	"github.com/riviatechs/mt940_server/graph"
+	"github.com/riviatechs/mt940_server/graph/generated"
 )
 
 const defaultPort = "8080"

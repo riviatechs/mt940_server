@@ -1,5 +1,5 @@
 type Fwab
-  @goModel(model: "github.com/riviatechs/mt940-server/graph/model.Fwab") {
+  @goModel(model: "github.com/riviatechs/mt940_server/graph/model.Fwab") {
   id: Int! @goField(name: "ID")
 
   custStmtMsgID: String! @goField(name: "CustStmtMsgID")

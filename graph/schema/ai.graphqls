@@ -1,7 +1,7 @@
 """
 Account Identification
 """
-type Ai @goModel(model: "github.com/riviatechs/mt940-server/graph/model.Ai") {
+type Ai @goModel(model: "github.com/riviatechs/mt940_server/graph/model.Ai") {
   id: Int! @goField(name: "ID")
 
   """
