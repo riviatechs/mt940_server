@@ -1,7 +1,8 @@
 """
 Customer Statement Message
 """
-type CustStmtMsg @goModel(model: "github.com/riviatechs/mt940_server/models.CustStmtMsg"){
+type CustStmtMsg
+  @goModel(model: "github.com/riviatechs/mt940_server/models.CustStmtMsg") {
   id: Int @goField(name: "ID")
 
   """
@@ -65,15 +66,18 @@ type CustStmtMsg @goModel(model: "github.com/riviatechs/mt940_server/models.Cust
   iao: String @goField(name: "Iao") @goField(name: "Iao")
 }
 
-input CustStmtMsgInput {
-  trn: String!
-  rr: String
-  ai: AiInput!
-  sn: String!
-  ob: TransInput!
-  sl: [SlInput]
-  cb: TransInput!
-  cab: TransInput
-  fwab: [TransInput]
-  iao: String
+input CustStmtMsgInput
+  @goModel(
+    model: "github.com/riviatechs/mt940_server/models.CustStmtMsgInput"
+  ) {
+  trn: String! @goField(name: "Trn")
+  rr: String @goField(name: "Rr")
+  ai: AiInput! @goField(name: "Ai")
+  sn: String! @goField(name: "Sn")
+  ob: TransInput! @goField(name: "Ob")
+  sl: [SlInput] @goField(name: "Sl", forceResolver: true)
+  cb: TransInput! @goField(name: "Cb")
+  cab: TransInput @goField(name: "Cab")
+  fwab: [TransInput] @goField(name: "Fwab", forceResolver: true)
+  iao: String @goField(name: "Iao") @goField(name: "Iao")
 }

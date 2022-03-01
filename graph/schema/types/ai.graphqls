@@ -15,7 +15,8 @@ type Ai @goModel(model: "github.com/riviatechs/mt940_server/models.Ai") {
   ic: String @goField(name: "Ic")
 }
 
-input AiInput {
-  account: String!
-  ic: String
+input AiInput
+  @goModel(model: "github.com/riviatechs/mt940_server/models.AiInput") {
+  account: String! @goField(name: "Account")
+  ic: String @goField(name: "Ic")
 }

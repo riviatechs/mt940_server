@@ -1,0 +1,8 @@
+input TransInput
+  @goModel(model: "github.com/riviatechs/mt940_server/models.TransInput") {
+  custStmtMsgID: String! @goField(name: "CustStmtMsgID")
+  mark: String! @goField(name: "Mark")
+  dateY: String! @goField(name: "DateY")
+  currency: String! @goField(name: "Currency")
+  amount: Float! @goField(name: "Amount")
+}

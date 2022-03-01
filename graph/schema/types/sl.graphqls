@@ -77,16 +77,17 @@ type Sl @goModel(model: "github.com/riviatechs/mt940_server/models.Sl") {
   iao: String @goField(name: "Iao")
 }
 
-input SlInput {
-  custStmtMsgID: String!
-  valueDate: String
-  entryDate: String
-  mark: String!
-  fundsCode: String
-  amount: Float!
-  ttic: String
-  refOwner: String
-  refAsi: String
-  supp: String
-  iao: String
+input SlInput
+  @goModel(model: "github.com/riviatechs/mt940_server/models.SlInput") {
+  custStmtMsgID: String! @goField(name: "CustStmtMsgID")
+  valueDate: String @goField(name: "ValueDate")
+  entryDate: String @goField(name: "EntryDate")
+  mark: String! @goField(name: "Mark")
+  fundsCode: String @goField(name: "FundsCode")
+  amount: Float! @goField(name: "Amount")
+  ttic: String @goField(name: "Ttic")
+  refOwner: String @goField(name: "RefOwner")
+  refAsi: String @goField(name: "RefAsi")
+  supp: String @goField(name: "Supp")
+  iao: String @goField(name: "Iao")
 }

@@ -51,7 +51,7 @@ func (r *fwabResolver) Amount(ctx context.Context, obj *models.Fwab) (float64, e
 	panic("not implemented")
 }
 
-func (r *mutationResolver) CreateCustStmtMsg(ctx context.Context, input *models.CustStmtMsgInput) (*int, error) {
+func (r *mutationResolver) CreateCustStmtMsg(ctx context.Context, input models.CustStmtMsgInput) (*int, error) {
 	panic("not implemented")
 }
 

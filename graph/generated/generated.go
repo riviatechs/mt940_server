@@ -44,6 +44,8 @@ type ResolverRoot interface {
 	Ob() ObResolver
 	Query() QueryResolver
 	Sl() SlResolver
+	CustStmtMsgInput() CustStmtMsgInputResolver
+	SlInput() SlInputResolver
 }
 
 type DirectiveRoot struct {
@@ -98,7 +100,7 @@ type ComplexityRoot struct {
 	}
 
 	Mutation struct {
-		CreateCustStmtMsg func(childComplexity int, input *models.CustStmtMsgInput) int
+		CreateCustStmtMsg func(childComplexity int, input models.CustStmtMsgInput) int
 	}
 
 	Ob struct {
@@ -156,7 +158,7 @@ type FwabResolver interface {
 	Amount(ctx context.Context, obj *models.Fwab) (float64, error)
 }
 type MutationResolver interface {
-	CreateCustStmtMsg(ctx context.Context, input *models.CustStmtMsgInput) (*int, error)
+	CreateCustStmtMsg(ctx context.Context, input models.CustStmtMsgInput) (*int, error)
 }
 type ObResolver interface {
 	ID(ctx context.Context, obj *models.Ob) (int, error)
@@ -170,6 +172,15 @@ type SlResolver interface {
 	ID(ctx context.Context, obj *models.Sl) (*int, error)
 
 	Amount(ctx context.Context, obj *models.Sl) (float64, error)
+}
+
+type CustStmtMsgInputResolver interface {
+	Sl(ctx context.Context, obj *models.CustStmtMsgInput, data []*models.SlInput) error
+
+	Fwab(ctx context.Context, obj *models.CustStmtMsgInput, data []*models.TransInput) error
+}
+type SlInputResolver interface {
+	Amount(ctx context.Context, obj *models.SlInput, data float64) error
 }
 
 type executableSchema struct {
@@ -421,7 +432,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Mutation.CreateCustStmtMsg(childComplexity, args["input"].(*models.CustStmtMsgInput)), true
+		return e.complexity.Mutation.CreateCustStmtMsg(childComplexity, args["input"].(models.CustStmtMsgInput)), true
 
 	case "Ob.amount":
 		if e.complexity.Ob.Amount == nil {
@@ -641,8 +652,9 @@ directive @goTag(
 ) on INPUT_FIELD_DEFINITION | FIELD_DEFINITION
 `, BuiltIn: false},
 	{Name: "graph/schema/mutation.graphqls", Input: `type Mutation {
-  createCustStmtMsg(input: CustStmtMsgInput): Int
-}`, BuiltIn: false},
+  createCustStmtMsg(input: CustStmtMsgInput!): Int
+}
+`, BuiltIn: false},
 	{Name: "graph/schema/query.graphqls", Input: `type Query {
   custStmtMsg(id: Int!): CustStmtMsg
 }`, BuiltIn: false},
@@ -671,12 +683,13 @@ type Ai @goModel(model: "github.com/riviatechs/mt940_server/models.Ai") {
   ic: String @goField(name: "Ic")
 }
 
-input AiInput {
-  account: String!
-  ic: String
+input AiInput
+  @goModel(model: "github.com/riviatechs/mt940_server/models.AiInput") {
+  account: String! @goField(name: "Account")
+  ic: String @goField(name: "Ic")
 }
 `, BuiltIn: false},
-	{Name: "graph/schema/types/cab.graphqls", Input: `type Cab @goModel(model: "github.com/riviatechs/mt940_server/models.Cab"){
+	{Name: "graph/schema/types/cab.graphqls", Input: `type Cab @goModel(model: "github.com/riviatechs/mt940_server/models.Cab") {
   id: Int! @goField(name: "ID")
 
   custStmtMsgID: String! @goField(name: "CustStmtMsgID")
@@ -737,7 +750,8 @@ input AiInput {
 	{Name: "graph/schema/types/cus_stmt_msg.graphqls", Input: `"""
 Customer Statement Message
 """
-type CustStmtMsg @goModel(model: "github.com/riviatechs/mt940_server/models.CustStmtMsg"){
+type CustStmtMsg
+  @goModel(model: "github.com/riviatechs/mt940_server/models.CustStmtMsg") {
   id: Int @goField(name: "ID")
 
   """
@@ -801,17 +815,20 @@ type CustStmtMsg @goModel(model: "github.com/riviatechs/mt940_server/models.Cust
   iao: String @goField(name: "Iao") @goField(name: "Iao")
 }
 
-input CustStmtMsgInput {
-  trn: String!
-  rr: String
-  ai: AiInput!
-  sn: String!
-  ob: TransInput!
-  sl: [SlInput]
-  cb: TransInput!
-  cab: TransInput
-  fwab: [TransInput]
-  iao: String
+input CustStmtMsgInput
+  @goModel(
+    model: "github.com/riviatechs/mt940_server/models.CustStmtMsgInput"
+  ) {
+  trn: String! @goField(name: "Trn")
+  rr: String @goField(name: "Rr")
+  ai: AiInput! @goField(name: "Ai")
+  sn: String! @goField(name: "Sn")
+  ob: TransInput! @goField(name: "Ob")
+  sl: [SlInput] @goField(name: "Sl", forceResolver: true)
+  cb: TransInput! @goField(name: "Cb")
+  cab: TransInput @goField(name: "Cab")
+  fwab: [TransInput] @goField(name: "Fwab", forceResolver: true)
+  iao: String @goField(name: "Iao") @goField(name: "Iao")
 }
 `, BuiltIn: false},
 	{Name: "graph/schema/types/fwab.graphqls", Input: `type Fwab @goModel(model: "github.com/riviatechs/mt940_server/models.Fwab") {
@@ -951,26 +968,28 @@ type Sl @goModel(model: "github.com/riviatechs/mt940_server/models.Sl") {
   iao: String @goField(name: "Iao")
 }
 
-input SlInput {
-  custStmtMsgID: String!
-  valueDate: String
-  entryDate: String
-  mark: String!
-  fundsCode: String
-  amount: Float!
-  ttic: String
-  refOwner: String
-  refAsi: String
-  supp: String
-  iao: String
+input SlInput
+  @goModel(model: "github.com/riviatechs/mt940_server/models.SlInput") {
+  custStmtMsgID: String! @goField(name: "CustStmtMsgID")
+  valueDate: String @goField(name: "ValueDate")
+  entryDate: String @goField(name: "EntryDate")
+  mark: String! @goField(name: "Mark")
+  fundsCode: String @goField(name: "FundsCode")
+  amount: Float! @goField(name: "Amount")
+  ttic: String @goField(name: "Ttic")
+  refOwner: String @goField(name: "RefOwner")
+  refAsi: String @goField(name: "RefAsi")
+  supp: String @goField(name: "Supp")
+  iao: String @goField(name: "Iao")
 }
 `, BuiltIn: false},
-	{Name: "graph/schema/types/trans.graphqls", Input: `input TransInput {
-  custStmtMsgID: String!
-  mark: String!
-  dateY: String!
-  currency: String!
-  amount: Float!
+	{Name: "graph/schema/types/trans_input.graphqls", Input: `input TransInput
+  @goModel(model: "github.com/riviatechs/mt940_server/models.TransInput") {
+  custStmtMsgID: String! @goField(name: "CustStmtMsgID")
+  mark: String! @goField(name: "Mark")
+  dateY: String! @goField(name: "DateY")
+  currency: String! @goField(name: "Currency")
+  amount: Float! @goField(name: "Amount")
 }
 `, BuiltIn: false},
 }
@@ -983,10 +1002,10 @@ var parsedSchema = gqlparser.MustLoadSchema(sources...)
 func (ec *executionContext) field_Mutation_createCustStmtMsg_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
-	var arg0 *models.CustStmtMsgInput
+	var arg0 models.CustStmtMsgInput
 	if tmp, ok := rawArgs["input"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
-		arg0, err = ec.unmarshalOCustStmtMsgInput2ᚖgithubᚗcomᚋriviatechsᚋmt940_serverᚋmodelsᚐCustStmtMsgInput(ctx, tmp)
+		arg0, err = ec.unmarshalNCustStmtMsgInput2githubᚗcomᚋriviatechsᚋmt940_serverᚋmodelsᚐCustStmtMsgInput(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -2187,7 +2206,7 @@ func (ec *executionContext) _Mutation_createCustStmtMsg(ctx context.Context, fie
 	fc.Args = args
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().CreateCustStmtMsg(rctx, args["input"].(*models.CustStmtMsgInput))
+		return ec.resolvers.Mutation().CreateCustStmtMsg(rctx, args["input"].(models.CustStmtMsgInput))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -4096,7 +4115,7 @@ func (ec *executionContext) unmarshalInputCustStmtMsgInput(ctx context.Context, 
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("ai"))
-			it.Ai, err = ec.unmarshalNAiInput2ᚖgithubᚗcomᚋriviatechsᚋmt940_serverᚋmodelsᚐAiInput(ctx, v)
+			it.Ai, err = ec.unmarshalNAiInput2githubᚗcomᚋriviatechsᚋmt940_serverᚋmodelsᚐAiInput(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -4112,7 +4131,7 @@ func (ec *executionContext) unmarshalInputCustStmtMsgInput(ctx context.Context, 
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("ob"))
-			it.Ob, err = ec.unmarshalNTransInput2ᚖgithubᚗcomᚋriviatechsᚋmt940_serverᚋmodelsᚐTransInput(ctx, v)
+			it.Ob, err = ec.unmarshalNTransInput2githubᚗcomᚋriviatechsᚋmt940_serverᚋmodelsᚐTransInput(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -4120,15 +4139,18 @@ func (ec *executionContext) unmarshalInputCustStmtMsgInput(ctx context.Context, 
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("sl"))
-			it.Sl, err = ec.unmarshalOSlInput2ᚕᚖgithubᚗcomᚋriviatechsᚋmt940_serverᚋmodelsᚐSlInput(ctx, v)
+			data, err := ec.unmarshalOSlInput2ᚕᚖgithubᚗcomᚋriviatechsᚋmt940_serverᚋmodelsᚐSlInput(ctx, v)
 			if err != nil {
+				return it, err
+			}
+			if err = ec.resolvers.CustStmtMsgInput().Sl(ctx, &it, data); err != nil {
 				return it, err
 			}
 		case "cb":
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("cb"))
-			it.Cb, err = ec.unmarshalNTransInput2ᚖgithubᚗcomᚋriviatechsᚋmt940_serverᚋmodelsᚐTransInput(ctx, v)
+			it.Cb, err = ec.unmarshalNTransInput2githubᚗcomᚋriviatechsᚋmt940_serverᚋmodelsᚐTransInput(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -4144,8 +4166,11 @@ func (ec *executionContext) unmarshalInputCustStmtMsgInput(ctx context.Context, 
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("fwab"))
-			it.Fwab, err = ec.unmarshalOTransInput2ᚕᚖgithubᚗcomᚋriviatechsᚋmt940_serverᚋmodelsᚐTransInput(ctx, v)
+			data, err := ec.unmarshalOTransInput2ᚕᚖgithubᚗcomᚋriviatechsᚋmt940_serverᚋmodelsᚐTransInput(ctx, v)
 			if err != nil {
+				return it, err
+			}
+			if err = ec.resolvers.CustStmtMsgInput().Fwab(ctx, &it, data); err != nil {
 				return it, err
 			}
 		case "iao":
@@ -4215,8 +4240,11 @@ func (ec *executionContext) unmarshalInputSlInput(ctx context.Context, obj inter
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("amount"))
-			it.Amount, err = ec.unmarshalNFloat2float64(ctx, v)
+			data, err := ec.unmarshalNFloat2float64(ctx, v)
 			if err != nil {
+				return it, err
+			}
+			if err = ec.resolvers.SlInput().Amount(ctx, &it, data); err != nil {
 				return it, err
 			}
 		case "ttic":
@@ -5581,9 +5609,9 @@ func (ec *executionContext) marshalNAi2githubᚗcomᚋriviatechsᚋmt940_server�
 	return ec._Ai(ctx, sel, &v)
 }
 
-func (ec *executionContext) unmarshalNAiInput2ᚖgithubᚗcomᚋriviatechsᚋmt940_serverᚋmodelsᚐAiInput(ctx context.Context, v interface{}) (*models.AiInput, error) {
+func (ec *executionContext) unmarshalNAiInput2githubᚗcomᚋriviatechsᚋmt940_serverᚋmodelsᚐAiInput(ctx context.Context, v interface{}) (models.AiInput, error) {
 	res, err := ec.unmarshalInputAiInput(ctx, v)
-	return &res, graphql.ErrorOnPath(ctx, err)
+	return res, graphql.ErrorOnPath(ctx, err)
 }
 
 func (ec *executionContext) unmarshalNBoolean2bool(ctx context.Context, v interface{}) (bool, error) {
@@ -5603,6 +5631,11 @@ func (ec *executionContext) marshalNBoolean2bool(ctx context.Context, sel ast.Se
 
 func (ec *executionContext) marshalNCb2githubᚗcomᚋriviatechsᚋmt940_serverᚋmodelsᚐCb(ctx context.Context, sel ast.SelectionSet, v models.Cb) graphql.Marshaler {
 	return ec._Cb(ctx, sel, &v)
+}
+
+func (ec *executionContext) unmarshalNCustStmtMsgInput2githubᚗcomᚋriviatechsᚋmt940_serverᚋmodelsᚐCustStmtMsgInput(ctx context.Context, v interface{}) (models.CustStmtMsgInput, error) {
+	res, err := ec.unmarshalInputCustStmtMsgInput(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
 }
 
 func (ec *executionContext) unmarshalNFloat2float64(ctx context.Context, v interface{}) (float64, error) {
@@ -5654,9 +5687,9 @@ func (ec *executionContext) marshalNString2string(ctx context.Context, sel ast.S
 	return res
 }
 
-func (ec *executionContext) unmarshalNTransInput2ᚖgithubᚗcomᚋriviatechsᚋmt940_serverᚋmodelsᚐTransInput(ctx context.Context, v interface{}) (*models.TransInput, error) {
+func (ec *executionContext) unmarshalNTransInput2githubᚗcomᚋriviatechsᚋmt940_serverᚋmodelsᚐTransInput(ctx context.Context, v interface{}) (models.TransInput, error) {
 	res, err := ec.unmarshalInputTransInput(ctx, v)
-	return &res, graphql.ErrorOnPath(ctx, err)
+	return res, graphql.ErrorOnPath(ctx, err)
 }
 
 func (ec *executionContext) marshalN__Directive2githubᚗcomᚋ99designsᚋgqlgenᚋgraphqlᚋintrospectionᚐDirective(ctx context.Context, sel ast.SelectionSet, v introspection.Directive) graphql.Marshaler {
@@ -5950,14 +5983,6 @@ func (ec *executionContext) marshalOCustStmtMsg2ᚖgithubᚗcomᚋriviatechsᚋm
 		return graphql.Null
 	}
 	return ec._CustStmtMsg(ctx, sel, v)
-}
-
-func (ec *executionContext) unmarshalOCustStmtMsgInput2ᚖgithubᚗcomᚋriviatechsᚋmt940_serverᚋmodelsᚐCustStmtMsgInput(ctx context.Context, v interface{}) (*models.CustStmtMsgInput, error) {
-	if v == nil {
-		return nil, nil
-	}
-	res, err := ec.unmarshalInputCustStmtMsgInput(ctx, v)
-	return &res, graphql.ErrorOnPath(ctx, err)
 }
 
 func (ec *executionContext) marshalOFwab2ᚕᚖgithubᚗcomᚋriviatechsᚋmt940_serverᚋmodelsᚐFwab(ctx context.Context, sel ast.SelectionSet, v []*models.Fwab) graphql.Marshaler {
