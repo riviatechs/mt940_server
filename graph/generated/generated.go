@@ -625,6 +625,35 @@ func (ec *executionContext) introspectType(name string) (*introspection.Type, er
 }
 
 var sources = []*ast.Source{
+	{Name: "graph/schema/directives.graphqls", Input: `directive @goModel(
+  model: String
+  models: [String!]
+) on OBJECT | INPUT_OBJECT | SCALAR | ENUM | INTERFACE | UNION
+
+directive @goField(
+  forceResolver: Boolean
+  name: String
+) on INPUT_FIELD_DEFINITION | FIELD_DEFINITION
+
+directive @goTag(
+  key: String!
+  value: String
+) on INPUT_FIELD_DEFINITION | FIELD_DEFINITION
+`, BuiltIn: false},
+	{Name: "graph/schema/mutation.graphqls", Input: `type Mutation {
+  createCustStmtMsg(input: CustStmtMsgInput): Int
+}`, BuiltIn: false},
+	{Name: "graph/schema/query.graphqls", Input: `type Query {
+  custStmtMsg(id: Int!): CustStmtMsg
+}`, BuiltIn: false},
+	{Name: "graph/schema/schema.graphqls", Input: `# GraphQL schema example
+#
+# https://gqlgen.com/getting-started/
+
+schema {
+  query: Query
+  mutation: Mutation
+}`, BuiltIn: false},
 	{Name: "graph/schema/types/ai.graphqls", Input: `"""
 Account Identification
 """
@@ -785,21 +814,6 @@ input CustStmtMsgInput {
   iao: String
 }
 `, BuiltIn: false},
-	{Name: "graph/schema/types/directives.graphqls", Input: `directive @goModel(
-  model: String
-  models: [String!]
-) on OBJECT | INPUT_OBJECT | SCALAR | ENUM | INTERFACE | UNION
-
-directive @goField(
-  forceResolver: Boolean
-  name: String
-) on INPUT_FIELD_DEFINITION | FIELD_DEFINITION
-
-directive @goTag(
-  key: String!
-  value: String
-) on INPUT_FIELD_DEFINITION | FIELD_DEFINITION
-`, BuiltIn: false},
 	{Name: "graph/schema/types/fwab.graphqls", Input: `type Fwab @goModel(model: "github.com/riviatechs/mt940_server/models.Fwab") {
   id: Int! @goField(name: "ID")
 
@@ -829,9 +843,6 @@ directive @goTag(
   amount: Float! @goField(name: "Amount")
 }
 `, BuiltIn: false},
-	{Name: "graph/schema/types/mutation.graphqls", Input: `type Mutation {
-  createCustStmtMsg(input: CustStmtMsgInput): Int
-}`, BuiltIn: false},
 	{Name: "graph/schema/types/ob.graphqls", Input: `type Ob @goModel(model: "github.com/riviatechs/mt940_server/models.Ob") {
   id: Int! @goField(name: "ID")
 
@@ -861,17 +872,6 @@ directive @goTag(
   amount: Float! @goField(name: "Amount")
 }
 `, BuiltIn: false},
-	{Name: "graph/schema/types/query.graphqls", Input: `type Query {
-  custStmtMsg(id: Int!): CustStmtMsg
-}`, BuiltIn: false},
-	{Name: "graph/schema/types/schema.graphqls", Input: `# GraphQL schema example
-#
-# https://gqlgen.com/getting-started/
-
-schema {
-  query: Query
-  mutation: Mutation
-}`, BuiltIn: false},
 	{Name: "graph/schema/types/sl.graphqls", Input: `"""
 Statement Line and Information to Account Owner
 """
