@@ -2,6 +2,11 @@
 #
 # https://gqlgen.com/getting-started/
 
+schema {
+  query: Query
+  mutation: Mutation
+}
+
 type Query {
   custStmtMsg(id: Int!): CustStmtMsg
 }

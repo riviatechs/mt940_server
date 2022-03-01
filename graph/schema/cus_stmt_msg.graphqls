@@ -2,9 +2,7 @@
 Customer Statement Message
 """
 type CustStmtMsg
-  @goModel(
-    model: "github.com/riviatechs/mt940_server/graph/model.CustStmtMsg"
-  ) {
+  @goModel(model: "github.com/riviatechs/mt940_server/models.CustStmtMsg") {
   id: Int @goField(name: "ID")
 
   """

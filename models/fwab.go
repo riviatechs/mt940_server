@@ -1,12 +1,12 @@
-package model
+package models
 
 import "github.com/riviatechs/mt940_server/util"
 
-type Ob struct {
+type Fwab struct {
 	CustStmtMsgID string `gorm:"column:cus_stmt_msg"`
 	Transaction
 }
 
-func (Ob) TableName() string {
-	return util.ObTable
+func (Fwab) TableName() string {
+	return util.FwabTable
 }

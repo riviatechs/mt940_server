@@ -4,5 +4,8 @@
         "fwab",
         "riviatechs",
         "ttic"
-    ]
+    ],
+    "[graphql]": {
+        "editor.formatOnSave": true
+    }
 }

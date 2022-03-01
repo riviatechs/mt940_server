@@ -1,4 +1,4 @@
-type Cab @goModel(model: "github.com/riviatechs/mt940_server/graph/model.Cab") {
+type Cab @goModel(model: "github.com/riviatechs/mt940_server/models.Cab"){
   id: Int! @goField(name: "ID")
 
   custStmtMsgID: String! @goField(name: "CustStmtMsgID")

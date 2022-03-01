@@ -12,7 +12,8 @@ import (
 
 	"github.com/99designs/gqlgen/graphql"
 	"github.com/99designs/gqlgen/graphql/introspection"
-	"github.com/riviatechs/mt940_server/graph/model"
+	main "github.com/riviatechs/mt940_server"
+	"github.com/riviatechs/mt940_server/models"
 	gqlparser "github.com/vektah/gqlparser/v2"
 	"github.com/vektah/gqlparser/v2/ast"
 )
@@ -98,7 +99,7 @@ type ComplexityRoot struct {
 	}
 
 	Mutation struct {
-		CreateCustStmtMsg func(childComplexity int, input *model.CustStmtMsgInput) int
+		CreateCustStmtMsg func(childComplexity int, input *main.CustStmtMsgInput) int
 	}
 
 	Ob struct {
@@ -131,45 +132,45 @@ type ComplexityRoot struct {
 }
 
 type AiResolver interface {
-	ID(ctx context.Context, obj *model.Ai) (int, error)
+	ID(ctx context.Context, obj *models.Ai) (int, error)
 }
 type CabResolver interface {
-	ID(ctx context.Context, obj *model.Cab) (int, error)
+	ID(ctx context.Context, obj *models.Cab) (int, error)
 
-	Amount(ctx context.Context, obj *model.Cab) (float64, error)
+	Amount(ctx context.Context, obj *models.Cab) (float64, error)
 }
 type CbResolver interface {
-	ID(ctx context.Context, obj *model.Cb) (int, error)
+	ID(ctx context.Context, obj *models.Cb) (int, error)
 
-	Amount(ctx context.Context, obj *model.Cb) (float64, error)
+	Amount(ctx context.Context, obj *models.Cb) (float64, error)
 }
 type CustStmtMsgResolver interface {
-	ID(ctx context.Context, obj *model.CustStmtMsg) (*int, error)
+	ID(ctx context.Context, obj *models.CustStmtMsg) (*int, error)
 
-	Sl(ctx context.Context, obj *model.CustStmtMsg) ([]*model.Sl, error)
+	Sl(ctx context.Context, obj *models.CustStmtMsg) ([]*models.Sl, error)
 
-	Fwab(ctx context.Context, obj *model.CustStmtMsg) ([]*model.Fwab, error)
+	Fwab(ctx context.Context, obj *models.CustStmtMsg) ([]*models.Fwab, error)
 }
 type FwabResolver interface {
-	ID(ctx context.Context, obj *model.Fwab) (int, error)
+	ID(ctx context.Context, obj *models.Fwab) (int, error)
 
-	Amount(ctx context.Context, obj *model.Fwab) (float64, error)
+	Amount(ctx context.Context, obj *models.Fwab) (float64, error)
 }
 type MutationResolver interface {
-	CreateCustStmtMsg(ctx context.Context, input *model.CustStmtMsgInput) (*int, error)
+	CreateCustStmtMsg(ctx context.Context, input *main.CustStmtMsgInput) (*int, error)
 }
 type ObResolver interface {
-	ID(ctx context.Context, obj *model.Ob) (int, error)
+	ID(ctx context.Context, obj *models.Ob) (int, error)
 
-	Amount(ctx context.Context, obj *model.Ob) (float64, error)
+	Amount(ctx context.Context, obj *models.Ob) (float64, error)
 }
 type QueryResolver interface {
-	CustStmtMsg(ctx context.Context, id int) (*model.CustStmtMsg, error)
+	CustStmtMsg(ctx context.Context, id int) (*models.CustStmtMsg, error)
 }
 type SlResolver interface {
-	ID(ctx context.Context, obj *model.Sl) (*int, error)
+	ID(ctx context.Context, obj *models.Sl) (*int, error)
 
-	Amount(ctx context.Context, obj *model.Sl) (float64, error)
+	Amount(ctx context.Context, obj *models.Sl) (float64, error)
 }
 
 type executableSchema struct {
@@ -421,7 +422,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Mutation.CreateCustStmtMsg(childComplexity, args["input"].(*model.CustStmtMsgInput)), true
+		return e.complexity.Mutation.CreateCustStmtMsg(childComplexity, args["input"].(*main.CustStmtMsgInput)), true
 
 	case "Ob.amount":
 		if e.complexity.Ob.Amount == nil {
@@ -628,7 +629,7 @@ var sources = []*ast.Source{
 	{Name: "graph/schema/ai.graphqls", Input: `"""
 Account Identification
 """
-type Ai @goModel(model: "github.com/riviatechs/mt940_server/graph/model.Ai") {
+type Ai @goModel(model: "github.com/riviatechs/mt940_server/models.Ai") {
   id: Int! @goField(name: "ID")
 
   """
@@ -647,7 +648,7 @@ input AiInput {
   ic: String
 }
 `, BuiltIn: false},
-	{Name: "graph/schema/cab.graphqls", Input: `type Cab @goModel(model: "github.com/riviatechs/mt940_server/graph/model.Cab") {
+	{Name: "graph/schema/cab.graphqls", Input: `type Cab @goModel(model: "github.com/riviatechs/mt940_server/models.Cab"){
   id: Int! @goField(name: "ID")
 
   custStmtMsgID: String! @goField(name: "CustStmtMsgID")
@@ -676,7 +677,7 @@ input AiInput {
   amount: Float! @goField(name: "Amount")
 }
 `, BuiltIn: false},
-	{Name: "graph/schema/cb.graphqls", Input: `type Cb @goModel(model: "github.com/riviatechs/mt940_server/graph/model.Cb") {
+	{Name: "graph/schema/cb.graphqls", Input: `type Cb @goModel(model: "github.com/riviatechs/mt940_server/models.Cb") {
   id: Int! @goField(name: "ID")
 
   custStmtMsgID: String! @goField(name: "CustStmtMsgID")
@@ -709,9 +710,7 @@ input AiInput {
 Customer Statement Message
 """
 type CustStmtMsg
-  @goModel(
-    model: "github.com/riviatechs/mt940_server/graph/model.CustStmtMsg"
-  ) {
+  @goModel(model: "github.com/riviatechs/mt940_server/models.CustStmtMsg") {
   id: Int @goField(name: "ID")
 
   """
@@ -803,8 +802,7 @@ directive @goTag(
   value: String
 ) on INPUT_FIELD_DEFINITION | FIELD_DEFINITION
 `, BuiltIn: false},
-	{Name: "graph/schema/fwab.graphqls", Input: `type Fwab
-  @goModel(model: "github.com/riviatechs/mt940_server/graph/model.Fwab") {
+	{Name: "graph/schema/fwab.graphqls", Input: `type Fwab @goModel(model: "github.com/riviatechs/mt940_server/models.Fwab") {
   id: Int! @goField(name: "ID")
 
   custStmtMsgID: String! @goField(name: "CustStmtMsgID")
@@ -833,8 +831,8 @@ directive @goTag(
   amount: Float! @goField(name: "Amount")
 }
 `, BuiltIn: false},
-	{Name: "graph/schema/ob.graphqls", Input: `type Ob @goModel(model: "github.com/riviatechs/mt940_server/graph/model.Ob") {
-  id: Int!
+	{Name: "graph/schema/ob.graphqls", Input: `type Ob @goModel(model: "github.com/riviatechs/mt940_server/models.Ob") {
+  id: Int! @goField(name: "ID")
 
   custStmtMsgID: String! @goField(name: "CustStmtMsgID")
 
@@ -866,6 +864,11 @@ directive @goTag(
 #
 # https://gqlgen.com/getting-started/
 
+schema {
+  query: Query
+  mutation: Mutation
+}
+
 type Query {
   custStmtMsg(id: Int!): CustStmtMsg
 }
@@ -877,7 +880,7 @@ type Mutation {
 	{Name: "graph/schema/sl.graphqls", Input: `"""
 Statement Line and Information to Account Owner
 """
-type Sl @goModel(model: "github.com/riviatechs/mt940_server/graph/model.Sl") {
+type Sl @goModel(model: "github.com/riviatechs/mt940_server/models.Sl") {
   id: Int @goField(name: "ID")
 
   custStmtMsgID: String! @goField(name: "CustStmtMsgID")
@@ -985,10 +988,10 @@ var parsedSchema = gqlparser.MustLoadSchema(sources...)
 func (ec *executionContext) field_Mutation_createCustStmtMsg_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
-	var arg0 *model.CustStmtMsgInput
+	var arg0 *main.CustStmtMsgInput
 	if tmp, ok := rawArgs["input"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
-		arg0, err = ec.unmarshalOCustStmtMsgInput2ᚖgithubᚗcomᚋriviatechsᚋmt940_serverᚋgraphᚋmodelᚐCustStmtMsgInput(ctx, tmp)
+		arg0, err = ec.unmarshalOCustStmtMsgInput2ᚖgithubᚗcomᚋriviatechsᚋmt940_serverᚐCustStmtMsgInput(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -1065,7 +1068,7 @@ func (ec *executionContext) field___Type_fields_args(ctx context.Context, rawArg
 
 // region    **************************** field.gotpl *****************************
 
-func (ec *executionContext) _Ai_id(ctx context.Context, field graphql.CollectedField, obj *model.Ai) (ret graphql.Marshaler) {
+func (ec *executionContext) _Ai_id(ctx context.Context, field graphql.CollectedField, obj *models.Ai) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
 			ec.Error(ctx, ec.Recover(ctx, r))
@@ -1100,7 +1103,7 @@ func (ec *executionContext) _Ai_id(ctx context.Context, field graphql.CollectedF
 	return ec.marshalNInt2int(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) _Ai_account(ctx context.Context, field graphql.CollectedField, obj *model.Ai) (ret graphql.Marshaler) {
+func (ec *executionContext) _Ai_account(ctx context.Context, field graphql.CollectedField, obj *models.Ai) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
 			ec.Error(ctx, ec.Recover(ctx, r))
@@ -1135,7 +1138,7 @@ func (ec *executionContext) _Ai_account(ctx context.Context, field graphql.Colle
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) _Ai_ic(ctx context.Context, field graphql.CollectedField, obj *model.Ai) (ret graphql.Marshaler) {
+func (ec *executionContext) _Ai_ic(ctx context.Context, field graphql.CollectedField, obj *models.Ai) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
 			ec.Error(ctx, ec.Recover(ctx, r))
@@ -1167,7 +1170,7 @@ func (ec *executionContext) _Ai_ic(ctx context.Context, field graphql.CollectedF
 	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) _Cab_id(ctx context.Context, field graphql.CollectedField, obj *model.Cab) (ret graphql.Marshaler) {
+func (ec *executionContext) _Cab_id(ctx context.Context, field graphql.CollectedField, obj *models.Cab) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
 			ec.Error(ctx, ec.Recover(ctx, r))
@@ -1202,7 +1205,7 @@ func (ec *executionContext) _Cab_id(ctx context.Context, field graphql.Collected
 	return ec.marshalNInt2int(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) _Cab_custStmtMsgID(ctx context.Context, field graphql.CollectedField, obj *model.Cab) (ret graphql.Marshaler) {
+func (ec *executionContext) _Cab_custStmtMsgID(ctx context.Context, field graphql.CollectedField, obj *models.Cab) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
 			ec.Error(ctx, ec.Recover(ctx, r))
@@ -1237,7 +1240,7 @@ func (ec *executionContext) _Cab_custStmtMsgID(ctx context.Context, field graphq
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) _Cab_mark(ctx context.Context, field graphql.CollectedField, obj *model.Cab) (ret graphql.Marshaler) {
+func (ec *executionContext) _Cab_mark(ctx context.Context, field graphql.CollectedField, obj *models.Cab) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
 			ec.Error(ctx, ec.Recover(ctx, r))
@@ -1272,7 +1275,7 @@ func (ec *executionContext) _Cab_mark(ctx context.Context, field graphql.Collect
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) _Cab_dateY(ctx context.Context, field graphql.CollectedField, obj *model.Cab) (ret graphql.Marshaler) {
+func (ec *executionContext) _Cab_dateY(ctx context.Context, field graphql.CollectedField, obj *models.Cab) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
 			ec.Error(ctx, ec.Recover(ctx, r))
@@ -1307,7 +1310,7 @@ func (ec *executionContext) _Cab_dateY(ctx context.Context, field graphql.Collec
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) _Cab_currency(ctx context.Context, field graphql.CollectedField, obj *model.Cab) (ret graphql.Marshaler) {
+func (ec *executionContext) _Cab_currency(ctx context.Context, field graphql.CollectedField, obj *models.Cab) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
 			ec.Error(ctx, ec.Recover(ctx, r))
@@ -1342,7 +1345,7 @@ func (ec *executionContext) _Cab_currency(ctx context.Context, field graphql.Col
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) _Cab_amount(ctx context.Context, field graphql.CollectedField, obj *model.Cab) (ret graphql.Marshaler) {
+func (ec *executionContext) _Cab_amount(ctx context.Context, field graphql.CollectedField, obj *models.Cab) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
 			ec.Error(ctx, ec.Recover(ctx, r))
@@ -1377,7 +1380,7 @@ func (ec *executionContext) _Cab_amount(ctx context.Context, field graphql.Colle
 	return ec.marshalNFloat2float64(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) _Cb_id(ctx context.Context, field graphql.CollectedField, obj *model.Cb) (ret graphql.Marshaler) {
+func (ec *executionContext) _Cb_id(ctx context.Context, field graphql.CollectedField, obj *models.Cb) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
 			ec.Error(ctx, ec.Recover(ctx, r))
@@ -1412,7 +1415,7 @@ func (ec *executionContext) _Cb_id(ctx context.Context, field graphql.CollectedF
 	return ec.marshalNInt2int(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) _Cb_custStmtMsgID(ctx context.Context, field graphql.CollectedField, obj *model.Cb) (ret graphql.Marshaler) {
+func (ec *executionContext) _Cb_custStmtMsgID(ctx context.Context, field graphql.CollectedField, obj *models.Cb) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
 			ec.Error(ctx, ec.Recover(ctx, r))
@@ -1447,7 +1450,7 @@ func (ec *executionContext) _Cb_custStmtMsgID(ctx context.Context, field graphql
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) _Cb_mark(ctx context.Context, field graphql.CollectedField, obj *model.Cb) (ret graphql.Marshaler) {
+func (ec *executionContext) _Cb_mark(ctx context.Context, field graphql.CollectedField, obj *models.Cb) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
 			ec.Error(ctx, ec.Recover(ctx, r))
@@ -1482,7 +1485,7 @@ func (ec *executionContext) _Cb_mark(ctx context.Context, field graphql.Collecte
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) _Cb_dateY(ctx context.Context, field graphql.CollectedField, obj *model.Cb) (ret graphql.Marshaler) {
+func (ec *executionContext) _Cb_dateY(ctx context.Context, field graphql.CollectedField, obj *models.Cb) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
 			ec.Error(ctx, ec.Recover(ctx, r))
@@ -1517,7 +1520,7 @@ func (ec *executionContext) _Cb_dateY(ctx context.Context, field graphql.Collect
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) _Cb_currency(ctx context.Context, field graphql.CollectedField, obj *model.Cb) (ret graphql.Marshaler) {
+func (ec *executionContext) _Cb_currency(ctx context.Context, field graphql.CollectedField, obj *models.Cb) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
 			ec.Error(ctx, ec.Recover(ctx, r))
@@ -1552,7 +1555,7 @@ func (ec *executionContext) _Cb_currency(ctx context.Context, field graphql.Coll
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) _Cb_amount(ctx context.Context, field graphql.CollectedField, obj *model.Cb) (ret graphql.Marshaler) {
+func (ec *executionContext) _Cb_amount(ctx context.Context, field graphql.CollectedField, obj *models.Cb) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
 			ec.Error(ctx, ec.Recover(ctx, r))
@@ -1587,7 +1590,7 @@ func (ec *executionContext) _Cb_amount(ctx context.Context, field graphql.Collec
 	return ec.marshalNFloat2float64(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) _CustStmtMsg_id(ctx context.Context, field graphql.CollectedField, obj *model.CustStmtMsg) (ret graphql.Marshaler) {
+func (ec *executionContext) _CustStmtMsg_id(ctx context.Context, field graphql.CollectedField, obj *models.CustStmtMsg) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
 			ec.Error(ctx, ec.Recover(ctx, r))
@@ -1619,7 +1622,7 @@ func (ec *executionContext) _CustStmtMsg_id(ctx context.Context, field graphql.C
 	return ec.marshalOInt2ᚖint(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) _CustStmtMsg_trn(ctx context.Context, field graphql.CollectedField, obj *model.CustStmtMsg) (ret graphql.Marshaler) {
+func (ec *executionContext) _CustStmtMsg_trn(ctx context.Context, field graphql.CollectedField, obj *models.CustStmtMsg) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
 			ec.Error(ctx, ec.Recover(ctx, r))
@@ -1654,7 +1657,7 @@ func (ec *executionContext) _CustStmtMsg_trn(ctx context.Context, field graphql.
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) _CustStmtMsg_rr(ctx context.Context, field graphql.CollectedField, obj *model.CustStmtMsg) (ret graphql.Marshaler) {
+func (ec *executionContext) _CustStmtMsg_rr(ctx context.Context, field graphql.CollectedField, obj *models.CustStmtMsg) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
 			ec.Error(ctx, ec.Recover(ctx, r))
@@ -1686,7 +1689,7 @@ func (ec *executionContext) _CustStmtMsg_rr(ctx context.Context, field graphql.C
 	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) _CustStmtMsg_ai(ctx context.Context, field graphql.CollectedField, obj *model.CustStmtMsg) (ret graphql.Marshaler) {
+func (ec *executionContext) _CustStmtMsg_ai(ctx context.Context, field graphql.CollectedField, obj *models.CustStmtMsg) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
 			ec.Error(ctx, ec.Recover(ctx, r))
@@ -1716,12 +1719,12 @@ func (ec *executionContext) _CustStmtMsg_ai(ctx context.Context, field graphql.C
 		}
 		return graphql.Null
 	}
-	res := resTmp.(model.Ai)
+	res := resTmp.(models.Ai)
 	fc.Result = res
-	return ec.marshalNAi2githubᚗcomᚋriviatechsᚋmt940_serverᚋgraphᚋmodelᚐAi(ctx, field.Selections, res)
+	return ec.marshalNAi2githubᚗcomᚋriviatechsᚋmt940_serverᚋmodelsᚐAi(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) _CustStmtMsg_sn(ctx context.Context, field graphql.CollectedField, obj *model.CustStmtMsg) (ret graphql.Marshaler) {
+func (ec *executionContext) _CustStmtMsg_sn(ctx context.Context, field graphql.CollectedField, obj *models.CustStmtMsg) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
 			ec.Error(ctx, ec.Recover(ctx, r))
@@ -1756,7 +1759,7 @@ func (ec *executionContext) _CustStmtMsg_sn(ctx context.Context, field graphql.C
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) _CustStmtMsg_ob(ctx context.Context, field graphql.CollectedField, obj *model.CustStmtMsg) (ret graphql.Marshaler) {
+func (ec *executionContext) _CustStmtMsg_ob(ctx context.Context, field graphql.CollectedField, obj *models.CustStmtMsg) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
 			ec.Error(ctx, ec.Recover(ctx, r))
@@ -1786,12 +1789,12 @@ func (ec *executionContext) _CustStmtMsg_ob(ctx context.Context, field graphql.C
 		}
 		return graphql.Null
 	}
-	res := resTmp.(model.Ob)
+	res := resTmp.(models.Ob)
 	fc.Result = res
-	return ec.marshalNOb2githubᚗcomᚋriviatechsᚋmt940_serverᚋgraphᚋmodelᚐOb(ctx, field.Selections, res)
+	return ec.marshalNOb2githubᚗcomᚋriviatechsᚋmt940_serverᚋmodelsᚐOb(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) _CustStmtMsg_sl(ctx context.Context, field graphql.CollectedField, obj *model.CustStmtMsg) (ret graphql.Marshaler) {
+func (ec *executionContext) _CustStmtMsg_sl(ctx context.Context, field graphql.CollectedField, obj *models.CustStmtMsg) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
 			ec.Error(ctx, ec.Recover(ctx, r))
@@ -1818,12 +1821,12 @@ func (ec *executionContext) _CustStmtMsg_sl(ctx context.Context, field graphql.C
 	if resTmp == nil {
 		return graphql.Null
 	}
-	res := resTmp.([]*model.Sl)
+	res := resTmp.([]*models.Sl)
 	fc.Result = res
-	return ec.marshalOSl2ᚕᚖgithubᚗcomᚋriviatechsᚋmt940_serverᚋgraphᚋmodelᚐSl(ctx, field.Selections, res)
+	return ec.marshalOSl2ᚕᚖgithubᚗcomᚋriviatechsᚋmt940_serverᚋmodelsᚐSl(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) _CustStmtMsg_cb(ctx context.Context, field graphql.CollectedField, obj *model.CustStmtMsg) (ret graphql.Marshaler) {
+func (ec *executionContext) _CustStmtMsg_cb(ctx context.Context, field graphql.CollectedField, obj *models.CustStmtMsg) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
 			ec.Error(ctx, ec.Recover(ctx, r))
@@ -1853,12 +1856,12 @@ func (ec *executionContext) _CustStmtMsg_cb(ctx context.Context, field graphql.C
 		}
 		return graphql.Null
 	}
-	res := resTmp.(model.Cb)
+	res := resTmp.(models.Cb)
 	fc.Result = res
-	return ec.marshalNCb2githubᚗcomᚋriviatechsᚋmt940_serverᚋgraphᚋmodelᚐCb(ctx, field.Selections, res)
+	return ec.marshalNCb2githubᚗcomᚋriviatechsᚋmt940_serverᚋmodelsᚐCb(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) _CustStmtMsg_cab(ctx context.Context, field graphql.CollectedField, obj *model.CustStmtMsg) (ret graphql.Marshaler) {
+func (ec *executionContext) _CustStmtMsg_cab(ctx context.Context, field graphql.CollectedField, obj *models.CustStmtMsg) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
 			ec.Error(ctx, ec.Recover(ctx, r))
@@ -1885,12 +1888,12 @@ func (ec *executionContext) _CustStmtMsg_cab(ctx context.Context, field graphql.
 	if resTmp == nil {
 		return graphql.Null
 	}
-	res := resTmp.(*model.Cab)
+	res := resTmp.(*models.Cab)
 	fc.Result = res
-	return ec.marshalOCab2ᚖgithubᚗcomᚋriviatechsᚋmt940_serverᚋgraphᚋmodelᚐCab(ctx, field.Selections, res)
+	return ec.marshalOCab2ᚖgithubᚗcomᚋriviatechsᚋmt940_serverᚋmodelsᚐCab(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) _CustStmtMsg_fwab(ctx context.Context, field graphql.CollectedField, obj *model.CustStmtMsg) (ret graphql.Marshaler) {
+func (ec *executionContext) _CustStmtMsg_fwab(ctx context.Context, field graphql.CollectedField, obj *models.CustStmtMsg) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
 			ec.Error(ctx, ec.Recover(ctx, r))
@@ -1917,12 +1920,12 @@ func (ec *executionContext) _CustStmtMsg_fwab(ctx context.Context, field graphql
 	if resTmp == nil {
 		return graphql.Null
 	}
-	res := resTmp.([]*model.Fwab)
+	res := resTmp.([]*models.Fwab)
 	fc.Result = res
-	return ec.marshalOFwab2ᚕᚖgithubᚗcomᚋriviatechsᚋmt940_serverᚋgraphᚋmodelᚐFwab(ctx, field.Selections, res)
+	return ec.marshalOFwab2ᚕᚖgithubᚗcomᚋriviatechsᚋmt940_serverᚋmodelsᚐFwab(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) _CustStmtMsg_iao(ctx context.Context, field graphql.CollectedField, obj *model.CustStmtMsg) (ret graphql.Marshaler) {
+func (ec *executionContext) _CustStmtMsg_iao(ctx context.Context, field graphql.CollectedField, obj *models.CustStmtMsg) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
 			ec.Error(ctx, ec.Recover(ctx, r))
@@ -1954,7 +1957,7 @@ func (ec *executionContext) _CustStmtMsg_iao(ctx context.Context, field graphql.
 	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) _Fwab_id(ctx context.Context, field graphql.CollectedField, obj *model.Fwab) (ret graphql.Marshaler) {
+func (ec *executionContext) _Fwab_id(ctx context.Context, field graphql.CollectedField, obj *models.Fwab) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
 			ec.Error(ctx, ec.Recover(ctx, r))
@@ -1989,7 +1992,7 @@ func (ec *executionContext) _Fwab_id(ctx context.Context, field graphql.Collecte
 	return ec.marshalNInt2int(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) _Fwab_custStmtMsgID(ctx context.Context, field graphql.CollectedField, obj *model.Fwab) (ret graphql.Marshaler) {
+func (ec *executionContext) _Fwab_custStmtMsgID(ctx context.Context, field graphql.CollectedField, obj *models.Fwab) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
 			ec.Error(ctx, ec.Recover(ctx, r))
@@ -2024,7 +2027,7 @@ func (ec *executionContext) _Fwab_custStmtMsgID(ctx context.Context, field graph
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) _Fwab_mark(ctx context.Context, field graphql.CollectedField, obj *model.Fwab) (ret graphql.Marshaler) {
+func (ec *executionContext) _Fwab_mark(ctx context.Context, field graphql.CollectedField, obj *models.Fwab) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
 			ec.Error(ctx, ec.Recover(ctx, r))
@@ -2059,7 +2062,7 @@ func (ec *executionContext) _Fwab_mark(ctx context.Context, field graphql.Collec
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) _Fwab_dateY(ctx context.Context, field graphql.CollectedField, obj *model.Fwab) (ret graphql.Marshaler) {
+func (ec *executionContext) _Fwab_dateY(ctx context.Context, field graphql.CollectedField, obj *models.Fwab) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
 			ec.Error(ctx, ec.Recover(ctx, r))
@@ -2094,7 +2097,7 @@ func (ec *executionContext) _Fwab_dateY(ctx context.Context, field graphql.Colle
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) _Fwab_currency(ctx context.Context, field graphql.CollectedField, obj *model.Fwab) (ret graphql.Marshaler) {
+func (ec *executionContext) _Fwab_currency(ctx context.Context, field graphql.CollectedField, obj *models.Fwab) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
 			ec.Error(ctx, ec.Recover(ctx, r))
@@ -2129,7 +2132,7 @@ func (ec *executionContext) _Fwab_currency(ctx context.Context, field graphql.Co
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) _Fwab_amount(ctx context.Context, field graphql.CollectedField, obj *model.Fwab) (ret graphql.Marshaler) {
+func (ec *executionContext) _Fwab_amount(ctx context.Context, field graphql.CollectedField, obj *models.Fwab) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
 			ec.Error(ctx, ec.Recover(ctx, r))
@@ -2189,7 +2192,7 @@ func (ec *executionContext) _Mutation_createCustStmtMsg(ctx context.Context, fie
 	fc.Args = args
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().CreateCustStmtMsg(rctx, args["input"].(*model.CustStmtMsgInput))
+		return ec.resolvers.Mutation().CreateCustStmtMsg(rctx, args["input"].(*main.CustStmtMsgInput))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -2203,7 +2206,7 @@ func (ec *executionContext) _Mutation_createCustStmtMsg(ctx context.Context, fie
 	return ec.marshalOInt2ᚖint(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) _Ob_id(ctx context.Context, field graphql.CollectedField, obj *model.Ob) (ret graphql.Marshaler) {
+func (ec *executionContext) _Ob_id(ctx context.Context, field graphql.CollectedField, obj *models.Ob) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
 			ec.Error(ctx, ec.Recover(ctx, r))
@@ -2238,7 +2241,7 @@ func (ec *executionContext) _Ob_id(ctx context.Context, field graphql.CollectedF
 	return ec.marshalNInt2int(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) _Ob_custStmtMsgID(ctx context.Context, field graphql.CollectedField, obj *model.Ob) (ret graphql.Marshaler) {
+func (ec *executionContext) _Ob_custStmtMsgID(ctx context.Context, field graphql.CollectedField, obj *models.Ob) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
 			ec.Error(ctx, ec.Recover(ctx, r))
@@ -2273,7 +2276,7 @@ func (ec *executionContext) _Ob_custStmtMsgID(ctx context.Context, field graphql
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) _Ob_mark(ctx context.Context, field graphql.CollectedField, obj *model.Ob) (ret graphql.Marshaler) {
+func (ec *executionContext) _Ob_mark(ctx context.Context, field graphql.CollectedField, obj *models.Ob) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
 			ec.Error(ctx, ec.Recover(ctx, r))
@@ -2308,7 +2311,7 @@ func (ec *executionContext) _Ob_mark(ctx context.Context, field graphql.Collecte
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) _Ob_dateY(ctx context.Context, field graphql.CollectedField, obj *model.Ob) (ret graphql.Marshaler) {
+func (ec *executionContext) _Ob_dateY(ctx context.Context, field graphql.CollectedField, obj *models.Ob) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
 			ec.Error(ctx, ec.Recover(ctx, r))
@@ -2343,7 +2346,7 @@ func (ec *executionContext) _Ob_dateY(ctx context.Context, field graphql.Collect
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) _Ob_currency(ctx context.Context, field graphql.CollectedField, obj *model.Ob) (ret graphql.Marshaler) {
+func (ec *executionContext) _Ob_currency(ctx context.Context, field graphql.CollectedField, obj *models.Ob) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
 			ec.Error(ctx, ec.Recover(ctx, r))
@@ -2378,7 +2381,7 @@ func (ec *executionContext) _Ob_currency(ctx context.Context, field graphql.Coll
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) _Ob_amount(ctx context.Context, field graphql.CollectedField, obj *model.Ob) (ret graphql.Marshaler) {
+func (ec *executionContext) _Ob_amount(ctx context.Context, field graphql.CollectedField, obj *models.Ob) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
 			ec.Error(ctx, ec.Recover(ctx, r))
@@ -2447,9 +2450,9 @@ func (ec *executionContext) _Query_custStmtMsg(ctx context.Context, field graphq
 	if resTmp == nil {
 		return graphql.Null
 	}
-	res := resTmp.(*model.CustStmtMsg)
+	res := resTmp.(*models.CustStmtMsg)
 	fc.Result = res
-	return ec.marshalOCustStmtMsg2ᚖgithubᚗcomᚋriviatechsᚋmt940_serverᚋgraphᚋmodelᚐCustStmtMsg(ctx, field.Selections, res)
+	return ec.marshalOCustStmtMsg2ᚖgithubᚗcomᚋriviatechsᚋmt940_serverᚋmodelsᚐCustStmtMsg(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _Query___type(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
@@ -2523,7 +2526,7 @@ func (ec *executionContext) _Query___schema(ctx context.Context, field graphql.C
 	return ec.marshalO__Schema2ᚖgithubᚗcomᚋ99designsᚋgqlgenᚋgraphqlᚋintrospectionᚐSchema(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) _Sl_id(ctx context.Context, field graphql.CollectedField, obj *model.Sl) (ret graphql.Marshaler) {
+func (ec *executionContext) _Sl_id(ctx context.Context, field graphql.CollectedField, obj *models.Sl) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
 			ec.Error(ctx, ec.Recover(ctx, r))
@@ -2555,7 +2558,7 @@ func (ec *executionContext) _Sl_id(ctx context.Context, field graphql.CollectedF
 	return ec.marshalOInt2ᚖint(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) _Sl_custStmtMsgID(ctx context.Context, field graphql.CollectedField, obj *model.Sl) (ret graphql.Marshaler) {
+func (ec *executionContext) _Sl_custStmtMsgID(ctx context.Context, field graphql.CollectedField, obj *models.Sl) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
 			ec.Error(ctx, ec.Recover(ctx, r))
@@ -2590,7 +2593,7 @@ func (ec *executionContext) _Sl_custStmtMsgID(ctx context.Context, field graphql
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) _Sl_valueDate(ctx context.Context, field graphql.CollectedField, obj *model.Sl) (ret graphql.Marshaler) {
+func (ec *executionContext) _Sl_valueDate(ctx context.Context, field graphql.CollectedField, obj *models.Sl) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
 			ec.Error(ctx, ec.Recover(ctx, r))
@@ -2622,7 +2625,7 @@ func (ec *executionContext) _Sl_valueDate(ctx context.Context, field graphql.Col
 	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) _Sl_entryDate(ctx context.Context, field graphql.CollectedField, obj *model.Sl) (ret graphql.Marshaler) {
+func (ec *executionContext) _Sl_entryDate(ctx context.Context, field graphql.CollectedField, obj *models.Sl) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
 			ec.Error(ctx, ec.Recover(ctx, r))
@@ -2654,7 +2657,7 @@ func (ec *executionContext) _Sl_entryDate(ctx context.Context, field graphql.Col
 	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) _Sl_mark(ctx context.Context, field graphql.CollectedField, obj *model.Sl) (ret graphql.Marshaler) {
+func (ec *executionContext) _Sl_mark(ctx context.Context, field graphql.CollectedField, obj *models.Sl) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
 			ec.Error(ctx, ec.Recover(ctx, r))
@@ -2689,7 +2692,7 @@ func (ec *executionContext) _Sl_mark(ctx context.Context, field graphql.Collecte
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) _Sl_fundsCode(ctx context.Context, field graphql.CollectedField, obj *model.Sl) (ret graphql.Marshaler) {
+func (ec *executionContext) _Sl_fundsCode(ctx context.Context, field graphql.CollectedField, obj *models.Sl) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
 			ec.Error(ctx, ec.Recover(ctx, r))
@@ -2721,7 +2724,7 @@ func (ec *executionContext) _Sl_fundsCode(ctx context.Context, field graphql.Col
 	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) _Sl_amount(ctx context.Context, field graphql.CollectedField, obj *model.Sl) (ret graphql.Marshaler) {
+func (ec *executionContext) _Sl_amount(ctx context.Context, field graphql.CollectedField, obj *models.Sl) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
 			ec.Error(ctx, ec.Recover(ctx, r))
@@ -2756,7 +2759,7 @@ func (ec *executionContext) _Sl_amount(ctx context.Context, field graphql.Collec
 	return ec.marshalNFloat2float64(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) _Sl_ttic(ctx context.Context, field graphql.CollectedField, obj *model.Sl) (ret graphql.Marshaler) {
+func (ec *executionContext) _Sl_ttic(ctx context.Context, field graphql.CollectedField, obj *models.Sl) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
 			ec.Error(ctx, ec.Recover(ctx, r))
@@ -2788,7 +2791,7 @@ func (ec *executionContext) _Sl_ttic(ctx context.Context, field graphql.Collecte
 	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) _Sl_refOwner(ctx context.Context, field graphql.CollectedField, obj *model.Sl) (ret graphql.Marshaler) {
+func (ec *executionContext) _Sl_refOwner(ctx context.Context, field graphql.CollectedField, obj *models.Sl) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
 			ec.Error(ctx, ec.Recover(ctx, r))
@@ -2820,7 +2823,7 @@ func (ec *executionContext) _Sl_refOwner(ctx context.Context, field graphql.Coll
 	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) _Sl_refAsi(ctx context.Context, field graphql.CollectedField, obj *model.Sl) (ret graphql.Marshaler) {
+func (ec *executionContext) _Sl_refAsi(ctx context.Context, field graphql.CollectedField, obj *models.Sl) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
 			ec.Error(ctx, ec.Recover(ctx, r))
@@ -2852,7 +2855,7 @@ func (ec *executionContext) _Sl_refAsi(ctx context.Context, field graphql.Collec
 	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) _Sl_supp(ctx context.Context, field graphql.CollectedField, obj *model.Sl) (ret graphql.Marshaler) {
+func (ec *executionContext) _Sl_supp(ctx context.Context, field graphql.CollectedField, obj *models.Sl) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
 			ec.Error(ctx, ec.Recover(ctx, r))
@@ -2884,7 +2887,7 @@ func (ec *executionContext) _Sl_supp(ctx context.Context, field graphql.Collecte
 	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) _Sl_iao(ctx context.Context, field graphql.CollectedField, obj *model.Sl) (ret graphql.Marshaler) {
+func (ec *executionContext) _Sl_iao(ctx context.Context, field graphql.CollectedField, obj *models.Sl) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
 			ec.Error(ctx, ec.Recover(ctx, r))
@@ -4038,8 +4041,8 @@ func (ec *executionContext) ___Type_ofType(ctx context.Context, field graphql.Co
 
 // region    **************************** input.gotpl *****************************
 
-func (ec *executionContext) unmarshalInputAiInput(ctx context.Context, obj interface{}) (model.AiInput, error) {
-	var it model.AiInput
+func (ec *executionContext) unmarshalInputAiInput(ctx context.Context, obj interface{}) (main.AiInput, error) {
+	var it main.AiInput
 	asMap := map[string]interface{}{}
 	for k, v := range obj.(map[string]interface{}) {
 		asMap[k] = v
@@ -4069,8 +4072,8 @@ func (ec *executionContext) unmarshalInputAiInput(ctx context.Context, obj inter
 	return it, nil
 }
 
-func (ec *executionContext) unmarshalInputCustStmtMsgInput(ctx context.Context, obj interface{}) (model.CustStmtMsgInput, error) {
-	var it model.CustStmtMsgInput
+func (ec *executionContext) unmarshalInputCustStmtMsgInput(ctx context.Context, obj interface{}) (main.CustStmtMsgInput, error) {
+	var it main.CustStmtMsgInput
 	asMap := map[string]interface{}{}
 	for k, v := range obj.(map[string]interface{}) {
 		asMap[k] = v
@@ -4098,7 +4101,7 @@ func (ec *executionContext) unmarshalInputCustStmtMsgInput(ctx context.Context, 
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("ai"))
-			it.Ai, err = ec.unmarshalNAiInput2ᚖgithubᚗcomᚋriviatechsᚋmt940_serverᚋgraphᚋmodelᚐAiInput(ctx, v)
+			it.Ai, err = ec.unmarshalNAiInput2ᚖgithubᚗcomᚋriviatechsᚋmt940_serverᚐAiInput(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -4114,7 +4117,7 @@ func (ec *executionContext) unmarshalInputCustStmtMsgInput(ctx context.Context, 
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("ob"))
-			it.Ob, err = ec.unmarshalNTransInput2ᚖgithubᚗcomᚋriviatechsᚋmt940_serverᚋgraphᚋmodelᚐTransInput(ctx, v)
+			it.Ob, err = ec.unmarshalNTransInput2ᚖgithubᚗcomᚋriviatechsᚋmt940_serverᚐTransInput(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -4122,7 +4125,7 @@ func (ec *executionContext) unmarshalInputCustStmtMsgInput(ctx context.Context, 
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("sl"))
-			it.Sl, err = ec.unmarshalOSlInput2ᚕᚖgithubᚗcomᚋriviatechsᚋmt940_serverᚋgraphᚋmodelᚐSlInput(ctx, v)
+			it.Sl, err = ec.unmarshalOSlInput2ᚕᚖgithubᚗcomᚋriviatechsᚋmt940_serverᚐSlInput(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -4130,7 +4133,7 @@ func (ec *executionContext) unmarshalInputCustStmtMsgInput(ctx context.Context, 
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("cb"))
-			it.Cb, err = ec.unmarshalNTransInput2ᚖgithubᚗcomᚋriviatechsᚋmt940_serverᚋgraphᚋmodelᚐTransInput(ctx, v)
+			it.Cb, err = ec.unmarshalNTransInput2ᚖgithubᚗcomᚋriviatechsᚋmt940_serverᚐTransInput(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -4138,7 +4141,7 @@ func (ec *executionContext) unmarshalInputCustStmtMsgInput(ctx context.Context, 
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("cab"))
-			it.Cab, err = ec.unmarshalOTransInput2ᚖgithubᚗcomᚋriviatechsᚋmt940_serverᚋgraphᚋmodelᚐTransInput(ctx, v)
+			it.Cab, err = ec.unmarshalOTransInput2ᚖgithubᚗcomᚋriviatechsᚋmt940_serverᚐTransInput(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -4146,7 +4149,7 @@ func (ec *executionContext) unmarshalInputCustStmtMsgInput(ctx context.Context, 
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("fwab"))
-			it.Fwab, err = ec.unmarshalOTransInput2ᚕᚖgithubᚗcomᚋriviatechsᚋmt940_serverᚋgraphᚋmodelᚐTransInput(ctx, v)
+			it.Fwab, err = ec.unmarshalOTransInput2ᚕᚖgithubᚗcomᚋriviatechsᚋmt940_serverᚐTransInput(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -4164,8 +4167,8 @@ func (ec *executionContext) unmarshalInputCustStmtMsgInput(ctx context.Context, 
 	return it, nil
 }
 
-func (ec *executionContext) unmarshalInputSlInput(ctx context.Context, obj interface{}) (model.SlInput, error) {
-	var it model.SlInput
+func (ec *executionContext) unmarshalInputSlInput(ctx context.Context, obj interface{}) (main.SlInput, error) {
+	var it main.SlInput
 	asMap := map[string]interface{}{}
 	for k, v := range obj.(map[string]interface{}) {
 		asMap[k] = v
@@ -4267,8 +4270,8 @@ func (ec *executionContext) unmarshalInputSlInput(ctx context.Context, obj inter
 	return it, nil
 }
 
-func (ec *executionContext) unmarshalInputTransInput(ctx context.Context, obj interface{}) (model.TransInput, error) {
-	var it model.TransInput
+func (ec *executionContext) unmarshalInputTransInput(ctx context.Context, obj interface{}) (main.TransInput, error) {
+	var it main.TransInput
 	asMap := map[string]interface{}{}
 	for k, v := range obj.(map[string]interface{}) {
 		asMap[k] = v
@@ -4332,7 +4335,7 @@ func (ec *executionContext) unmarshalInputTransInput(ctx context.Context, obj in
 
 var aiImplementors = []string{"Ai"}
 
-func (ec *executionContext) _Ai(ctx context.Context, sel ast.SelectionSet, obj *model.Ai) graphql.Marshaler {
+func (ec *executionContext) _Ai(ctx context.Context, sel ast.SelectionSet, obj *models.Ai) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, aiImplementors)
 	out := graphql.NewFieldSet(fields)
 	var invalids uint32
@@ -4390,7 +4393,7 @@ func (ec *executionContext) _Ai(ctx context.Context, sel ast.SelectionSet, obj *
 
 var cabImplementors = []string{"Cab"}
 
-func (ec *executionContext) _Cab(ctx context.Context, sel ast.SelectionSet, obj *model.Cab) graphql.Marshaler {
+func (ec *executionContext) _Cab(ctx context.Context, sel ast.SelectionSet, obj *models.Cab) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, cabImplementors)
 	out := graphql.NewFieldSet(fields)
 	var invalids uint32
@@ -4491,7 +4494,7 @@ func (ec *executionContext) _Cab(ctx context.Context, sel ast.SelectionSet, obj 
 
 var cbImplementors = []string{"Cb"}
 
-func (ec *executionContext) _Cb(ctx context.Context, sel ast.SelectionSet, obj *model.Cb) graphql.Marshaler {
+func (ec *executionContext) _Cb(ctx context.Context, sel ast.SelectionSet, obj *models.Cb) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, cbImplementors)
 	out := graphql.NewFieldSet(fields)
 	var invalids uint32
@@ -4592,7 +4595,7 @@ func (ec *executionContext) _Cb(ctx context.Context, sel ast.SelectionSet, obj *
 
 var custStmtMsgImplementors = []string{"CustStmtMsg"}
 
-func (ec *executionContext) _CustStmtMsg(ctx context.Context, sel ast.SelectionSet, obj *model.CustStmtMsg) graphql.Marshaler {
+func (ec *executionContext) _CustStmtMsg(ctx context.Context, sel ast.SelectionSet, obj *models.CustStmtMsg) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, custStmtMsgImplementors)
 	out := graphql.NewFieldSet(fields)
 	var invalids uint32
@@ -4735,7 +4738,7 @@ func (ec *executionContext) _CustStmtMsg(ctx context.Context, sel ast.SelectionS
 
 var fwabImplementors = []string{"Fwab"}
 
-func (ec *executionContext) _Fwab(ctx context.Context, sel ast.SelectionSet, obj *model.Fwab) graphql.Marshaler {
+func (ec *executionContext) _Fwab(ctx context.Context, sel ast.SelectionSet, obj *models.Fwab) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, fwabImplementors)
 	out := graphql.NewFieldSet(fields)
 	var invalids uint32
@@ -4873,7 +4876,7 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 
 var obImplementors = []string{"Ob"}
 
-func (ec *executionContext) _Ob(ctx context.Context, sel ast.SelectionSet, obj *model.Ob) graphql.Marshaler {
+func (ec *executionContext) _Ob(ctx context.Context, sel ast.SelectionSet, obj *models.Ob) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, obImplementors)
 	out := graphql.NewFieldSet(fields)
 	var invalids uint32
@@ -5038,7 +5041,7 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 
 var slImplementors = []string{"Sl"}
 
-func (ec *executionContext) _Sl(ctx context.Context, sel ast.SelectionSet, obj *model.Sl) graphql.Marshaler {
+func (ec *executionContext) _Sl(ctx context.Context, sel ast.SelectionSet, obj *models.Sl) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, slImplementors)
 	out := graphql.NewFieldSet(fields)
 	var invalids uint32
@@ -5579,11 +5582,11 @@ func (ec *executionContext) ___Type(ctx context.Context, sel ast.SelectionSet, o
 
 // region    ***************************** type.gotpl *****************************
 
-func (ec *executionContext) marshalNAi2githubᚗcomᚋriviatechsᚋmt940_serverᚋgraphᚋmodelᚐAi(ctx context.Context, sel ast.SelectionSet, v model.Ai) graphql.Marshaler {
+func (ec *executionContext) marshalNAi2githubᚗcomᚋriviatechsᚋmt940_serverᚋmodelsᚐAi(ctx context.Context, sel ast.SelectionSet, v models.Ai) graphql.Marshaler {
 	return ec._Ai(ctx, sel, &v)
 }
 
-func (ec *executionContext) unmarshalNAiInput2ᚖgithubᚗcomᚋriviatechsᚋmt940_serverᚋgraphᚋmodelᚐAiInput(ctx context.Context, v interface{}) (*model.AiInput, error) {
+func (ec *executionContext) unmarshalNAiInput2ᚖgithubᚗcomᚋriviatechsᚋmt940_serverᚐAiInput(ctx context.Context, v interface{}) (*main.AiInput, error) {
 	res, err := ec.unmarshalInputAiInput(ctx, v)
 	return &res, graphql.ErrorOnPath(ctx, err)
 }
@@ -5603,7 +5606,7 @@ func (ec *executionContext) marshalNBoolean2bool(ctx context.Context, sel ast.Se
 	return res
 }
 
-func (ec *executionContext) marshalNCb2githubᚗcomᚋriviatechsᚋmt940_serverᚋgraphᚋmodelᚐCb(ctx context.Context, sel ast.SelectionSet, v model.Cb) graphql.Marshaler {
+func (ec *executionContext) marshalNCb2githubᚗcomᚋriviatechsᚋmt940_serverᚋmodelsᚐCb(ctx context.Context, sel ast.SelectionSet, v models.Cb) graphql.Marshaler {
 	return ec._Cb(ctx, sel, &v)
 }
 
@@ -5637,7 +5640,7 @@ func (ec *executionContext) marshalNInt2int(ctx context.Context, sel ast.Selecti
 	return res
 }
 
-func (ec *executionContext) marshalNOb2githubᚗcomᚋriviatechsᚋmt940_serverᚋgraphᚋmodelᚐOb(ctx context.Context, sel ast.SelectionSet, v model.Ob) graphql.Marshaler {
+func (ec *executionContext) marshalNOb2githubᚗcomᚋriviatechsᚋmt940_serverᚋmodelsᚐOb(ctx context.Context, sel ast.SelectionSet, v models.Ob) graphql.Marshaler {
 	return ec._Ob(ctx, sel, &v)
 }
 
@@ -5656,7 +5659,7 @@ func (ec *executionContext) marshalNString2string(ctx context.Context, sel ast.S
 	return res
 }
 
-func (ec *executionContext) unmarshalNTransInput2ᚖgithubᚗcomᚋriviatechsᚋmt940_serverᚋgraphᚋmodelᚐTransInput(ctx context.Context, v interface{}) (*model.TransInput, error) {
+func (ec *executionContext) unmarshalNTransInput2ᚖgithubᚗcomᚋriviatechsᚋmt940_serverᚐTransInput(ctx context.Context, v interface{}) (*main.TransInput, error) {
 	res, err := ec.unmarshalInputTransInput(ctx, v)
 	return &res, graphql.ErrorOnPath(ctx, err)
 }
@@ -5940,21 +5943,21 @@ func (ec *executionContext) marshalOBoolean2ᚖbool(ctx context.Context, sel ast
 	return res
 }
 
-func (ec *executionContext) marshalOCab2ᚖgithubᚗcomᚋriviatechsᚋmt940_serverᚋgraphᚋmodelᚐCab(ctx context.Context, sel ast.SelectionSet, v *model.Cab) graphql.Marshaler {
+func (ec *executionContext) marshalOCab2ᚖgithubᚗcomᚋriviatechsᚋmt940_serverᚋmodelsᚐCab(ctx context.Context, sel ast.SelectionSet, v *models.Cab) graphql.Marshaler {
 	if v == nil {
 		return graphql.Null
 	}
 	return ec._Cab(ctx, sel, v)
 }
 
-func (ec *executionContext) marshalOCustStmtMsg2ᚖgithubᚗcomᚋriviatechsᚋmt940_serverᚋgraphᚋmodelᚐCustStmtMsg(ctx context.Context, sel ast.SelectionSet, v *model.CustStmtMsg) graphql.Marshaler {
+func (ec *executionContext) marshalOCustStmtMsg2ᚖgithubᚗcomᚋriviatechsᚋmt940_serverᚋmodelsᚐCustStmtMsg(ctx context.Context, sel ast.SelectionSet, v *models.CustStmtMsg) graphql.Marshaler {
 	if v == nil {
 		return graphql.Null
 	}
 	return ec._CustStmtMsg(ctx, sel, v)
 }
 
-func (ec *executionContext) unmarshalOCustStmtMsgInput2ᚖgithubᚗcomᚋriviatechsᚋmt940_serverᚋgraphᚋmodelᚐCustStmtMsgInput(ctx context.Context, v interface{}) (*model.CustStmtMsgInput, error) {
+func (ec *executionContext) unmarshalOCustStmtMsgInput2ᚖgithubᚗcomᚋriviatechsᚋmt940_serverᚐCustStmtMsgInput(ctx context.Context, v interface{}) (*main.CustStmtMsgInput, error) {
 	if v == nil {
 		return nil, nil
 	}
@@ -5962,7 +5965,7 @@ func (ec *executionContext) unmarshalOCustStmtMsgInput2ᚖgithubᚗcomᚋriviate
 	return &res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) marshalOFwab2ᚕᚖgithubᚗcomᚋriviatechsᚋmt940_serverᚋgraphᚋmodelᚐFwab(ctx context.Context, sel ast.SelectionSet, v []*model.Fwab) graphql.Marshaler {
+func (ec *executionContext) marshalOFwab2ᚕᚖgithubᚗcomᚋriviatechsᚋmt940_serverᚋmodelsᚐFwab(ctx context.Context, sel ast.SelectionSet, v []*models.Fwab) graphql.Marshaler {
 	if v == nil {
 		return graphql.Null
 	}
@@ -5989,7 +5992,7 @@ func (ec *executionContext) marshalOFwab2ᚕᚖgithubᚗcomᚋriviatechsᚋmt940
 			if !isLen1 {
 				defer wg.Done()
 			}
-			ret[i] = ec.marshalOFwab2ᚖgithubᚗcomᚋriviatechsᚋmt940_serverᚋgraphᚋmodelᚐFwab(ctx, sel, v[i])
+			ret[i] = ec.marshalOFwab2ᚖgithubᚗcomᚋriviatechsᚋmt940_serverᚋmodelsᚐFwab(ctx, sel, v[i])
 		}
 		if isLen1 {
 			f(i)
@@ -6003,7 +6006,7 @@ func (ec *executionContext) marshalOFwab2ᚕᚖgithubᚗcomᚋriviatechsᚋmt940
 	return ret
 }
 
-func (ec *executionContext) marshalOFwab2ᚖgithubᚗcomᚋriviatechsᚋmt940_serverᚋgraphᚋmodelᚐFwab(ctx context.Context, sel ast.SelectionSet, v *model.Fwab) graphql.Marshaler {
+func (ec *executionContext) marshalOFwab2ᚖgithubᚗcomᚋriviatechsᚋmt940_serverᚋmodelsᚐFwab(ctx context.Context, sel ast.SelectionSet, v *models.Fwab) graphql.Marshaler {
 	if v == nil {
 		return graphql.Null
 	}
@@ -6026,7 +6029,7 @@ func (ec *executionContext) marshalOInt2ᚖint(ctx context.Context, sel ast.Sele
 	return res
 }
 
-func (ec *executionContext) marshalOSl2ᚕᚖgithubᚗcomᚋriviatechsᚋmt940_serverᚋgraphᚋmodelᚐSl(ctx context.Context, sel ast.SelectionSet, v []*model.Sl) graphql.Marshaler {
+func (ec *executionContext) marshalOSl2ᚕᚖgithubᚗcomᚋriviatechsᚋmt940_serverᚋmodelsᚐSl(ctx context.Context, sel ast.SelectionSet, v []*models.Sl) graphql.Marshaler {
 	if v == nil {
 		return graphql.Null
 	}
@@ -6053,7 +6056,7 @@ func (ec *executionContext) marshalOSl2ᚕᚖgithubᚗcomᚋriviatechsᚋmt940_s
 			if !isLen1 {
 				defer wg.Done()
 			}
-			ret[i] = ec.marshalOSl2ᚖgithubᚗcomᚋriviatechsᚋmt940_serverᚋgraphᚋmodelᚐSl(ctx, sel, v[i])
+			ret[i] = ec.marshalOSl2ᚖgithubᚗcomᚋriviatechsᚋmt940_serverᚋmodelsᚐSl(ctx, sel, v[i])
 		}
 		if isLen1 {
 			f(i)
@@ -6067,14 +6070,14 @@ func (ec *executionContext) marshalOSl2ᚕᚖgithubᚗcomᚋriviatechsᚋmt940_s
 	return ret
 }
 
-func (ec *executionContext) marshalOSl2ᚖgithubᚗcomᚋriviatechsᚋmt940_serverᚋgraphᚋmodelᚐSl(ctx context.Context, sel ast.SelectionSet, v *model.Sl) graphql.Marshaler {
+func (ec *executionContext) marshalOSl2ᚖgithubᚗcomᚋriviatechsᚋmt940_serverᚋmodelsᚐSl(ctx context.Context, sel ast.SelectionSet, v *models.Sl) graphql.Marshaler {
 	if v == nil {
 		return graphql.Null
 	}
 	return ec._Sl(ctx, sel, v)
 }
 
-func (ec *executionContext) unmarshalOSlInput2ᚕᚖgithubᚗcomᚋriviatechsᚋmt940_serverᚋgraphᚋmodelᚐSlInput(ctx context.Context, v interface{}) ([]*model.SlInput, error) {
+func (ec *executionContext) unmarshalOSlInput2ᚕᚖgithubᚗcomᚋriviatechsᚋmt940_serverᚐSlInput(ctx context.Context, v interface{}) ([]*main.SlInput, error) {
 	if v == nil {
 		return nil, nil
 	}
@@ -6083,10 +6086,10 @@ func (ec *executionContext) unmarshalOSlInput2ᚕᚖgithubᚗcomᚋriviatechsᚋ
 		vSlice = graphql.CoerceList(v)
 	}
 	var err error
-	res := make([]*model.SlInput, len(vSlice))
+	res := make([]*main.SlInput, len(vSlice))
 	for i := range vSlice {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithIndex(i))
-		res[i], err = ec.unmarshalOSlInput2ᚖgithubᚗcomᚋriviatechsᚋmt940_serverᚋgraphᚋmodelᚐSlInput(ctx, vSlice[i])
+		res[i], err = ec.unmarshalOSlInput2ᚖgithubᚗcomᚋriviatechsᚋmt940_serverᚐSlInput(ctx, vSlice[i])
 		if err != nil {
 			return nil, err
 		}
@@ -6094,7 +6097,7 @@ func (ec *executionContext) unmarshalOSlInput2ᚕᚖgithubᚗcomᚋriviatechsᚋ
 	return res, nil
 }
 
-func (ec *executionContext) unmarshalOSlInput2ᚖgithubᚗcomᚋriviatechsᚋmt940_serverᚋgraphᚋmodelᚐSlInput(ctx context.Context, v interface{}) (*model.SlInput, error) {
+func (ec *executionContext) unmarshalOSlInput2ᚖgithubᚗcomᚋriviatechsᚋmt940_serverᚐSlInput(ctx context.Context, v interface{}) (*main.SlInput, error) {
 	if v == nil {
 		return nil, nil
 	}
@@ -6166,7 +6169,7 @@ func (ec *executionContext) marshalOString2ᚖstring(ctx context.Context, sel as
 	return res
 }
 
-func (ec *executionContext) unmarshalOTransInput2ᚕᚖgithubᚗcomᚋriviatechsᚋmt940_serverᚋgraphᚋmodelᚐTransInput(ctx context.Context, v interface{}) ([]*model.TransInput, error) {
+func (ec *executionContext) unmarshalOTransInput2ᚕᚖgithubᚗcomᚋriviatechsᚋmt940_serverᚐTransInput(ctx context.Context, v interface{}) ([]*main.TransInput, error) {
 	if v == nil {
 		return nil, nil
 	}
@@ -6175,10 +6178,10 @@ func (ec *executionContext) unmarshalOTransInput2ᚕᚖgithubᚗcomᚋriviatechs
 		vSlice = graphql.CoerceList(v)
 	}
 	var err error
-	res := make([]*model.TransInput, len(vSlice))
+	res := make([]*main.TransInput, len(vSlice))
 	for i := range vSlice {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithIndex(i))
-		res[i], err = ec.unmarshalOTransInput2ᚖgithubᚗcomᚋriviatechsᚋmt940_serverᚋgraphᚋmodelᚐTransInput(ctx, vSlice[i])
+		res[i], err = ec.unmarshalOTransInput2ᚖgithubᚗcomᚋriviatechsᚋmt940_serverᚐTransInput(ctx, vSlice[i])
 		if err != nil {
 			return nil, err
 		}
@@ -6186,7 +6189,7 @@ func (ec *executionContext) unmarshalOTransInput2ᚕᚖgithubᚗcomᚋriviatechs
 	return res, nil
 }
 
-func (ec *executionContext) unmarshalOTransInput2ᚖgithubᚗcomᚋriviatechsᚋmt940_serverᚋgraphᚋmodelᚐTransInput(ctx context.Context, v interface{}) (*model.TransInput, error) {
+func (ec *executionContext) unmarshalOTransInput2ᚖgithubᚗcomᚋriviatechsᚋmt940_serverᚐTransInput(ctx context.Context, v interface{}) (*main.TransInput, error) {
 	if v == nil {
 		return nil, nil
 	}
