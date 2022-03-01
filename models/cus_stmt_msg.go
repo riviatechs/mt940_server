@@ -9,13 +9,13 @@ type CustStmtMsg struct {
 	gorm.Model
 	Trn  string  `gorm:"column:trn;not null;unique"`
 	Rr   *string `gorm:"column:rr;default null"`
-	Ai   Ai      `gorm:"column:ai;foreignKey:CustStmtMsgID;references:Trn"`
+	Ai   Ai      `gorm:"foreignKey:CustStmtMsgID;references:trn"`
 	Sn   string  `gorm:"column:sn;not null"`
-	Ob   Ob      `gorm:"column:ob;foreignKey:CustStmtMsgID;references:Trn"`
-	Sl   []Sl    `gorm:"column:sl;foreignKey:CustStmtMsgID;references:Trn"`
-	Cb   Cb      `gorm:"column:cb;foreignKey:CustStmtMsgID;references:Trn"`
-	Cab  *Cab    `gorm:"column:cab;foreignKey:CustStmtMsgID;references:Trn"`
-	Fwab []Fwab  `gorm:"column:fwab;foreignKey:CustStmtMsgID;references:Trn"`
+	Ob   Ob      `gorm:"foreignKey:CustStmtMsgID;references:trn"`
+	Sl   []Sl    `gorm:"foreignKey:CustStmtMsgID;references:trn"`
+	Cb   Cb      `gorm:"foreignKey:CustStmtMsgID;references:trn"`
+	Cab  *Cab    `gorm:"foreignKey:CustStmtMsgID;references:trn"`
+	Fwab []Fwab  `gorm:"foreignKey:CustStmtMsgID;references:trn"`
 	Iao  *string `gorm:"column:iao;default null"`
 }
 

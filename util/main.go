@@ -21,11 +21,12 @@ const (
 	DbHostedCloud    = "DB_CLOUD"
 	DbConnectionName = "DB_INSTANCE_CONNECTION_NAME"
 	Bucket           = "BUCKET"
+	DbTimeZone       = "DB_TIMEZONE"
 )
 
 const (
 	ProjectID = "project_id"
-	ProgName  = "admin"
+	ProgName  = "mt940"
 	Debug     = "debug"
 	Wait      = "wait"
 	Port      = "port"

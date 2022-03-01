@@ -13,6 +13,7 @@ import (
 	"github.com/99designs/gqlgen/graphql/playground"
 	log "github.com/MalukiMuthusi/logger"
 	"github.com/gorilla/mux"
+	"github.com/riviatechs/mt940_server/db"
 	"github.com/riviatechs/mt940_server/graph/generated"
 	resolver "github.com/riviatechs/mt940_server/graph/resolvers"
 	"github.com/riviatechs/mt940_server/util"
@@ -21,7 +22,7 @@ import (
 	"go.uber.org/zap"
 )
 
-var rootCmd = &cobra.Command{
+var RootCmd = &cobra.Command{
 	Use:   "golf",
 	Short: "golf service",
 	Long: `
@@ -31,6 +32,8 @@ var rootCmd = &cobra.Command{
 
 		// check for configurations that must be set
 		checkMustBeSet()
+
+		db.Start()
 
 		Start()
 
@@ -51,6 +54,8 @@ func checkMustBeSet() {
 	mustBeSet(util.DbPort)
 
 	mustBeSet(util.DbConnectionName)
+
+	mustBeSet(util.DbTimeZone)
 }
 
 func mustBeSet(env string) {
@@ -61,7 +66,7 @@ func mustBeSet(env string) {
 
 func StartServer() {
 
-	rootCmd.Execute()
+	RootCmd.Execute()
 }
 
 func initConfig() {
@@ -73,48 +78,52 @@ func init() {
 	cobra.OnInitialize(initConfig)
 
 	// debug flag
-	rootCmd.PersistentFlags().Bool(util.Debug, false, "Enable debug messages for tracing and troubleshooting")
+	RootCmd.PersistentFlags().Bool(util.Debug, false, "Enable debug messages for tracing and troubleshooting")
 	bind(util.Debug)
 
 	// project_id flag
-	rootCmd.PersistentFlags().String(util.ProjectID, "", "Google Cloud Project ID")
+	RootCmd.PersistentFlags().String(util.ProjectID, "", "Google Cloud Project ID")
 	bind(util.ProjectID)
 
 	// wait flag
-	rootCmd.PersistentFlags().Int64(util.Wait, int64(time.Second*15), "the duration for which the server gracefully wait for existing connections to finish - e.g. 15s or 1m")
+	RootCmd.PersistentFlags().Int64(util.Wait, int64(time.Second*15), "the duration for which the server gracefully wait for existing connections to finish - e.g. 15s or 1m")
 	bind(util.Wait)
 
 	// port flag
-	rootCmd.PersistentFlags().String(util.Port, "", "port the server to listen at")
+	RootCmd.PersistentFlags().String(util.Port, "", "port the server to listen at")
 	bind(util.Port)
 
 	// db user name
-	rootCmd.PersistentFlags().String(util.DbUser, "", "Database user name")
+	RootCmd.PersistentFlags().String(util.DbUser, "", "Database user name")
 	bind(util.DbUser)
 
 	// db name
-	rootCmd.PersistentFlags().String(util.DbName, "", "Database Name")
+	RootCmd.PersistentFlags().String(util.DbName, "", "Database Name")
 	bind(util.DbName)
 
 	// db password
-	rootCmd.PersistentFlags().String(util.DbPwd, "", "Database password")
+	RootCmd.PersistentFlags().String(util.DbPwd, "", "Database password")
 	bind(util.DbPwd)
 
 	// db host
-	rootCmd.PersistentFlags().String(util.DbHost, "", "Database host location")
+	RootCmd.PersistentFlags().String(util.DbHost, "", "Database host location")
 	bind(util.DbHost)
 
 	// db Port
-	rootCmd.PersistentFlags().String(util.DbPort, "", "Database Port")
+	RootCmd.PersistentFlags().String(util.DbPort, "", "Database Port")
 	bind(util.DbPort)
+
+	// db Timezone
+	RootCmd.PersistentFlags().String(util.DbTimeZone, "Africa/Nairobi", "Database host location")
+	bind(util.DbTimeZone)
 
 	// db connection name
-	rootCmd.PersistentFlags().String(util.DbConnectionName, "", "Database Connection name")
+	RootCmd.PersistentFlags().String(util.DbConnectionName, "", "Database Connection name")
+	bind(util.DbConnectionName)
 
 	// db hosted on cloud?
-	rootCmd.PersistentFlags().Bool(util.DbHostedCloud, false, "Database hosted on cloud")
-
-	bind(util.DbPort)
+	RootCmd.PersistentFlags().Bool(util.DbHostedCloud, false, "Database hosted on cloud")
+	bind(util.DbHostedCloud)
 
 	// Set up the structured logging library
 	log.Setup(viper.GetBool(util.Debug))
@@ -123,7 +132,7 @@ func init() {
 
 // bind viper flags to the cobra command
 func bind(flag string) {
-	viper.BindPFlag(flag, rootCmd.Flags().Lookup(flag))
+	viper.BindPFlag(flag, RootCmd.Flags().Lookup(flag))
 }
 
 func Start() {
