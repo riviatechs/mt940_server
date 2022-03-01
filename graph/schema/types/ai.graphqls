@@ -13,6 +13,9 @@ type Ai @goModel(model: "github.com/riviatechs/mt940_server/models.Ai") {
   Identifier Code
   """
   ic: String @goField(name: "Ic")
+
+  createdAt: String @goField(name: "CreatedAt")
+  updatedAt: String @goField(name: "UpdatedAt")
 }
 
 input AiInput

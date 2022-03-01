@@ -18,7 +18,7 @@ type CustStmtMsg
   """
   Account Identification
   """
-  ai: Ai! @goField(name: "Ai")
+  ai: Ai! @goField(name: "Ai", forceResolver: true)
 
   """
   Statement Number/Sequence Number
@@ -32,7 +32,7 @@ type CustStmtMsg
 
   The first customer statement message for a specified period must contain field 60F (first opening balance); additional statement messages for the same statement period must contain field 60M(intermediate opening balance)
   """
-  ob: Ob! @goField(name: "Ob")
+  ob: Ob! @goField(name: "Ob", forceResolver: true)
 
   """
   Statement Line and Information to Account Owner
@@ -51,7 +51,7 @@ type CustStmtMsg
 
   This field indicates the funds which are available to the account owner (if credit balance) or the balance which is subject to interest charges (if debit balance)
   """
-  cab: Cab @goField(name: "Cab")
+  cab: Cab @goField(name: "Cab", forceResolver: true)
 
   """
   Forward Available Balance

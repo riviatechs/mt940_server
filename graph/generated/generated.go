@@ -53,9 +53,11 @@ type DirectiveRoot struct {
 
 type ComplexityRoot struct {
 	Ai struct {
-		Account func(childComplexity int) int
-		ID      func(childComplexity int) int
-		Ic      func(childComplexity int) int
+		Account   func(childComplexity int) int
+		CreatedAt func(childComplexity int) int
+		ID        func(childComplexity int) int
+		Ic        func(childComplexity int) int
+		UpdatedAt func(childComplexity int) int
 	}
 
 	Cab struct {
@@ -134,6 +136,9 @@ type ComplexityRoot struct {
 
 type AiResolver interface {
 	ID(ctx context.Context, obj *models.Ai) (int, error)
+
+	CreatedAt(ctx context.Context, obj *models.Ai) (*string, error)
+	UpdatedAt(ctx context.Context, obj *models.Ai) (*string, error)
 }
 type CabResolver interface {
 	ID(ctx context.Context, obj *models.Cab) (int, error)
@@ -148,8 +153,12 @@ type CbResolver interface {
 type CustStmtMsgResolver interface {
 	ID(ctx context.Context, obj *models.CustStmtMsg) (*int, error)
 
+	Ai(ctx context.Context, obj *models.CustStmtMsg) (*models.Ai, error)
+
+	Ob(ctx context.Context, obj *models.CustStmtMsg) (*models.Ob, error)
 	Sl(ctx context.Context, obj *models.CustStmtMsg) ([]*models.Sl, error)
 
+	Cab(ctx context.Context, obj *models.CustStmtMsg) (*models.Cab, error)
 	Fwab(ctx context.Context, obj *models.CustStmtMsg) ([]*models.Fwab, error)
 }
 type FwabResolver interface {
@@ -205,6 +214,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Ai.Account(childComplexity), true
 
+	case "Ai.createdAt":
+		if e.complexity.Ai.CreatedAt == nil {
+			break
+		}
+
+		return e.complexity.Ai.CreatedAt(childComplexity), true
+
 	case "Ai.id":
 		if e.complexity.Ai.ID == nil {
 			break
@@ -218,6 +234,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Ai.Ic(childComplexity), true
+
+	case "Ai.updatedAt":
+		if e.complexity.Ai.UpdatedAt == nil {
+			break
+		}
+
+		return e.complexity.Ai.UpdatedAt(childComplexity), true
 
 	case "Cab.amount":
 		if e.complexity.Cab.Amount == nil {
@@ -681,6 +704,9 @@ type Ai @goModel(model: "github.com/riviatechs/mt940_server/models.Ai") {
   Identifier Code
   """
   ic: String @goField(name: "Ic")
+
+  createdAt: String @goField(name: "CreatedAt")
+  updatedAt: String @goField(name: "UpdatedAt")
 }
 
 input AiInput
@@ -767,7 +793,7 @@ type CustStmtMsg
   """
   Account Identification
   """
-  ai: Ai! @goField(name: "Ai")
+  ai: Ai! @goField(name: "Ai", forceResolver: true)
 
   """
   Statement Number/Sequence Number
@@ -781,7 +807,7 @@ type CustStmtMsg
 
   The first customer statement message for a specified period must contain field 60F (first opening balance); additional statement messages for the same statement period must contain field 60M(intermediate opening balance)
   """
-  ob: Ob! @goField(name: "Ob")
+  ob: Ob! @goField(name: "Ob", forceResolver: true)
 
   """
   Statement Line and Information to Account Owner
@@ -800,7 +826,7 @@ type CustStmtMsg
 
   This field indicates the funds which are available to the account owner (if credit balance) or the balance which is subject to interest charges (if debit balance)
   """
-  cab: Cab @goField(name: "Cab")
+  cab: Cab @goField(name: "Cab", forceResolver: true)
 
   """
   Forward Available Balance
@@ -1171,6 +1197,70 @@ func (ec *executionContext) _Ai_ic(ctx context.Context, field graphql.CollectedF
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.Ic, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*string)
+	fc.Result = res
+	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Ai_createdAt(ctx context.Context, field graphql.CollectedField, obj *models.Ai) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "Ai",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   true,
+		IsResolver: true,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Ai().CreatedAt(rctx, obj)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*string)
+	fc.Result = res
+	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Ai_updatedAt(ctx context.Context, field graphql.CollectedField, obj *models.Ai) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "Ai",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   true,
+		IsResolver: true,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Ai().UpdatedAt(rctx, obj)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -1714,14 +1804,14 @@ func (ec *executionContext) _CustStmtMsg_ai(ctx context.Context, field graphql.C
 		Object:     "CustStmtMsg",
 		Field:      field,
 		Args:       nil,
-		IsMethod:   false,
-		IsResolver: false,
+		IsMethod:   true,
+		IsResolver: true,
 	}
 
 	ctx = graphql.WithFieldContext(ctx, fc)
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.Ai, nil
+		return ec.resolvers.CustStmtMsg().Ai(rctx, obj)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -1733,9 +1823,9 @@ func (ec *executionContext) _CustStmtMsg_ai(ctx context.Context, field graphql.C
 		}
 		return graphql.Null
 	}
-	res := resTmp.(models.Ai)
+	res := resTmp.(*models.Ai)
 	fc.Result = res
-	return ec.marshalNAi2githubᚗcomᚋriviatechsᚋmt940_serverᚋmodelsᚐAi(ctx, field.Selections, res)
+	return ec.marshalNAi2ᚖgithubᚗcomᚋriviatechsᚋmt940_serverᚋmodelsᚐAi(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _CustStmtMsg_sn(ctx context.Context, field graphql.CollectedField, obj *models.CustStmtMsg) (ret graphql.Marshaler) {
@@ -1784,14 +1874,14 @@ func (ec *executionContext) _CustStmtMsg_ob(ctx context.Context, field graphql.C
 		Object:     "CustStmtMsg",
 		Field:      field,
 		Args:       nil,
-		IsMethod:   false,
-		IsResolver: false,
+		IsMethod:   true,
+		IsResolver: true,
 	}
 
 	ctx = graphql.WithFieldContext(ctx, fc)
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.Ob, nil
+		return ec.resolvers.CustStmtMsg().Ob(rctx, obj)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -1803,9 +1893,9 @@ func (ec *executionContext) _CustStmtMsg_ob(ctx context.Context, field graphql.C
 		}
 		return graphql.Null
 	}
-	res := resTmp.(models.Ob)
+	res := resTmp.(*models.Ob)
 	fc.Result = res
-	return ec.marshalNOb2githubᚗcomᚋriviatechsᚋmt940_serverᚋmodelsᚐOb(ctx, field.Selections, res)
+	return ec.marshalNOb2ᚖgithubᚗcomᚋriviatechsᚋmt940_serverᚋmodelsᚐOb(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _CustStmtMsg_sl(ctx context.Context, field graphql.CollectedField, obj *models.CustStmtMsg) (ret graphql.Marshaler) {
@@ -1886,14 +1976,14 @@ func (ec *executionContext) _CustStmtMsg_cab(ctx context.Context, field graphql.
 		Object:     "CustStmtMsg",
 		Field:      field,
 		Args:       nil,
-		IsMethod:   false,
-		IsResolver: false,
+		IsMethod:   true,
+		IsResolver: true,
 	}
 
 	ctx = graphql.WithFieldContext(ctx, fc)
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.Cab, nil
+		return ec.resolvers.CustStmtMsg().Cab(rctx, obj)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -4403,6 +4493,40 @@ func (ec *executionContext) _Ai(ctx context.Context, sel ast.SelectionSet, obj *
 
 			out.Values[i] = innerFunc(ctx)
 
+		case "createdAt":
+			field := field
+
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Ai_createdAt(ctx, field, obj)
+				return res
+			}
+
+			out.Concurrently(i, func() graphql.Marshaler {
+				return innerFunc(ctx)
+
+			})
+		case "updatedAt":
+			field := field
+
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Ai_updatedAt(ctx, field, obj)
+				return res
+			}
+
+			out.Concurrently(i, func() graphql.Marshaler {
+				return innerFunc(ctx)
+
+			})
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -4661,15 +4785,25 @@ func (ec *executionContext) _CustStmtMsg(ctx context.Context, sel ast.SelectionS
 			out.Values[i] = innerFunc(ctx)
 
 		case "ai":
+			field := field
+
 			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
-				return ec._CustStmtMsg_ai(ctx, field, obj)
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._CustStmtMsg_ai(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
+				return res
 			}
 
-			out.Values[i] = innerFunc(ctx)
+			out.Concurrently(i, func() graphql.Marshaler {
+				return innerFunc(ctx)
 
-			if out.Values[i] == graphql.Null {
-				atomic.AddUint32(&invalids, 1)
-			}
+			})
 		case "sn":
 			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
 				return ec._CustStmtMsg_sn(ctx, field, obj)
@@ -4681,15 +4815,25 @@ func (ec *executionContext) _CustStmtMsg(ctx context.Context, sel ast.SelectionS
 				atomic.AddUint32(&invalids, 1)
 			}
 		case "ob":
+			field := field
+
 			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
-				return ec._CustStmtMsg_ob(ctx, field, obj)
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._CustStmtMsg_ob(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
+				return res
 			}
 
-			out.Values[i] = innerFunc(ctx)
+			out.Concurrently(i, func() graphql.Marshaler {
+				return innerFunc(ctx)
 
-			if out.Values[i] == graphql.Null {
-				atomic.AddUint32(&invalids, 1)
-			}
+			})
 		case "sl":
 			field := field
 
@@ -4718,12 +4862,22 @@ func (ec *executionContext) _CustStmtMsg(ctx context.Context, sel ast.SelectionS
 				atomic.AddUint32(&invalids, 1)
 			}
 		case "cab":
+			field := field
+
 			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
-				return ec._CustStmtMsg_cab(ctx, field, obj)
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._CustStmtMsg_cab(ctx, field, obj)
+				return res
 			}
 
-			out.Values[i] = innerFunc(ctx)
+			out.Concurrently(i, func() graphql.Marshaler {
+				return innerFunc(ctx)
 
+			})
 		case "fwab":
 			field := field
 
@@ -5609,6 +5763,16 @@ func (ec *executionContext) marshalNAi2githubᚗcomᚋriviatechsᚋmt940_server�
 	return ec._Ai(ctx, sel, &v)
 }
 
+func (ec *executionContext) marshalNAi2ᚖgithubᚗcomᚋriviatechsᚋmt940_serverᚋmodelsᚐAi(ctx context.Context, sel ast.SelectionSet, v *models.Ai) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	return ec._Ai(ctx, sel, v)
+}
+
 func (ec *executionContext) unmarshalNAiInput2githubᚗcomᚋriviatechsᚋmt940_serverᚋmodelsᚐAiInput(ctx context.Context, v interface{}) (models.AiInput, error) {
 	res, err := ec.unmarshalInputAiInput(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
@@ -5670,6 +5834,16 @@ func (ec *executionContext) marshalNInt2int(ctx context.Context, sel ast.Selecti
 
 func (ec *executionContext) marshalNOb2githubᚗcomᚋriviatechsᚋmt940_serverᚋmodelsᚐOb(ctx context.Context, sel ast.SelectionSet, v models.Ob) graphql.Marshaler {
 	return ec._Ob(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNOb2ᚖgithubᚗcomᚋriviatechsᚋmt940_serverᚋmodelsᚐOb(ctx context.Context, sel ast.SelectionSet, v *models.Ob) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	return ec._Ob(ctx, sel, v)
 }
 
 func (ec *executionContext) unmarshalNString2string(ctx context.Context, v interface{}) (string, error) {
