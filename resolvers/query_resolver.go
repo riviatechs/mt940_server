@@ -14,5 +14,5 @@ func (r *queryResolver) CustStmtMsg(ctx context.Context, id int) (*models.CustSt
 }
 
 func (r *queryResolver) CustStmtMsgs(ctx context.Context) ([]*models.CustStmtMsg, error) {
-	panic("not implemented")
+	return db.GetCustStmtMsgs(ctx)
 }
