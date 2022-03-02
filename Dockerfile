@@ -16,7 +16,7 @@ ARG github_personal_token
 RUN apk add --no-cache git
 RUN git config --global url."https://${github_user}:${github_personal_token}@github.com".insteadOf "https://github.com"
 RUN --mount=type=cache,target=/go/pkg/mod \
-    GOPRIVATE='github.com/Mtickets-Limited' go mod download
+    GOPRIVATE='github.com/riviatechs' go mod download
 
 
 FROM base AS build
@@ -24,7 +24,7 @@ ARG TARGETOS
 ARG TARGETARCH
 RUN --mount=target=. \
     --mount=type=cache,target=/go/pkg/mod \
-    --mount=type=cache,target=/root/.cache/go-build go build -o /out/golf .
+    --mount=type=cache,target=/root/.cache/go-build go build -o /out/mt940_server .
 
 FROM base as unit-test
 RUN --mount=target=. \
@@ -47,10 +47,10 @@ FROM scratch AS unit-test-coverage
 COPY --from=unit-test /out/cover.out /cover.out
 
 FROM scratch AS bin-unix
-COPY --from=build /out/golf /
+COPY --from=build /out/mt940_server /
 
 FROM bin-unix as bin
 COPY --from=base /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
 
-ENTRYPOINT [ "./golf" ]
+ENTRYPOINT [ "./mt940_server" ]
 EXPOSE 8080
