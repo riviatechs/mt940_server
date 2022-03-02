@@ -1,5 +1,6 @@
 type Query {
   custStmtMsg(id: Int!): CustStmtMsg
+  getCustStmtMsgByTRN(trn: String!): CustStmtMsg
   custStmtMsgs: [CustStmtMsg]
   getStatementLines: [Sl]
 }

@@ -20,3 +20,7 @@ func (r *QueryResolver) CustStmtMsgs(ctx context.Context) ([]*models.CustStmtMsg
 func (r *QueryResolver) GetStatementLines(ctx context.Context) ([]*models.Sl, error) {
 	return db.GetStatementLines(ctx)
 }
+
+func (r *QueryResolver) GetCustStmtMsgByTrn(ctx context.Context, trn string) (*models.CustStmtMsg, error) {
+	return db.GetCustStmtMsgByTrn(ctx, trn)
+}

@@ -120,9 +120,10 @@ type ComplexityRoot struct {
 	}
 
 	Query struct {
-		CustStmtMsg       func(childComplexity int, id int) int
-		CustStmtMsgs      func(childComplexity int) int
-		GetStatementLines func(childComplexity int) int
+		CustStmtMsg         func(childComplexity int, id int) int
+		CustStmtMsgs        func(childComplexity int) int
+		GetCustStmtMsgByTrn func(childComplexity int, trn string) int
+		GetStatementLines   func(childComplexity int) int
 	}
 
 	Sl struct {
@@ -179,6 +180,7 @@ type ObResolver interface {
 }
 type QueryResolver interface {
 	CustStmtMsg(ctx context.Context, id int) (*models.CustStmtMsg, error)
+	GetCustStmtMsgByTrn(ctx context.Context, trn string) (*models.CustStmtMsg, error)
 	CustStmtMsgs(ctx context.Context) ([]*models.CustStmtMsg, error)
 	GetStatementLines(ctx context.Context) ([]*models.Sl, error)
 }
@@ -542,6 +544,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Query.CustStmtMsgs(childComplexity), true
 
+	case "Query.getCustStmtMsgByTRN":
+		if e.complexity.Query.GetCustStmtMsgByTrn == nil {
+			break
+		}
+
+		args, err := ec.field_Query_getCustStmtMsgByTRN_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Query.GetCustStmtMsgByTrn(childComplexity, args["trn"].(string)), true
+
 	case "Query.getStatementLines":
 		if e.complexity.Query.GetStatementLines == nil {
 			break
@@ -718,6 +732,7 @@ directive @goTag(
 `, BuiltIn: false},
 	{Name: "graph/schema/query.graphqls", Input: `type Query {
   custStmtMsg(id: Int!): CustStmtMsg
+  getCustStmtMsgByTRN(trn: String!): CustStmtMsg
   custStmtMsgs: [CustStmtMsg]
   getStatementLines: [Sl]
 }
@@ -1208,6 +1223,21 @@ func (ec *executionContext) field_Query_custStmtMsg_args(ctx context.Context, ra
 		}
 	}
 	args["id"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Query_getCustStmtMsgByTRN_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 string
+	if tmp, ok := rawArgs["trn"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("trn"))
+		arg0, err = ec.unmarshalNString2string(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["trn"] = arg0
 	return args, nil
 }
 
@@ -2707,6 +2737,45 @@ func (ec *executionContext) _Query_custStmtMsg(ctx context.Context, field graphq
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
 		return ec.resolvers.Query().CustStmtMsg(rctx, args["id"].(int))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*models.CustStmtMsg)
+	fc.Result = res
+	return ec.marshalOCustStmtMsg2ᚖgithubᚗcomᚋriviatechsᚋmt940_serverᚋmodelsᚐCustStmtMsg(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Query_getCustStmtMsgByTRN(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "Query",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   true,
+		IsResolver: true,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	rawArgs := field.ArgumentMap(ec.Variables)
+	args, err := ec.field_Query_getCustStmtMsgByTRN_args(ctx, rawArgs)
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	fc.Args = args
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Query().GetCustStmtMsgByTrn(rctx, args["trn"].(string))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -5556,6 +5625,26 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 					}
 				}()
 				res = ec._Query_custStmtMsg(ctx, field)
+				return res
+			}
+
+			rrm := func(ctx context.Context) graphql.Marshaler {
+				return ec.OperationContext.RootResolverMiddleware(ctx, innerFunc)
+			}
+
+			out.Concurrently(i, func() graphql.Marshaler {
+				return rrm(innerCtx)
+			})
+		case "getCustStmtMsgByTRN":
+			field := field
+
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query_getCustStmtMsgByTRN(ctx, field)
 				return res
 			}
 
