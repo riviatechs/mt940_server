@@ -42,7 +42,7 @@ func (r *Resolver) Ob() generated.ObResolver {
 }
 
 // Query returns generated.QueryResolver implementation.
-func (r *Resolver) Query() generated.QueryResolver { return &queryResolver{r} }
+func (r *Resolver) Query() generated.QueryResolver { return &QueryResolver{r} }
 
 // Sl returns generated.SlResolver implementation.
 func (r *Resolver) Sl() generated.SlResolver { return &slResolver{r} }

@@ -120,8 +120,9 @@ type ComplexityRoot struct {
 	}
 
 	Query struct {
-		CustStmtMsg  func(childComplexity int, id int) int
-		CustStmtMsgs func(childComplexity int) int
+		CustStmtMsg       func(childComplexity int, id int) int
+		CustStmtMsgs      func(childComplexity int) int
+		GetStatementLines func(childComplexity int) int
 	}
 
 	Sl struct {
@@ -179,6 +180,7 @@ type ObResolver interface {
 type QueryResolver interface {
 	CustStmtMsg(ctx context.Context, id int) (*models.CustStmtMsg, error)
 	CustStmtMsgs(ctx context.Context) ([]*models.CustStmtMsg, error)
+	GetStatementLines(ctx context.Context) ([]*models.Sl, error)
 }
 type SlResolver interface {
 	ID(ctx context.Context, obj *models.Sl) (*int, error)
@@ -540,6 +542,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Query.CustStmtMsgs(childComplexity), true
 
+	case "Query.getStatementLines":
+		if e.complexity.Query.GetStatementLines == nil {
+			break
+		}
+
+		return e.complexity.Query.GetStatementLines(childComplexity), true
+
 	case "Sl.amount":
 		if e.complexity.Sl.Amount == nil {
 			break
@@ -710,6 +719,7 @@ directive @goTag(
 	{Name: "graph/schema/query.graphqls", Input: `type Query {
   custStmtMsg(id: Int!): CustStmtMsg
   custStmtMsgs: [CustStmtMsg]
+  getStatementLines: [Sl]
 }
 `, BuiltIn: false},
 	{Name: "graph/schema/schema.graphqls", Input: `# GraphQL schema example
@@ -2740,6 +2750,38 @@ func (ec *executionContext) _Query_custStmtMsgs(ctx context.Context, field graph
 	res := resTmp.([]*models.CustStmtMsg)
 	fc.Result = res
 	return ec.marshalOCustStmtMsg2ᚕᚖgithubᚗcomᚋriviatechsᚋmt940_serverᚋmodelsᚐCustStmtMsg(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Query_getStatementLines(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "Query",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   true,
+		IsResolver: true,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Query().GetStatementLines(rctx)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.([]*models.Sl)
+	fc.Result = res
+	return ec.marshalOSl2ᚕᚖgithubᚗcomᚋriviatechsᚋmt940_serverᚋmodelsᚐSl(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _Query___type(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
@@ -5544,6 +5586,26 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 			out.Concurrently(i, func() graphql.Marshaler {
 				return rrm(innerCtx)
 			})
+		case "getStatementLines":
+			field := field
+
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query_getStatementLines(ctx, field)
+				return res
+			}
+
+			rrm := func(ctx context.Context) graphql.Marshaler {
+				return ec.OperationContext.RootResolverMiddleware(ctx, innerFunc)
+			}
+
+			out.Concurrently(i, func() graphql.Marshaler {
+				return rrm(innerCtx)
+			})
 		case "__type":
 			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
 				return ec._Query___type(ctx, field)
@@ -6659,6 +6721,47 @@ func (ec *executionContext) marshalOInt2ᚖint(ctx context.Context, sel ast.Sele
 	return res
 }
 
+func (ec *executionContext) marshalOSl2ᚕᚖgithubᚗcomᚋriviatechsᚋmt940_serverᚋmodelsᚐSl(ctx context.Context, sel ast.SelectionSet, v []*models.Sl) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	ret := make(graphql.Array, len(v))
+	var wg sync.WaitGroup
+	isLen1 := len(v) == 1
+	if !isLen1 {
+		wg.Add(len(v))
+	}
+	for i := range v {
+		i := i
+		fc := &graphql.FieldContext{
+			Index:  &i,
+			Result: &v[i],
+		}
+		ctx := graphql.WithFieldContext(ctx, fc)
+		f := func(i int) {
+			defer func() {
+				if r := recover(); r != nil {
+					ec.Error(ctx, ec.Recover(ctx, r))
+					ret = nil
+				}
+			}()
+			if !isLen1 {
+				defer wg.Done()
+			}
+			ret[i] = ec.marshalOSl2ᚖgithubᚗcomᚋriviatechsᚋmt940_serverᚋmodelsᚐSl(ctx, sel, v[i])
+		}
+		if isLen1 {
+			f(i)
+		} else {
+			go f(i)
+		}
+
+	}
+	wg.Wait()
+
+	return ret
+}
+
 func (ec *executionContext) marshalOSl2ᚕᚖgithubᚗcomᚋriviatechsᚋmt940_serverᚋmodelsᚐSlᚄ(ctx context.Context, sel ast.SelectionSet, v []*models.Sl) graphql.Marshaler {
 	if v == nil {
 		return graphql.Null
@@ -6704,6 +6807,13 @@ func (ec *executionContext) marshalOSl2ᚕᚖgithubᚗcomᚋriviatechsᚋmt940_s
 	}
 
 	return ret
+}
+
+func (ec *executionContext) marshalOSl2ᚖgithubᚗcomᚋriviatechsᚋmt940_serverᚋmodelsᚐSl(ctx context.Context, sel ast.SelectionSet, v *models.Sl) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return ec._Sl(ctx, sel, v)
 }
 
 func (ec *executionContext) unmarshalOSlInput2ᚕᚖgithubᚗcomᚋriviatechsᚋmt940_serverᚋmodelsᚐSlᚄ(ctx context.Context, v interface{}) ([]*models.Sl, error) {

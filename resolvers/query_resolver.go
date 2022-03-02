@@ -7,12 +7,16 @@ import (
 	"github.com/riviatechs/mt940_server/models"
 )
 
-type queryResolver struct{ *Resolver }
+type QueryResolver struct{ *Resolver }
 
-func (r *queryResolver) CustStmtMsg(ctx context.Context, id int) (*models.CustStmtMsg, error) {
+func (r *QueryResolver) CustStmtMsg(ctx context.Context, id int) (*models.CustStmtMsg, error) {
 	return db.GetCustStmtMsg(ctx, id)
 }
 
-func (r *queryResolver) CustStmtMsgs(ctx context.Context) ([]*models.CustStmtMsg, error) {
+func (r *QueryResolver) CustStmtMsgs(ctx context.Context) ([]*models.CustStmtMsg, error) {
 	return db.GetCustStmtMsgs(ctx)
+}
+
+func (r *QueryResolver) GetStatementLines(ctx context.Context) ([]*models.Sl, error) {
+	return db.GetStatementLines(ctx)
 }
