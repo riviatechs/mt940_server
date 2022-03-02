@@ -1,0 +1,5 @@
+type SlGroups
+  @goModel(model: "github.com/riviatechs/mt940_server/models.SlGroups") {
+  ValueDate: String @goField(name: "ValueDate")
+  Sls: [Sl] @goField(name: "Sls")
+}

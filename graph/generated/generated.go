@@ -120,10 +120,11 @@ type ComplexityRoot struct {
 	}
 
 	Query struct {
-		CustStmtMsg         func(childComplexity int, id int) int
-		CustStmtMsgs        func(childComplexity int) int
-		GetCustStmtMsgByTrn func(childComplexity int, trn string) int
-		GetStatementLines   func(childComplexity int) int
+		CustStmtMsg              func(childComplexity int, id int) int
+		CustStmtMsgs             func(childComplexity int) int
+		GetCustStmtMsgByTrn      func(childComplexity int, trn string) int
+		GetStatementLines        func(childComplexity int) int
+		GetStmtLineGroupedByDate func(childComplexity int) int
 	}
 
 	Sl struct {
@@ -139,6 +140,11 @@ type ComplexityRoot struct {
 		Supp          func(childComplexity int) int
 		Ttic          func(childComplexity int) int
 		ValueDate     func(childComplexity int) int
+	}
+
+	SlGroups struct {
+		Sls       func(childComplexity int) int
+		ValueDate func(childComplexity int) int
 	}
 }
 
@@ -183,6 +189,7 @@ type QueryResolver interface {
 	GetCustStmtMsgByTrn(ctx context.Context, trn string) (*models.CustStmtMsg, error)
 	CustStmtMsgs(ctx context.Context) ([]*models.CustStmtMsg, error)
 	GetStatementLines(ctx context.Context) ([]*models.Sl, error)
+	GetStmtLineGroupedByDate(ctx context.Context) ([]*models.SlGroups, error)
 }
 type SlResolver interface {
 	ID(ctx context.Context, obj *models.Sl) (*int, error)
@@ -563,6 +570,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Query.GetStatementLines(childComplexity), true
 
+	case "Query.getStmtLineGroupedByDate":
+		if e.complexity.Query.GetStmtLineGroupedByDate == nil {
+			break
+		}
+
+		return e.complexity.Query.GetStmtLineGroupedByDate(childComplexity), true
+
 	case "Sl.amount":
 		if e.complexity.Sl.Amount == nil {
 			break
@@ -646,6 +660,20 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Sl.ValueDate(childComplexity), true
+
+	case "SlGroups.Sls":
+		if e.complexity.SlGroups.Sls == nil {
+			break
+		}
+
+		return e.complexity.SlGroups.Sls(childComplexity), true
+
+	case "SlGroups.ValueDate":
+		if e.complexity.SlGroups.ValueDate == nil {
+			break
+		}
+
+		return e.complexity.SlGroups.ValueDate(childComplexity), true
 
 	}
 	return 0, false
@@ -735,6 +763,7 @@ directive @goTag(
   getCustStmtMsgByTRN(trn: String!): CustStmtMsg
   custStmtMsgs: [CustStmtMsg]
   getStatementLines: [Sl]
+  getStmtLineGroupedByDate: [SlGroups]
 }
 `, BuiltIn: false},
 	{Name: "graph/schema/schema.graphqls", Input: `# GraphQL schema example
@@ -1172,6 +1201,12 @@ input SlInput @goModel(model: "github.com/riviatechs/mt940_server/models.Sl") {
   refAsi: String @goField(name: "RefAsi")
   supp: String @goField(name: "Supp")
   iao: String @goField(name: "Iao")
+}
+`, BuiltIn: false},
+	{Name: "graph/schema/types/sl_group.graphqls", Input: `type SlGroups
+  @goModel(model: "github.com/riviatechs/mt940_server/models.SlGroups") {
+  ValueDate: String @goField(name: "ValueDate")
+  Sls: [Sl] @goField(name: "Sls")
 }
 `, BuiltIn: false},
 }
@@ -2853,6 +2888,38 @@ func (ec *executionContext) _Query_getStatementLines(ctx context.Context, field 
 	return ec.marshalOSl2ᚕᚖgithubᚗcomᚋriviatechsᚋmt940_serverᚋmodelsᚐSl(ctx, field.Selections, res)
 }
 
+func (ec *executionContext) _Query_getStmtLineGroupedByDate(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "Query",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   true,
+		IsResolver: true,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Query().GetStmtLineGroupedByDate(rctx)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.([]*models.SlGroups)
+	fc.Result = res
+	return ec.marshalOSlGroups2ᚕᚖgithubᚗcomᚋriviatechsᚋmt940_serverᚋmodelsᚐSlGroups(ctx, field.Selections, res)
+}
+
 func (ec *executionContext) _Query___type(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
@@ -3315,6 +3382,70 @@ func (ec *executionContext) _Sl_iao(ctx context.Context, field graphql.Collected
 	res := resTmp.(*string)
 	fc.Result = res
 	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _SlGroups_ValueDate(ctx context.Context, field graphql.CollectedField, obj *models.SlGroups) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "SlGroups",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   false,
+		IsResolver: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ValueDate, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalOString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _SlGroups_Sls(ctx context.Context, field graphql.CollectedField, obj *models.SlGroups) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "SlGroups",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   false,
+		IsResolver: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Sls, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.([]*models.Sl)
+	fc.Result = res
+	return ec.marshalOSl2ᚕᚖgithubᚗcomᚋriviatechsᚋmt940_serverᚋmodelsᚐSl(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) ___Directive_name(ctx context.Context, field graphql.CollectedField, obj *introspection.Directive) (ret graphql.Marshaler) {
@@ -5695,6 +5826,26 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 			out.Concurrently(i, func() graphql.Marshaler {
 				return rrm(innerCtx)
 			})
+		case "getStmtLineGroupedByDate":
+			field := field
+
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query_getStmtLineGroupedByDate(ctx, field)
+				return res
+			}
+
+			rrm := func(ctx context.Context) graphql.Marshaler {
+				return ec.OperationContext.RootResolverMiddleware(ctx, innerFunc)
+			}
+
+			out.Concurrently(i, func() graphql.Marshaler {
+				return rrm(innerCtx)
+			})
 		case "__type":
 			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
 				return ec._Query___type(ctx, field)
@@ -5839,6 +5990,41 @@ func (ec *executionContext) _Sl(ctx context.Context, sel ast.SelectionSet, obj *
 		case "iao":
 			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
 				return ec._Sl_iao(ctx, field, obj)
+			}
+
+			out.Values[i] = innerFunc(ctx)
+
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch()
+	if invalids > 0 {
+		return graphql.Null
+	}
+	return out
+}
+
+var slGroupsImplementors = []string{"SlGroups"}
+
+func (ec *executionContext) _SlGroups(ctx context.Context, sel ast.SelectionSet, obj *models.SlGroups) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, slGroupsImplementors)
+	out := graphql.NewFieldSet(fields)
+	var invalids uint32
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("SlGroups")
+		case "ValueDate":
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._SlGroups_ValueDate(ctx, field, obj)
+			}
+
+			out.Values[i] = innerFunc(ctx)
+
+		case "Sls":
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._SlGroups_Sls(ctx, field, obj)
 			}
 
 			out.Values[i] = innerFunc(ctx)
@@ -6903,6 +7089,54 @@ func (ec *executionContext) marshalOSl2ᚖgithubᚗcomᚋriviatechsᚋmt940_serv
 		return graphql.Null
 	}
 	return ec._Sl(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalOSlGroups2ᚕᚖgithubᚗcomᚋriviatechsᚋmt940_serverᚋmodelsᚐSlGroups(ctx context.Context, sel ast.SelectionSet, v []*models.SlGroups) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	ret := make(graphql.Array, len(v))
+	var wg sync.WaitGroup
+	isLen1 := len(v) == 1
+	if !isLen1 {
+		wg.Add(len(v))
+	}
+	for i := range v {
+		i := i
+		fc := &graphql.FieldContext{
+			Index:  &i,
+			Result: &v[i],
+		}
+		ctx := graphql.WithFieldContext(ctx, fc)
+		f := func(i int) {
+			defer func() {
+				if r := recover(); r != nil {
+					ec.Error(ctx, ec.Recover(ctx, r))
+					ret = nil
+				}
+			}()
+			if !isLen1 {
+				defer wg.Done()
+			}
+			ret[i] = ec.marshalOSlGroups2ᚖgithubᚗcomᚋriviatechsᚋmt940_serverᚋmodelsᚐSlGroups(ctx, sel, v[i])
+		}
+		if isLen1 {
+			f(i)
+		} else {
+			go f(i)
+		}
+
+	}
+	wg.Wait()
+
+	return ret
+}
+
+func (ec *executionContext) marshalOSlGroups2ᚖgithubᚗcomᚋriviatechsᚋmt940_serverᚋmodelsᚐSlGroups(ctx context.Context, sel ast.SelectionSet, v *models.SlGroups) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return ec._SlGroups(ctx, sel, v)
 }
 
 func (ec *executionContext) unmarshalOSlInput2ᚕᚖgithubᚗcomᚋriviatechsᚋmt940_serverᚋmodelsᚐSlᚄ(ctx context.Context, v interface{}) ([]*models.Sl, error) {

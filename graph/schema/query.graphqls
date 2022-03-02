@@ -3,4 +3,5 @@ type Query {
   getCustStmtMsgByTRN(trn: String!): CustStmtMsg
   custStmtMsgs: [CustStmtMsg]
   getStatementLines: [Sl]
+  getStmtLineGroupedByDate: [SlGroups]
 }

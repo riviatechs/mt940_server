@@ -24,3 +24,7 @@ func (r *QueryResolver) GetStatementLines(ctx context.Context) ([]*models.Sl, er
 func (r *QueryResolver) GetCustStmtMsgByTrn(ctx context.Context, trn string) (*models.CustStmtMsg, error) {
 	return db.GetCustStmtMsgByTrn(ctx, trn)
 }
+
+func (r *QueryResolver) GetStmtLineGroupedByDate(ctx context.Context) ([]*models.SlGroups, error) {
+	return db.GetStmtLineGroupedByDate(ctx)
+}
