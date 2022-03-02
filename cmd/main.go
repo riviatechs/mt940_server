@@ -144,6 +144,7 @@ func Start() {
 	graphSrv := handler.NewDefaultServer(generated.NewExecutableSchema(generated.Config{Resolvers: &resolver.Resolver{}}))
 
 	r := mux.NewRouter()
+	r.Use(CustomCors)
 	r.Handle("/", playground.Handler("GraphQL playground", "/graphql"))
 	r.Handle("/graphql", graphSrv)
 
