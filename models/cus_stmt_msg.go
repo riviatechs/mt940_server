@@ -10,8 +10,8 @@ import (
 type CustStmtMsg struct {
 	ID        *uint `gorm:"primarykey"`
 	CreatedAt *time.Time
-	UpdatedAt time.Time
-	DeletedAt gorm.DeletedAt `gorm:"index"`
+	UpdatedAt *time.Time
+	DeletedAt *gorm.DeletedAt `gorm:"index"`
 
 	Trn  string  `gorm:"column:trn;not null;unique"`
 	Rr   *string `gorm:"column:rr;default null"`
@@ -28,4 +28,3 @@ type CustStmtMsg struct {
 func (CustStmtMsg) TableName() string {
 	return util.CusStmtMsgTable
 }
-
