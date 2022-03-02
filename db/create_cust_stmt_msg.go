@@ -4,12 +4,19 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/MalukiMuthusi/logger"
 	"github.com/riviatechs/mt940_server/models"
+	"go.uber.org/zap"
 )
 
 func CreateCustStmtMsg(ctx context.Context, input models.CustStmtMsg) (*int, error) {
-	in := input
-	result := Db.Create(&in)
+	in := &input
+
+	if Db == nil {
+		logger.Fatalf("CreateCustStmtMsg", zap.String("db", "db is nil"))
+	}
+
+	result := Db.Create(in)
 	if result.Error != nil {
 		return nil, fmt.Errorf("failed to create a new customer statement message")
 	}

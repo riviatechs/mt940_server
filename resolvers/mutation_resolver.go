@@ -7,8 +7,8 @@ import (
 	"github.com/riviatechs/mt940_server/models"
 )
 
-type mutationResolver struct{ *Resolver }
+type MutationResolver struct{ *Resolver }
 
-func (r *mutationResolver) CreateCustStmtMsg(ctx context.Context, input models.CustStmtMsg) (*int, error) {
+func (r *MutationResolver) CreateCustStmtMsg(ctx context.Context, input models.CustStmtMsg) (*int, error) {
 	return db.CreateCustStmtMsg(ctx, input)
 }

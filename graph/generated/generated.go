@@ -159,12 +159,8 @@ type CbResolver interface {
 type CustStmtMsgResolver interface {
 	ID(ctx context.Context, obj *models.CustStmtMsg) (*int, error)
 
-	Ai(ctx context.Context, obj *models.CustStmtMsg) (*models.Ai, error)
-
-	Ob(ctx context.Context, obj *models.CustStmtMsg) (*models.Ob, error)
 	Sl(ctx context.Context, obj *models.CustStmtMsg) ([]*models.Sl, error)
 
-	Cab(ctx context.Context, obj *models.CustStmtMsg) (*models.Cab, error)
 	Fwab(ctx context.Context, obj *models.CustStmtMsg) ([]*models.Fwab, error)
 }
 type FwabResolver interface {
@@ -885,7 +881,7 @@ type CustStmtMsg
   """
   Account Identification
   """
-  ai: Ai! @goField(name: "Ai", forceResolver: true)
+  ai: Ai! @goField(name: "Ai")
 
   """
   Statement Number/Sequence Number
@@ -899,7 +895,7 @@ type CustStmtMsg
 
   The first customer statement message for a specified period must contain field 60F (first opening balance); additional statement messages for the same statement period must contain field 60M(intermediate opening balance)
   """
-  ob: Ob! @goField(name: "Ob", forceResolver: true)
+  ob: Ob! @goField(name: "Ob")
 
   """
   Statement Line and Information to Account Owner
@@ -918,7 +914,7 @@ type CustStmtMsg
 
   This field indicates the funds which are available to the account owner (if credit balance) or the balance which is subject to interest charges (if debit balance)
   """
-  cab: Cab @goField(name: "Cab", forceResolver: true)
+  cab: Cab @goField(name: "Cab")
 
   """
   Forward Available Balance
@@ -930,7 +926,7 @@ type CustStmtMsg
   """
   Information to Account Owner
   """
-  iao: String @goField(name: "Iao") @goField(name: "Iao")
+  iao: String @goField(name: "Iao")
 }
 
 input CustStmtMsgInput
@@ -1965,14 +1961,14 @@ func (ec *executionContext) _CustStmtMsg_ai(ctx context.Context, field graphql.C
 		Object:     "CustStmtMsg",
 		Field:      field,
 		Args:       nil,
-		IsMethod:   true,
-		IsResolver: true,
+		IsMethod:   false,
+		IsResolver: false,
 	}
 
 	ctx = graphql.WithFieldContext(ctx, fc)
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.CustStmtMsg().Ai(rctx, obj)
+		return obj.Ai, nil
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -1984,9 +1980,9 @@ func (ec *executionContext) _CustStmtMsg_ai(ctx context.Context, field graphql.C
 		}
 		return graphql.Null
 	}
-	res := resTmp.(*models.Ai)
+	res := resTmp.(models.Ai)
 	fc.Result = res
-	return ec.marshalNAi2ᚖgithubᚗcomᚋriviatechsᚋmt940_serverᚋmodelsᚐAi(ctx, field.Selections, res)
+	return ec.marshalNAi2githubᚗcomᚋriviatechsᚋmt940_serverᚋmodelsᚐAi(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _CustStmtMsg_sn(ctx context.Context, field graphql.CollectedField, obj *models.CustStmtMsg) (ret graphql.Marshaler) {
@@ -2035,14 +2031,14 @@ func (ec *executionContext) _CustStmtMsg_ob(ctx context.Context, field graphql.C
 		Object:     "CustStmtMsg",
 		Field:      field,
 		Args:       nil,
-		IsMethod:   true,
-		IsResolver: true,
+		IsMethod:   false,
+		IsResolver: false,
 	}
 
 	ctx = graphql.WithFieldContext(ctx, fc)
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.CustStmtMsg().Ob(rctx, obj)
+		return obj.Ob, nil
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -2054,9 +2050,9 @@ func (ec *executionContext) _CustStmtMsg_ob(ctx context.Context, field graphql.C
 		}
 		return graphql.Null
 	}
-	res := resTmp.(*models.Ob)
+	res := resTmp.(models.Ob)
 	fc.Result = res
-	return ec.marshalNOb2ᚖgithubᚗcomᚋriviatechsᚋmt940_serverᚋmodelsᚐOb(ctx, field.Selections, res)
+	return ec.marshalNOb2githubᚗcomᚋriviatechsᚋmt940_serverᚋmodelsᚐOb(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _CustStmtMsg_sl(ctx context.Context, field graphql.CollectedField, obj *models.CustStmtMsg) (ret graphql.Marshaler) {
@@ -2137,14 +2133,14 @@ func (ec *executionContext) _CustStmtMsg_cab(ctx context.Context, field graphql.
 		Object:     "CustStmtMsg",
 		Field:      field,
 		Args:       nil,
-		IsMethod:   true,
-		IsResolver: true,
+		IsMethod:   false,
+		IsResolver: false,
 	}
 
 	ctx = graphql.WithFieldContext(ctx, fc)
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.CustStmtMsg().Cab(rctx, obj)
+		return obj.Cab, nil
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -5158,25 +5154,15 @@ func (ec *executionContext) _CustStmtMsg(ctx context.Context, sel ast.SelectionS
 			out.Values[i] = innerFunc(ctx)
 
 		case "ai":
-			field := field
-
 			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
-				defer func() {
-					if r := recover(); r != nil {
-						ec.Error(ctx, ec.Recover(ctx, r))
-					}
-				}()
-				res = ec._CustStmtMsg_ai(ctx, field, obj)
-				if res == graphql.Null {
-					atomic.AddUint32(&invalids, 1)
-				}
-				return res
+				return ec._CustStmtMsg_ai(ctx, field, obj)
 			}
 
-			out.Concurrently(i, func() graphql.Marshaler {
-				return innerFunc(ctx)
+			out.Values[i] = innerFunc(ctx)
 
-			})
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&invalids, 1)
+			}
 		case "sn":
 			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
 				return ec._CustStmtMsg_sn(ctx, field, obj)
@@ -5188,25 +5174,15 @@ func (ec *executionContext) _CustStmtMsg(ctx context.Context, sel ast.SelectionS
 				atomic.AddUint32(&invalids, 1)
 			}
 		case "ob":
-			field := field
-
 			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
-				defer func() {
-					if r := recover(); r != nil {
-						ec.Error(ctx, ec.Recover(ctx, r))
-					}
-				}()
-				res = ec._CustStmtMsg_ob(ctx, field, obj)
-				if res == graphql.Null {
-					atomic.AddUint32(&invalids, 1)
-				}
-				return res
+				return ec._CustStmtMsg_ob(ctx, field, obj)
 			}
 
-			out.Concurrently(i, func() graphql.Marshaler {
-				return innerFunc(ctx)
+			out.Values[i] = innerFunc(ctx)
 
-			})
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&invalids, 1)
+			}
 		case "sl":
 			field := field
 
@@ -5235,22 +5211,12 @@ func (ec *executionContext) _CustStmtMsg(ctx context.Context, sel ast.SelectionS
 				atomic.AddUint32(&invalids, 1)
 			}
 		case "cab":
-			field := field
-
 			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
-				defer func() {
-					if r := recover(); r != nil {
-						ec.Error(ctx, ec.Recover(ctx, r))
-					}
-				}()
-				res = ec._CustStmtMsg_cab(ctx, field, obj)
-				return res
+				return ec._CustStmtMsg_cab(ctx, field, obj)
 			}
 
-			out.Concurrently(i, func() graphql.Marshaler {
-				return innerFunc(ctx)
+			out.Values[i] = innerFunc(ctx)
 
-			})
 		case "fwab":
 			field := field
 
@@ -6150,16 +6116,6 @@ func (ec *executionContext) marshalNAi2githubᚗcomᚋriviatechsᚋmt940_server�
 	return ec._Ai(ctx, sel, &v)
 }
 
-func (ec *executionContext) marshalNAi2ᚖgithubᚗcomᚋriviatechsᚋmt940_serverᚋmodelsᚐAi(ctx context.Context, sel ast.SelectionSet, v *models.Ai) graphql.Marshaler {
-	if v == nil {
-		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	return ec._Ai(ctx, sel, v)
-}
-
 func (ec *executionContext) unmarshalNAiInput2githubᚗcomᚋriviatechsᚋmt940_serverᚋmodelsᚐAi(ctx context.Context, v interface{}) (models.Ai, error) {
 	res, err := ec.unmarshalInputAiInput(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
@@ -6241,16 +6197,6 @@ func (ec *executionContext) marshalNInt2int(ctx context.Context, sel ast.Selecti
 
 func (ec *executionContext) marshalNOb2githubᚗcomᚋriviatechsᚋmt940_serverᚋmodelsᚐOb(ctx context.Context, sel ast.SelectionSet, v models.Ob) graphql.Marshaler {
 	return ec._Ob(ctx, sel, &v)
-}
-
-func (ec *executionContext) marshalNOb2ᚖgithubᚗcomᚋriviatechsᚋmt940_serverᚋmodelsᚐOb(ctx context.Context, sel ast.SelectionSet, v *models.Ob) graphql.Marshaler {
-	if v == nil {
-		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	return ec._Ob(ctx, sel, v)
 }
 
 func (ec *executionContext) unmarshalNObInput2githubᚗcomᚋriviatechsᚋmt940_serverᚋmodelsᚐOb(ctx context.Context, v interface{}) (models.Ob, error) {

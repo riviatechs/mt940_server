@@ -34,7 +34,7 @@ func (r *Resolver) Fwab() generated.FwabResolver {
 }
 
 // Mutation returns generated.MutationResolver implementation.
-func (r *Resolver) Mutation() generated.MutationResolver { return &mutationResolver{r} }
+func (r *Resolver) Mutation() generated.MutationResolver { return &MutationResolver{r} }
 
 // Ob returns generated.ObResolver implementation.
 func (r *Resolver) Ob() generated.ObResolver {

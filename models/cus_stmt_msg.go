@@ -28,3 +28,4 @@ type CustStmtMsg struct {
 func (CustStmtMsg) TableName() string {
 	return util.CusStmtMsgTable
 }
+
