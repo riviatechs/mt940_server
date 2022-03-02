@@ -2,6 +2,7 @@ package db
 
 import (
 	"fmt"
+	"os"
 
 	"github.com/MalukiMuthusi/logger"
 	"github.com/riviatechs/mt940_server/models"
@@ -22,7 +23,19 @@ func Start() {
 	dbHost := viper.GetString(util.DbHost)
 	dbTimeZone := viper.GetString(util.DbTimeZone)
 
-	dsn := fmt.Sprintf("host=%s user=%s password=%s dbname=%s port=%s sslmode=disable TimeZone=%s", dbHost, dbUser, dbPwd, dbName, dbPort, dbTimeZone)
+	var dsn string
+	if viper.GetBool(util.DbHostedCloud) {
+		instanceConnectionName := viper.GetString(util.DbConnectionName)
+		socketDir, isSet := os.LookupEnv("DB_SOCKET_DIR")
+		if !isSet {
+			socketDir = "/cloudsql"
+		}
+
+		dsn = fmt.Sprintf("host=%s/%s user=%s password=%s dbname=%s port=%s sslmode=disable TimeZone=%s", socketDir, instanceConnectionName, dbUser, dbPwd, dbName, dbPort, dbTimeZone)
+
+	} else {
+		dsn = fmt.Sprintf("host=%s user=%s password=%s dbname=%s port=%s sslmode=disable TimeZone=%s", dbHost, dbUser, dbPwd, dbName, dbPort, dbTimeZone)
+	}
 
 	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
 	if err != nil {
