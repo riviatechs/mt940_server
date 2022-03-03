@@ -44,6 +44,7 @@ type ResolverRoot interface {
 	Ob() ObResolver
 	Query() QueryResolver
 	Sl() SlResolver
+	AiInput() AiInputResolver
 	AmountInput() AmountInputResolver
 	CabInput() CabInputResolver
 	CbInput() CbInputResolver
@@ -108,7 +109,7 @@ type ComplexityRoot struct {
 	}
 
 	Mutation struct {
-		CreateCustStmtMsg func(childComplexity int, input models.CustStmtMsg) int
+		CreateCustStmtMsg func(childComplexity int, input models.CustStmtMsgInput) int
 	}
 
 	Ob struct {
@@ -152,12 +153,14 @@ type ComplexityRoot struct {
 
 type AiResolver interface {
 	ID(ctx context.Context, obj *models.Ai) (*int, error)
+	CustStmtMsgID(ctx context.Context, obj *models.Ai) (int, error)
 
 	CreatedAt(ctx context.Context, obj *models.Ai) (*string, error)
 	UpdatedAt(ctx context.Context, obj *models.Ai) (*string, error)
 }
 type CabResolver interface {
 	ID(ctx context.Context, obj *models.Cab) (*int, error)
+	CustStmtMsgID(ctx context.Context, obj *models.Cab) (int, error)
 
 	DateY(ctx context.Context, obj *models.Cab) (string, error)
 
@@ -165,6 +168,7 @@ type CabResolver interface {
 }
 type CbResolver interface {
 	ID(ctx context.Context, obj *models.Cb) (*int, error)
+	CustStmtMsgID(ctx context.Context, obj *models.Cb) (int, error)
 
 	DateY(ctx context.Context, obj *models.Cb) (string, error)
 
@@ -179,16 +183,18 @@ type CustStmtMsgResolver interface {
 }
 type FwabResolver interface {
 	ID(ctx context.Context, obj *models.Fwab) (*int, error)
+	CustStmtMsgID(ctx context.Context, obj *models.Fwab) (int, error)
 
 	DateY(ctx context.Context, obj *models.Fwab) (string, error)
 
 	Amount(ctx context.Context, obj *models.Fwab) (float64, error)
 }
 type MutationResolver interface {
-	CreateCustStmtMsg(ctx context.Context, input models.CustStmtMsg) (*int, error)
+	CreateCustStmtMsg(ctx context.Context, input models.CustStmtMsgInput) (*int, error)
 }
 type ObResolver interface {
 	ID(ctx context.Context, obj *models.Ob) (*int, error)
+	CustStmtMsgID(ctx context.Context, obj *models.Ob) (int, error)
 
 	DateY(ctx context.Context, obj *models.Ob) (string, error)
 
@@ -204,47 +210,59 @@ type QueryResolver interface {
 }
 type SlResolver interface {
 	ID(ctx context.Context, obj *models.Sl) (*int, error)
-
+	CustStmtMsgID(ctx context.Context, obj *models.Sl) (int, error)
 	ValueDate(ctx context.Context, obj *models.Sl) (*string, error)
 	EntryDate(ctx context.Context, obj *models.Sl) (*string, error)
 
 	Amount(ctx context.Context, obj *models.Sl) (float64, error)
 }
 
+type AiInputResolver interface {
+	CustStmtMsgID(ctx context.Context, obj *models.AiInput, data int) error
+}
 type AmountInputResolver interface {
 	Lower(ctx context.Context, obj *models.Amount, data float64) error
 	Upper(ctx context.Context, obj *models.Amount, data float64) error
 }
 type CabInputResolver interface {
-	DateY(ctx context.Context, obj *models.Cab, data string) error
+	CustStmtMsgID(ctx context.Context, obj *models.CabInput, data int) error
 
-	Amount(ctx context.Context, obj *models.Cab, data float64) error
+	DateY(ctx context.Context, obj *models.CabInput, data string) error
+
+	Amount(ctx context.Context, obj *models.CabInput, data float64) error
 }
 type CbInputResolver interface {
-	DateY(ctx context.Context, obj *models.Cb, data string) error
+	CustStmtMsgID(ctx context.Context, obj *models.CbInput, data int) error
 
-	Amount(ctx context.Context, obj *models.Cb, data float64) error
+	DateY(ctx context.Context, obj *models.CbInput, data string) error
+
+	Amount(ctx context.Context, obj *models.CbInput, data float64) error
 }
 type CustStmtMsgInputResolver interface {
-	Sl(ctx context.Context, obj *models.CustStmtMsg, data []*models.Sl) error
+	Sl(ctx context.Context, obj *models.CustStmtMsgInput, data []*models.SlInput) error
 
-	Fwab(ctx context.Context, obj *models.CustStmtMsg, data []*models.Fwab) error
+	Fwab(ctx context.Context, obj *models.CustStmtMsgInput, data []*models.FwabInput) error
 }
 type FwabInputResolver interface {
-	DateY(ctx context.Context, obj *models.Fwab, data string) error
+	CustStmtMsgID(ctx context.Context, obj *models.FwabInput, data int) error
 
-	Amount(ctx context.Context, obj *models.Fwab, data float64) error
+	DateY(ctx context.Context, obj *models.FwabInput, data string) error
+
+	Amount(ctx context.Context, obj *models.FwabInput, data float64) error
 }
 type ObInputResolver interface {
-	DateY(ctx context.Context, obj *models.Ob, data string) error
+	CustStmtMsgID(ctx context.Context, obj *models.ObInput, data int) error
 
-	Amount(ctx context.Context, obj *models.Ob, data float64) error
+	DateY(ctx context.Context, obj *models.ObInput, data string) error
+
+	Amount(ctx context.Context, obj *models.ObInput, data float64) error
 }
 type SlInputResolver interface {
-	ValueDate(ctx context.Context, obj *models.Sl, data *string) error
-	EntryDate(ctx context.Context, obj *models.Sl, data *string) error
+	CustStmtMsgID(ctx context.Context, obj *models.SlInput, data int) error
+	ValueDate(ctx context.Context, obj *models.SlInput, data *string) error
+	EntryDate(ctx context.Context, obj *models.SlInput, data *string) error
 
-	Amount(ctx context.Context, obj *models.Sl, data float64) error
+	Amount(ctx context.Context, obj *models.SlInput, data float64) error
 }
 
 type executableSchema struct {
@@ -517,7 +535,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Mutation.CreateCustStmtMsg(childComplexity, args["input"].(models.CustStmtMsg)), true
+		return e.complexity.Mutation.CreateCustStmtMsg(childComplexity, args["input"].(models.CustStmtMsgInput)), true
 
 	case "Ob.amount":
 		if e.complexity.Ob.Amount == nil {
@@ -822,7 +840,7 @@ Account Identification
 type Ai @goModel(model: "github.com/riviatechs/mt940_server/models.Ai") {
   id: Int @goField(name: "ID")
 
-  custStmtMsgID: String! @goField(name: "CustStmtMsgID")
+  custStmtMsgID: Int! @goField(name: "CustStmtMsgID")
 
   """
   Account
@@ -838,8 +856,9 @@ type Ai @goModel(model: "github.com/riviatechs/mt940_server/models.Ai") {
   updatedAt: String @goField(name: "UpdatedAt")
 }
 
-input AiInput @goModel(model: "github.com/riviatechs/mt940_server/models.Ai") {
-  custStmtMsgID: String! @goField(name: "CustStmtMsgID")
+input AiInput
+  @goModel(model: "github.com/riviatechs/mt940_server/models.AiInput") {
+  custStmtMsgID: Int! @goField(name: "CustStmtMsgID")
   account: String! @goField(name: "Account")
   ic: String @goField(name: "Ic")
 }
@@ -853,7 +872,7 @@ input AiInput @goModel(model: "github.com/riviatechs/mt940_server/models.Ai") {
 	{Name: "graph/schema/types/cab.graphqls", Input: `type Cab @goModel(model: "github.com/riviatechs/mt940_server/models.Cab") {
   id: Int @goField(name: "ID")
 
-  custStmtMsgID: String! @goField(name: "CustStmtMsgID")
+  custStmtMsgID: Int! @goField(name: "CustStmtMsgID")
 
   """
   D/C Mark refers to Credit/Debit
@@ -880,8 +899,8 @@ input AiInput @goModel(model: "github.com/riviatechs/mt940_server/models.Ai") {
 }
 
 input CabInput
-  @goModel(model: "github.com/riviatechs/mt940_server/models.Cab") {
-  custStmtMsgID: String! @goField(name: "CustStmtMsgID")
+  @goModel(model: "github.com/riviatechs/mt940_server/models.CabInput") {
+  custStmtMsgID: Int! @goField(name: "CustStmtMsgID")
 
   """
   D/C Mark refers to Credit/Debit
@@ -910,7 +929,7 @@ input CabInput
 	{Name: "graph/schema/types/cb.graphqls", Input: `type Cb @goModel(model: "github.com/riviatechs/mt940_server/models.Cb") {
   id: Int @goField(name: "ID")
 
-  custStmtMsgID: String! @goField(name: "CustStmtMsgID")
+  custStmtMsgID: Int! @goField(name: "CustStmtMsgID")
 
   """
   D/C Mark refers to Credit/Debit
@@ -936,8 +955,9 @@ input CabInput
   amount: Float! @goField(name: "Amount")
 }
 
-input CbInput @goModel(model: "github.com/riviatechs/mt940_server/models.Cb") {
-  custStmtMsgID: String! @goField(name: "CustStmtMsgID")
+input CbInput
+  @goModel(model: "github.com/riviatechs/mt940_server/models.CbInput") {
+  custStmtMsgID: Int! @goField(name: "CustStmtMsgID")
 
   """
   D/C Mark refers to Credit/Debit
@@ -1032,7 +1052,9 @@ type CustStmtMsg
 }
 
 input CustStmtMsgInput
-  @goModel(model: "github.com/riviatechs/mt940_server/models.CustStmtMsg") {
+  @goModel(
+    model: "github.com/riviatechs/mt940_server/models.CustStmtMsgInput"
+  ) {
   trn: String! @goField(name: "Trn")
   rr: String @goField(name: "Rr")
   ai: AiInput! @goField(name: "Ai")
@@ -1048,7 +1070,7 @@ input CustStmtMsgInput
 	{Name: "graph/schema/types/fwab.graphqls", Input: `type Fwab @goModel(model: "github.com/riviatechs/mt940_server/models.Fwab") {
   id: Int @goField(name: "ID")
 
-  custStmtMsgID: String! @goField(name: "CustStmtMsgID")
+  custStmtMsgID: Int! @goField(name: "CustStmtMsgID")
 
   """
   D/C Mark refers to Credit/Debit
@@ -1075,8 +1097,8 @@ input CustStmtMsgInput
 }
 
 input FwabInput
-  @goModel(model: "github.com/riviatechs/mt940_server/models.Fwab") {
-  custStmtMsgID: String! @goField(name: "CustStmtMsgID")
+  @goModel(model: "github.com/riviatechs/mt940_server/models.FwabInput") {
+  custStmtMsgID: Int! @goField(name: "CustStmtMsgID")
 
   """
   D/C Mark refers to Credit/Debit
@@ -1105,7 +1127,7 @@ input FwabInput
 	{Name: "graph/schema/types/ob.graphqls", Input: `type Ob @goModel(model: "github.com/riviatechs/mt940_server/models.Ob") {
   id: Int @goField(name: "ID")
 
-  custStmtMsgID: String! @goField(name: "CustStmtMsgID")
+  custStmtMsgID: Int! @goField(name: "CustStmtMsgID")
 
   """
   D/C Mark refers to Credit/Debit
@@ -1131,8 +1153,9 @@ input FwabInput
   amount: Float! @goField(name: "Amount")
 }
 
-input ObInput @goModel(model: "github.com/riviatechs/mt940_server/models.Ob") {
-  custStmtMsgID: String! @goField(name: "CustStmtMsgID")
+input ObInput
+  @goModel(model: "github.com/riviatechs/mt940_server/models.ObInput") {
+  custStmtMsgID: Int! @goField(name: "CustStmtMsgID")
 
   """
   D/C Mark refers to Credit/Debit
@@ -1164,7 +1187,7 @@ Statement Line and Information to Account Owner
 type Sl @goModel(model: "github.com/riviatechs/mt940_server/models.Sl") {
   id: Int @goField(name: "ID")
 
-  custStmtMsgID: String! @goField(name: "CustStmtMsgID")
+  custStmtMsgID: Int! @goField(name: "CustStmtMsgID")
 
   """
   Value Date
@@ -1237,8 +1260,9 @@ type Sl @goModel(model: "github.com/riviatechs/mt940_server/models.Sl") {
   iao: String @goField(name: "Iao")
 }
 
-input SlInput @goModel(model: "github.com/riviatechs/mt940_server/models.Sl") {
-  custStmtMsgID: String! @goField(name: "CustStmtMsgID")
+input SlInput
+  @goModel(model: "github.com/riviatechs/mt940_server/models.SlInput") {
+  custStmtMsgID: Int! @goField(name: "CustStmtMsgID")
   valueDate: String @goField(name: "ValueDate")
   entryDate: String @goField(name: "EntryDate")
   mark: String! @goField(name: "Mark")
@@ -1267,10 +1291,10 @@ var parsedSchema = gqlparser.MustLoadSchema(sources...)
 func (ec *executionContext) field_Mutation_createCustStmtMsg_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
-	var arg0 models.CustStmtMsg
+	var arg0 models.CustStmtMsgInput
 	if tmp, ok := rawArgs["input"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
-		arg0, err = ec.unmarshalNCustStmtMsgInput2githubᚗcomᚋriviatechsᚋmt940_serverᚋmodelsᚐCustStmtMsg(ctx, tmp)
+		arg0, err = ec.unmarshalNCustStmtMsgInput2githubᚗcomᚋriviatechsᚋmt940_serverᚋmodelsᚐCustStmtMsgInput(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -1420,14 +1444,14 @@ func (ec *executionContext) _Ai_custStmtMsgID(ctx context.Context, field graphql
 		Object:     "Ai",
 		Field:      field,
 		Args:       nil,
-		IsMethod:   false,
-		IsResolver: false,
+		IsMethod:   true,
+		IsResolver: true,
 	}
 
 	ctx = graphql.WithFieldContext(ctx, fc)
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.CustStmtMsgID, nil
+		return ec.resolvers.Ai().CustStmtMsgID(rctx, obj)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -1439,9 +1463,9 @@ func (ec *executionContext) _Ai_custStmtMsgID(ctx context.Context, field graphql
 		}
 		return graphql.Null
 	}
-	res := resTmp.(string)
+	res := resTmp.(int)
 	fc.Result = res
-	return ec.marshalNString2string(ctx, field.Selections, res)
+	return ec.marshalNInt2int(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _Ai_account(ctx context.Context, field graphql.CollectedField, obj *models.Ai) (ret graphql.Marshaler) {
@@ -1618,14 +1642,14 @@ func (ec *executionContext) _Cab_custStmtMsgID(ctx context.Context, field graphq
 		Object:     "Cab",
 		Field:      field,
 		Args:       nil,
-		IsMethod:   false,
-		IsResolver: false,
+		IsMethod:   true,
+		IsResolver: true,
 	}
 
 	ctx = graphql.WithFieldContext(ctx, fc)
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.CustStmtMsgID, nil
+		return ec.resolvers.Cab().CustStmtMsgID(rctx, obj)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -1637,9 +1661,9 @@ func (ec *executionContext) _Cab_custStmtMsgID(ctx context.Context, field graphq
 		}
 		return graphql.Null
 	}
-	res := resTmp.(string)
+	res := resTmp.(int)
 	fc.Result = res
-	return ec.marshalNString2string(ctx, field.Selections, res)
+	return ec.marshalNInt2int(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _Cab_mark(ctx context.Context, field graphql.CollectedField, obj *models.Cab) (ret graphql.Marshaler) {
@@ -1825,14 +1849,14 @@ func (ec *executionContext) _Cb_custStmtMsgID(ctx context.Context, field graphql
 		Object:     "Cb",
 		Field:      field,
 		Args:       nil,
-		IsMethod:   false,
-		IsResolver: false,
+		IsMethod:   true,
+		IsResolver: true,
 	}
 
 	ctx = graphql.WithFieldContext(ctx, fc)
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.CustStmtMsgID, nil
+		return ec.resolvers.Cb().CustStmtMsgID(rctx, obj)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -1844,9 +1868,9 @@ func (ec *executionContext) _Cb_custStmtMsgID(ctx context.Context, field graphql
 		}
 		return graphql.Null
 	}
-	res := resTmp.(string)
+	res := resTmp.(int)
 	fc.Result = res
-	return ec.marshalNString2string(ctx, field.Selections, res)
+	return ec.marshalNInt2int(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _Cb_mark(ctx context.Context, field graphql.CollectedField, obj *models.Cb) (ret graphql.Marshaler) {
@@ -2399,14 +2423,14 @@ func (ec *executionContext) _Fwab_custStmtMsgID(ctx context.Context, field graph
 		Object:     "Fwab",
 		Field:      field,
 		Args:       nil,
-		IsMethod:   false,
-		IsResolver: false,
+		IsMethod:   true,
+		IsResolver: true,
 	}
 
 	ctx = graphql.WithFieldContext(ctx, fc)
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.CustStmtMsgID, nil
+		return ec.resolvers.Fwab().CustStmtMsgID(rctx, obj)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -2418,9 +2442,9 @@ func (ec *executionContext) _Fwab_custStmtMsgID(ctx context.Context, field graph
 		}
 		return graphql.Null
 	}
-	res := resTmp.(string)
+	res := resTmp.(int)
 	fc.Result = res
-	return ec.marshalNString2string(ctx, field.Selections, res)
+	return ec.marshalNInt2int(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _Fwab_mark(ctx context.Context, field graphql.CollectedField, obj *models.Fwab) (ret graphql.Marshaler) {
@@ -2588,7 +2612,7 @@ func (ec *executionContext) _Mutation_createCustStmtMsg(ctx context.Context, fie
 	fc.Args = args
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().CreateCustStmtMsg(rctx, args["input"].(models.CustStmtMsg))
+		return ec.resolvers.Mutation().CreateCustStmtMsg(rctx, args["input"].(models.CustStmtMsgInput))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -2645,14 +2669,14 @@ func (ec *executionContext) _Ob_custStmtMsgID(ctx context.Context, field graphql
 		Object:     "Ob",
 		Field:      field,
 		Args:       nil,
-		IsMethod:   false,
-		IsResolver: false,
+		IsMethod:   true,
+		IsResolver: true,
 	}
 
 	ctx = graphql.WithFieldContext(ctx, fc)
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.CustStmtMsgID, nil
+		return ec.resolvers.Ob().CustStmtMsgID(rctx, obj)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -2664,9 +2688,9 @@ func (ec *executionContext) _Ob_custStmtMsgID(ctx context.Context, field graphql
 		}
 		return graphql.Null
 	}
-	res := resTmp.(string)
+	res := resTmp.(int)
 	fc.Result = res
-	return ec.marshalNString2string(ctx, field.Selections, res)
+	return ec.marshalNInt2int(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _Ob_mark(ctx context.Context, field graphql.CollectedField, obj *models.Ob) (ret graphql.Marshaler) {
@@ -3136,14 +3160,14 @@ func (ec *executionContext) _Sl_custStmtMsgID(ctx context.Context, field graphql
 		Object:     "Sl",
 		Field:      field,
 		Args:       nil,
-		IsMethod:   false,
-		IsResolver: false,
+		IsMethod:   true,
+		IsResolver: true,
 	}
 
 	ctx = graphql.WithFieldContext(ctx, fc)
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.CustStmtMsgID, nil
+		return ec.resolvers.Sl().CustStmtMsgID(rctx, obj)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -3155,9 +3179,9 @@ func (ec *executionContext) _Sl_custStmtMsgID(ctx context.Context, field graphql
 		}
 		return graphql.Null
 	}
-	res := resTmp.(string)
+	res := resTmp.(int)
 	fc.Result = res
-	return ec.marshalNString2string(ctx, field.Selections, res)
+	return ec.marshalNInt2int(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _Sl_valueDate(ctx context.Context, field graphql.CollectedField, obj *models.Sl) (ret graphql.Marshaler) {
@@ -4672,8 +4696,8 @@ func (ec *executionContext) ___Type_ofType(ctx context.Context, field graphql.Co
 
 // region    **************************** input.gotpl *****************************
 
-func (ec *executionContext) unmarshalInputAiInput(ctx context.Context, obj interface{}) (models.Ai, error) {
-	var it models.Ai
+func (ec *executionContext) unmarshalInputAiInput(ctx context.Context, obj interface{}) (models.AiInput, error) {
+	var it models.AiInput
 	asMap := map[string]interface{}{}
 	for k, v := range obj.(map[string]interface{}) {
 		asMap[k] = v
@@ -4685,8 +4709,11 @@ func (ec *executionContext) unmarshalInputAiInput(ctx context.Context, obj inter
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("custStmtMsgID"))
-			it.CustStmtMsgID, err = ec.unmarshalNString2string(ctx, v)
+			data, err := ec.unmarshalNInt2int(ctx, v)
 			if err != nil {
+				return it, err
+			}
+			if err = ec.resolvers.AiInput().CustStmtMsgID(ctx, &it, data); err != nil {
 				return it, err
 			}
 		case "account":
@@ -4748,8 +4775,8 @@ func (ec *executionContext) unmarshalInputAmountInput(ctx context.Context, obj i
 	return it, nil
 }
 
-func (ec *executionContext) unmarshalInputCabInput(ctx context.Context, obj interface{}) (models.Cab, error) {
-	var it models.Cab
+func (ec *executionContext) unmarshalInputCabInput(ctx context.Context, obj interface{}) (models.CabInput, error) {
+	var it models.CabInput
 	asMap := map[string]interface{}{}
 	for k, v := range obj.(map[string]interface{}) {
 		asMap[k] = v
@@ -4761,8 +4788,11 @@ func (ec *executionContext) unmarshalInputCabInput(ctx context.Context, obj inte
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("custStmtMsgID"))
-			it.CustStmtMsgID, err = ec.unmarshalNString2string(ctx, v)
+			data, err := ec.unmarshalNInt2int(ctx, v)
 			if err != nil {
+				return it, err
+			}
+			if err = ec.resolvers.CabInput().CustStmtMsgID(ctx, &it, data); err != nil {
 				return it, err
 			}
 		case "mark":
@@ -4809,8 +4839,8 @@ func (ec *executionContext) unmarshalInputCabInput(ctx context.Context, obj inte
 	return it, nil
 }
 
-func (ec *executionContext) unmarshalInputCbInput(ctx context.Context, obj interface{}) (models.Cb, error) {
-	var it models.Cb
+func (ec *executionContext) unmarshalInputCbInput(ctx context.Context, obj interface{}) (models.CbInput, error) {
+	var it models.CbInput
 	asMap := map[string]interface{}{}
 	for k, v := range obj.(map[string]interface{}) {
 		asMap[k] = v
@@ -4822,8 +4852,11 @@ func (ec *executionContext) unmarshalInputCbInput(ctx context.Context, obj inter
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("custStmtMsgID"))
-			it.CustStmtMsgID, err = ec.unmarshalNString2string(ctx, v)
+			data, err := ec.unmarshalNInt2int(ctx, v)
 			if err != nil {
+				return it, err
+			}
+			if err = ec.resolvers.CbInput().CustStmtMsgID(ctx, &it, data); err != nil {
 				return it, err
 			}
 		case "mark":
@@ -4870,8 +4903,8 @@ func (ec *executionContext) unmarshalInputCbInput(ctx context.Context, obj inter
 	return it, nil
 }
 
-func (ec *executionContext) unmarshalInputCustStmtMsgInput(ctx context.Context, obj interface{}) (models.CustStmtMsg, error) {
-	var it models.CustStmtMsg
+func (ec *executionContext) unmarshalInputCustStmtMsgInput(ctx context.Context, obj interface{}) (models.CustStmtMsgInput, error) {
+	var it models.CustStmtMsgInput
 	asMap := map[string]interface{}{}
 	for k, v := range obj.(map[string]interface{}) {
 		asMap[k] = v
@@ -4899,7 +4932,7 @@ func (ec *executionContext) unmarshalInputCustStmtMsgInput(ctx context.Context, 
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("ai"))
-			it.Ai, err = ec.unmarshalNAiInput2githubᚗcomᚋriviatechsᚋmt940_serverᚋmodelsᚐAi(ctx, v)
+			it.Ai, err = ec.unmarshalNAiInput2githubᚗcomᚋriviatechsᚋmt940_serverᚋmodelsᚐAiInput(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -4915,7 +4948,7 @@ func (ec *executionContext) unmarshalInputCustStmtMsgInput(ctx context.Context, 
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("ob"))
-			it.Ob, err = ec.unmarshalNObInput2githubᚗcomᚋriviatechsᚋmt940_serverᚋmodelsᚐOb(ctx, v)
+			it.Ob, err = ec.unmarshalNObInput2githubᚗcomᚋriviatechsᚋmt940_serverᚋmodelsᚐObInput(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -4923,7 +4956,7 @@ func (ec *executionContext) unmarshalInputCustStmtMsgInput(ctx context.Context, 
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("sl"))
-			data, err := ec.unmarshalOSlInput2ᚕᚖgithubᚗcomᚋriviatechsᚋmt940_serverᚋmodelsᚐSlᚄ(ctx, v)
+			data, err := ec.unmarshalOSlInput2ᚕᚖgithubᚗcomᚋriviatechsᚋmt940_serverᚋmodelsᚐSlInputᚄ(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -4934,7 +4967,7 @@ func (ec *executionContext) unmarshalInputCustStmtMsgInput(ctx context.Context, 
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("cb"))
-			it.Cb, err = ec.unmarshalNCbInput2githubᚗcomᚋriviatechsᚋmt940_serverᚋmodelsᚐCb(ctx, v)
+			it.Cb, err = ec.unmarshalNCbInput2githubᚗcomᚋriviatechsᚋmt940_serverᚋmodelsᚐCbInput(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -4942,7 +4975,7 @@ func (ec *executionContext) unmarshalInputCustStmtMsgInput(ctx context.Context, 
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("cab"))
-			it.Cab, err = ec.unmarshalOCabInput2ᚖgithubᚗcomᚋriviatechsᚋmt940_serverᚋmodelsᚐCab(ctx, v)
+			it.Cab, err = ec.unmarshalOCabInput2ᚖgithubᚗcomᚋriviatechsᚋmt940_serverᚋmodelsᚐCabInput(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -4950,7 +4983,7 @@ func (ec *executionContext) unmarshalInputCustStmtMsgInput(ctx context.Context, 
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("fwab"))
-			data, err := ec.unmarshalOFwabInput2ᚕᚖgithubᚗcomᚋriviatechsᚋmt940_serverᚋmodelsᚐFwabᚄ(ctx, v)
+			data, err := ec.unmarshalOFwabInput2ᚕᚖgithubᚗcomᚋriviatechsᚋmt940_serverᚋmodelsᚐFwabInputᚄ(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -4971,8 +5004,8 @@ func (ec *executionContext) unmarshalInputCustStmtMsgInput(ctx context.Context, 
 	return it, nil
 }
 
-func (ec *executionContext) unmarshalInputFwabInput(ctx context.Context, obj interface{}) (models.Fwab, error) {
-	var it models.Fwab
+func (ec *executionContext) unmarshalInputFwabInput(ctx context.Context, obj interface{}) (models.FwabInput, error) {
+	var it models.FwabInput
 	asMap := map[string]interface{}{}
 	for k, v := range obj.(map[string]interface{}) {
 		asMap[k] = v
@@ -4984,8 +5017,11 @@ func (ec *executionContext) unmarshalInputFwabInput(ctx context.Context, obj int
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("custStmtMsgID"))
-			it.CustStmtMsgID, err = ec.unmarshalNString2string(ctx, v)
+			data, err := ec.unmarshalNInt2int(ctx, v)
 			if err != nil {
+				return it, err
+			}
+			if err = ec.resolvers.FwabInput().CustStmtMsgID(ctx, &it, data); err != nil {
 				return it, err
 			}
 		case "mark":
@@ -5032,8 +5068,8 @@ func (ec *executionContext) unmarshalInputFwabInput(ctx context.Context, obj int
 	return it, nil
 }
 
-func (ec *executionContext) unmarshalInputObInput(ctx context.Context, obj interface{}) (models.Ob, error) {
-	var it models.Ob
+func (ec *executionContext) unmarshalInputObInput(ctx context.Context, obj interface{}) (models.ObInput, error) {
+	var it models.ObInput
 	asMap := map[string]interface{}{}
 	for k, v := range obj.(map[string]interface{}) {
 		asMap[k] = v
@@ -5045,8 +5081,11 @@ func (ec *executionContext) unmarshalInputObInput(ctx context.Context, obj inter
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("custStmtMsgID"))
-			it.CustStmtMsgID, err = ec.unmarshalNString2string(ctx, v)
+			data, err := ec.unmarshalNInt2int(ctx, v)
 			if err != nil {
+				return it, err
+			}
+			if err = ec.resolvers.ObInput().CustStmtMsgID(ctx, &it, data); err != nil {
 				return it, err
 			}
 		case "mark":
@@ -5093,8 +5132,8 @@ func (ec *executionContext) unmarshalInputObInput(ctx context.Context, obj inter
 	return it, nil
 }
 
-func (ec *executionContext) unmarshalInputSlInput(ctx context.Context, obj interface{}) (models.Sl, error) {
-	var it models.Sl
+func (ec *executionContext) unmarshalInputSlInput(ctx context.Context, obj interface{}) (models.SlInput, error) {
+	var it models.SlInput
 	asMap := map[string]interface{}{}
 	for k, v := range obj.(map[string]interface{}) {
 		asMap[k] = v
@@ -5106,8 +5145,11 @@ func (ec *executionContext) unmarshalInputSlInput(ctx context.Context, obj inter
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("custStmtMsgID"))
-			it.CustStmtMsgID, err = ec.unmarshalNString2string(ctx, v)
+			data, err := ec.unmarshalNInt2int(ctx, v)
 			if err != nil {
+				return it, err
+			}
+			if err = ec.resolvers.SlInput().CustStmtMsgID(ctx, &it, data); err != nil {
 				return it, err
 			}
 		case "valueDate":
@@ -5241,15 +5283,25 @@ func (ec *executionContext) _Ai(ctx context.Context, sel ast.SelectionSet, obj *
 
 			})
 		case "custStmtMsgID":
+			field := field
+
 			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
-				return ec._Ai_custStmtMsgID(ctx, field, obj)
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Ai_custStmtMsgID(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
+				return res
 			}
 
-			out.Values[i] = innerFunc(ctx)
+			out.Concurrently(i, func() graphql.Marshaler {
+				return innerFunc(ctx)
 
-			if out.Values[i] == graphql.Null {
-				atomic.AddUint32(&invalids, 1)
-			}
+			})
 		case "account":
 			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
 				return ec._Ai_account(ctx, field, obj)
@@ -5340,15 +5392,25 @@ func (ec *executionContext) _Cab(ctx context.Context, sel ast.SelectionSet, obj 
 
 			})
 		case "custStmtMsgID":
+			field := field
+
 			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
-				return ec._Cab_custStmtMsgID(ctx, field, obj)
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Cab_custStmtMsgID(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
+				return res
 			}
 
-			out.Values[i] = innerFunc(ctx)
+			out.Concurrently(i, func() graphql.Marshaler {
+				return innerFunc(ctx)
 
-			if out.Values[i] == graphql.Null {
-				atomic.AddUint32(&invalids, 1)
-			}
+			})
 		case "mark":
 			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
 				return ec._Cab_mark(ctx, field, obj)
@@ -5448,15 +5510,25 @@ func (ec *executionContext) _Cb(ctx context.Context, sel ast.SelectionSet, obj *
 
 			})
 		case "custStmtMsgID":
+			field := field
+
 			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
-				return ec._Cb_custStmtMsgID(ctx, field, obj)
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Cb_custStmtMsgID(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
+				return res
 			}
 
-			out.Values[i] = innerFunc(ctx)
+			out.Concurrently(i, func() graphql.Marshaler {
+				return innerFunc(ctx)
 
-			if out.Values[i] == graphql.Null {
-				atomic.AddUint32(&invalids, 1)
-			}
+			})
 		case "mark":
 			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
 				return ec._Cb_mark(ctx, field, obj)
@@ -5699,15 +5771,25 @@ func (ec *executionContext) _Fwab(ctx context.Context, sel ast.SelectionSet, obj
 
 			})
 		case "custStmtMsgID":
+			field := field
+
 			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
-				return ec._Fwab_custStmtMsgID(ctx, field, obj)
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Fwab_custStmtMsgID(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
+				return res
 			}
 
-			out.Values[i] = innerFunc(ctx)
+			out.Concurrently(i, func() graphql.Marshaler {
+				return innerFunc(ctx)
 
-			if out.Values[i] == graphql.Null {
-				atomic.AddUint32(&invalids, 1)
-			}
+			})
 		case "mark":
 			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
 				return ec._Fwab_mark(ctx, field, obj)
@@ -5844,15 +5926,25 @@ func (ec *executionContext) _Ob(ctx context.Context, sel ast.SelectionSet, obj *
 
 			})
 		case "custStmtMsgID":
+			field := field
+
 			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
-				return ec._Ob_custStmtMsgID(ctx, field, obj)
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Ob_custStmtMsgID(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
+				return res
 			}
 
-			out.Values[i] = innerFunc(ctx)
+			out.Concurrently(i, func() graphql.Marshaler {
+				return innerFunc(ctx)
 
-			if out.Values[i] == graphql.Null {
-				atomic.AddUint32(&invalids, 1)
-			}
+			})
 		case "mark":
 			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
 				return ec._Ob_mark(ctx, field, obj)
@@ -6116,15 +6208,25 @@ func (ec *executionContext) _Sl(ctx context.Context, sel ast.SelectionSet, obj *
 
 			})
 		case "custStmtMsgID":
+			field := field
+
 			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
-				return ec._Sl_custStmtMsgID(ctx, field, obj)
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Sl_custStmtMsgID(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
+				return res
 			}
 
-			out.Values[i] = innerFunc(ctx)
+			out.Concurrently(i, func() graphql.Marshaler {
+				return innerFunc(ctx)
 
-			if out.Values[i] == graphql.Null {
-				atomic.AddUint32(&invalids, 1)
-			}
+			})
 		case "valueDate":
 			field := field
 
@@ -6690,7 +6792,7 @@ func (ec *executionContext) marshalNAi2githubᚗcomᚋriviatechsᚋmt940_server�
 	return ec._Ai(ctx, sel, &v)
 }
 
-func (ec *executionContext) unmarshalNAiInput2githubᚗcomᚋriviatechsᚋmt940_serverᚋmodelsᚐAi(ctx context.Context, v interface{}) (models.Ai, error) {
+func (ec *executionContext) unmarshalNAiInput2githubᚗcomᚋriviatechsᚋmt940_serverᚋmodelsᚐAiInput(ctx context.Context, v interface{}) (models.AiInput, error) {
 	res, err := ec.unmarshalInputAiInput(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
@@ -6719,12 +6821,12 @@ func (ec *executionContext) marshalNCb2githubᚗcomᚋriviatechsᚋmt940_server�
 	return ec._Cb(ctx, sel, &v)
 }
 
-func (ec *executionContext) unmarshalNCbInput2githubᚗcomᚋriviatechsᚋmt940_serverᚋmodelsᚐCb(ctx context.Context, v interface{}) (models.Cb, error) {
+func (ec *executionContext) unmarshalNCbInput2githubᚗcomᚋriviatechsᚋmt940_serverᚋmodelsᚐCbInput(ctx context.Context, v interface{}) (models.CbInput, error) {
 	res, err := ec.unmarshalInputCbInput(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) unmarshalNCustStmtMsgInput2githubᚗcomᚋriviatechsᚋmt940_serverᚋmodelsᚐCustStmtMsg(ctx context.Context, v interface{}) (models.CustStmtMsg, error) {
+func (ec *executionContext) unmarshalNCustStmtMsgInput2githubᚗcomᚋriviatechsᚋmt940_serverᚋmodelsᚐCustStmtMsgInput(ctx context.Context, v interface{}) (models.CustStmtMsgInput, error) {
 	res, err := ec.unmarshalInputCustStmtMsgInput(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
@@ -6754,7 +6856,7 @@ func (ec *executionContext) marshalNFwab2ᚖgithubᚗcomᚋriviatechsᚋmt940_se
 	return ec._Fwab(ctx, sel, v)
 }
 
-func (ec *executionContext) unmarshalNFwabInput2ᚖgithubᚗcomᚋriviatechsᚋmt940_serverᚋmodelsᚐFwab(ctx context.Context, v interface{}) (*models.Fwab, error) {
+func (ec *executionContext) unmarshalNFwabInput2ᚖgithubᚗcomᚋriviatechsᚋmt940_serverᚋmodelsᚐFwabInput(ctx context.Context, v interface{}) (*models.FwabInput, error) {
 	res, err := ec.unmarshalInputFwabInput(ctx, v)
 	return &res, graphql.ErrorOnPath(ctx, err)
 }
@@ -6778,7 +6880,7 @@ func (ec *executionContext) marshalNOb2githubᚗcomᚋriviatechsᚋmt940_server�
 	return ec._Ob(ctx, sel, &v)
 }
 
-func (ec *executionContext) unmarshalNObInput2githubᚗcomᚋriviatechsᚋmt940_serverᚋmodelsᚐOb(ctx context.Context, v interface{}) (models.Ob, error) {
+func (ec *executionContext) unmarshalNObInput2githubᚗcomᚋriviatechsᚋmt940_serverᚋmodelsᚐObInput(ctx context.Context, v interface{}) (models.ObInput, error) {
 	res, err := ec.unmarshalInputObInput(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
@@ -6793,7 +6895,7 @@ func (ec *executionContext) marshalNSl2ᚖgithubᚗcomᚋriviatechsᚋmt940_serv
 	return ec._Sl(ctx, sel, v)
 }
 
-func (ec *executionContext) unmarshalNSlInput2ᚖgithubᚗcomᚋriviatechsᚋmt940_serverᚋmodelsᚐSl(ctx context.Context, v interface{}) (*models.Sl, error) {
+func (ec *executionContext) unmarshalNSlInput2ᚖgithubᚗcomᚋriviatechsᚋmt940_serverᚋmodelsᚐSlInput(ctx context.Context, v interface{}) (*models.SlInput, error) {
 	res, err := ec.unmarshalInputSlInput(ctx, v)
 	return &res, graphql.ErrorOnPath(ctx, err)
 }
@@ -7099,7 +7201,7 @@ func (ec *executionContext) marshalOCab2ᚖgithubᚗcomᚋriviatechsᚋmt940_ser
 	return ec._Cab(ctx, sel, v)
 }
 
-func (ec *executionContext) unmarshalOCabInput2ᚖgithubᚗcomᚋriviatechsᚋmt940_serverᚋmodelsᚐCab(ctx context.Context, v interface{}) (*models.Cab, error) {
+func (ec *executionContext) unmarshalOCabInput2ᚖgithubᚗcomᚋriviatechsᚋmt940_serverᚋmodelsᚐCabInput(ctx context.Context, v interface{}) (*models.CabInput, error) {
 	if v == nil {
 		return nil, nil
 	}
@@ -7202,7 +7304,7 @@ func (ec *executionContext) marshalOFwab2ᚕᚖgithubᚗcomᚋriviatechsᚋmt940
 	return ret
 }
 
-func (ec *executionContext) unmarshalOFwabInput2ᚕᚖgithubᚗcomᚋriviatechsᚋmt940_serverᚋmodelsᚐFwabᚄ(ctx context.Context, v interface{}) ([]*models.Fwab, error) {
+func (ec *executionContext) unmarshalOFwabInput2ᚕᚖgithubᚗcomᚋriviatechsᚋmt940_serverᚋmodelsᚐFwabInputᚄ(ctx context.Context, v interface{}) ([]*models.FwabInput, error) {
 	if v == nil {
 		return nil, nil
 	}
@@ -7211,10 +7313,10 @@ func (ec *executionContext) unmarshalOFwabInput2ᚕᚖgithubᚗcomᚋriviatechs�
 		vSlice = graphql.CoerceList(v)
 	}
 	var err error
-	res := make([]*models.Fwab, len(vSlice))
+	res := make([]*models.FwabInput, len(vSlice))
 	for i := range vSlice {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithIndex(i))
-		res[i], err = ec.unmarshalNFwabInput2ᚖgithubᚗcomᚋriviatechsᚋmt940_serverᚋmodelsᚐFwab(ctx, vSlice[i])
+		res[i], err = ec.unmarshalNFwabInput2ᚖgithubᚗcomᚋriviatechsᚋmt940_serverᚋmodelsᚐFwabInput(ctx, vSlice[i])
 		if err != nil {
 			return nil, err
 		}
@@ -7381,7 +7483,7 @@ func (ec *executionContext) marshalOSlGroups2ᚖgithubᚗcomᚋriviatechsᚋmt94
 	return ec._SlGroups(ctx, sel, v)
 }
 
-func (ec *executionContext) unmarshalOSlInput2ᚕᚖgithubᚗcomᚋriviatechsᚋmt940_serverᚋmodelsᚐSlᚄ(ctx context.Context, v interface{}) ([]*models.Sl, error) {
+func (ec *executionContext) unmarshalOSlInput2ᚕᚖgithubᚗcomᚋriviatechsᚋmt940_serverᚋmodelsᚐSlInputᚄ(ctx context.Context, v interface{}) ([]*models.SlInput, error) {
 	if v == nil {
 		return nil, nil
 	}
@@ -7390,10 +7492,10 @@ func (ec *executionContext) unmarshalOSlInput2ᚕᚖgithubᚗcomᚋriviatechsᚋ
 		vSlice = graphql.CoerceList(v)
 	}
 	var err error
-	res := make([]*models.Sl, len(vSlice))
+	res := make([]*models.SlInput, len(vSlice))
 	for i := range vSlice {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithIndex(i))
-		res[i], err = ec.unmarshalNSlInput2ᚖgithubᚗcomᚋriviatechsᚋmt940_serverᚋmodelsᚐSl(ctx, vSlice[i])
+		res[i], err = ec.unmarshalNSlInput2ᚖgithubᚗcomᚋriviatechsᚋmt940_serverᚋmodelsᚐSlInput(ctx, vSlice[i])
 		if err != nil {
 			return nil, err
 		}

@@ -3,12 +3,17 @@ package resolver
 import (
 	"context"
 
+	"github.com/riviatechs/mt940_server/graph/generated"
 	"github.com/riviatechs/mt940_server/models"
 )
 
 type CustStmtMsgInputResolver struct{ *Resolver }
 
-func (r *CustStmtMsgInputResolver) Sl(ctx context.Context, obj *models.CustStmtMsg, data []*models.Sl) error {
+func (r *Resolver) CustStmtMsgInput() generated.CustStmtMsgInputResolver {
+	return &CustStmtMsgInputResolver{r}
+}
+
+func (r *CustStmtMsgInputResolver) Sl(ctx context.Context, obj *models.CustStmtMsgInput, data []*models.SlInput) error {
 	if obj == nil {
 		return nil
 	}
@@ -16,7 +21,7 @@ func (r *CustStmtMsgInputResolver) Sl(ctx context.Context, obj *models.CustStmtM
 	return nil
 }
 
-func (r *CustStmtMsgInputResolver) Fwab(ctx context.Context, obj *models.CustStmtMsg, data []*models.Fwab) error {
+func (r *CustStmtMsgInputResolver) Fwab(ctx context.Context, obj *models.CustStmtMsgInput, data []*models.FwabInput) error {
 	if obj == nil {
 		return nil
 	}

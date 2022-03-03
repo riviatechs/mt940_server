@@ -9,7 +9,7 @@ import (
 	"go.uber.org/zap"
 )
 
-func CreateCustStmtMsg(ctx context.Context, input models.CustStmtMsg) (*int, error) {
+func CreateCustStmtMsg(ctx context.Context, input models.CustStmtMsgInput) (*int, error) {
 	in := &input
 
 	if Db == nil {

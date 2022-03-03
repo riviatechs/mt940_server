@@ -3,11 +3,23 @@ package resolver
 import (
 	"context"
 
+	"github.com/riviatechs/mt940_server/graph/generated"
 	"github.com/riviatechs/mt940_server/models"
 	"github.com/riviatechs/mt940_server/util"
 )
 
 type SlResolver struct{ *Resolver }
+
+// Sl returns generated.SlResolver implementation.
+func (r *Resolver) Sl() generated.SlResolver { return &SlResolver{r} }
+
+func (r *SlResolver) CustStmtMsgID(ctx context.Context, obj *models.Sl) (int, error) {
+	if obj == nil {
+		return 0, nil
+	}
+
+	return int(obj.CustStmtMsgID), nil
+}
 
 func (r *SlResolver) ID(ctx context.Context, obj *models.Sl) (*int, error) {
 	if obj == nil {

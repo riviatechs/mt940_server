@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/MalukiMuthusi/logger"
+	"github.com/riviatechs/mt940_server/graph/generated"
 	"github.com/riviatechs/mt940_server/models"
 	"github.com/riviatechs/mt940_server/util"
 	"go.uber.org/zap"
@@ -13,7 +14,18 @@ import (
 
 type CabInputResolver struct{ *Resolver }
 
-func (r *CabInputResolver) Amount(ctx context.Context, obj *models.Cab, data float64) error {
+func (r *Resolver) CabInput() generated.CabInputResolver { return &CabInputResolver{r} }
+
+func (r *CabInputResolver) CustStmtMsgID(ctx context.Context, obj *models.CabInput, data int) error {
+	if obj == nil {
+		return nil
+	}
+
+	obj.CustStmtMsgID = uint(data)
+	return nil
+}
+
+func (r *CabInputResolver) Amount(ctx context.Context, obj *models.CabInput, data float64) error {
 	if obj == nil {
 		return nil
 	}
@@ -22,7 +34,7 @@ func (r *CabInputResolver) Amount(ctx context.Context, obj *models.Cab, data flo
 	return nil
 }
 
-func (r *CabInputResolver) DateY(ctx context.Context, obj *models.Cab, data string) error {
+func (r *CabInputResolver) DateY(ctx context.Context, obj *models.CabInput, data string) error {
 	if obj == nil {
 		return nil
 	}

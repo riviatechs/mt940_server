@@ -6,12 +6,26 @@ import (
 	"time"
 
 	"github.com/MalukiMuthusi/logger"
+	"github.com/riviatechs/mt940_server/graph/generated"
 	"github.com/riviatechs/mt940_server/models"
 	"github.com/riviatechs/mt940_server/util"
 	"go.uber.org/zap"
 )
 
 type ObResolver struct{ *Resolver }
+
+// Ob returns generated.ObResolver implementation.
+func (r *Resolver) Ob() generated.ObResolver {
+	return &ObResolver{r}
+}
+
+func (r *ObResolver) CustStmtMsgID(ctx context.Context, obj *models.Ob) (int, error) {
+	if obj == nil {
+		return 0, nil
+	}
+
+	return int(obj.CustStmtMsgID), nil
+}
 
 func (r *ObResolver) ID(ctx context.Context, obj *models.Ob) (*int, error) {
 	if obj == nil {
@@ -31,16 +45,6 @@ func (r *ObResolver) Amount(ctx context.Context, obj *models.Ob) (float64, error
 	return float64(obj.Amount), nil
 }
 
-type ObInputResolver struct{ *Resolver }
-
-func (r *ObInputResolver) Amount(ctx context.Context, obj *models.Ob, data float64) error {
-	if obj == nil {
-		return nil
-	}
-	obj.Amount = float32(data)
-	return nil
-}
-
 func (r *ObResolver) DateY(ctx context.Context, obj *models.Ob) (string, error) {
 	if obj == nil {
 		return "", nil
@@ -49,7 +53,28 @@ func (r *ObResolver) DateY(ctx context.Context, obj *models.Ob) (string, error) 
 	return obj.DateY.Format(util.TimeFormat), nil
 }
 
-func (r *ObInputResolver) DateY(ctx context.Context, obj *models.Ob, data string) error {
+type ObInputResolver struct{ *Resolver }
+
+func (r *Resolver) ObInput() generated.ObInputResolver { return &ObInputResolver{r} }
+
+func (r *ObInputResolver) CustStmtMsgID(ctx context.Context, obj *models.ObInput, data int) error {
+	if obj == nil {
+		return nil
+	}
+
+	obj.CustStmtMsgID = uint(data)
+	return nil
+}
+
+func (r *ObInputResolver) Amount(ctx context.Context, obj *models.ObInput, data float64) error {
+	if obj == nil {
+		return nil
+	}
+	obj.Amount = float32(data)
+	return nil
+}
+
+func (r *ObInputResolver) DateY(ctx context.Context, obj *models.ObInput, data string) error {
 	if obj == nil {
 		return nil
 	}

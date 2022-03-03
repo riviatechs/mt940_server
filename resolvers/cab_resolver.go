@@ -3,11 +3,26 @@ package resolver
 import (
 	"context"
 
+	"github.com/riviatechs/mt940_server/graph/generated"
 	"github.com/riviatechs/mt940_server/models"
 	"github.com/riviatechs/mt940_server/util"
 )
 
 type CabResolver struct{ *Resolver }
+
+// Cab returns generated.CabResolver implementation.
+func (r *Resolver) Cab() generated.CabResolver {
+	return &CabResolver{r}
+}
+
+func (r *CabResolver) CustStmtMsgID(ctx context.Context, obj *models.Cab) (int, error) {
+	if obj == nil {
+		return 0, nil
+	}
+
+	return int(obj.CustStmtMsgID), nil
+
+}
 
 func (r *CabResolver) ID(ctx context.Context, obj *models.Cab) (*int, error) {
 	if obj == nil {

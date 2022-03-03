@@ -3,10 +3,16 @@ package resolver
 import (
 	"context"
 
+	"github.com/riviatechs/mt940_server/graph/generated"
 	"github.com/riviatechs/mt940_server/models"
 )
 
 type CustStmtMsgResolver struct{ *Resolver }
+
+// CustStmtMsg returns generated.CustStmtMsgResolver implementation.
+func (r *Resolver) CustStmtMsg() generated.CustStmtMsgResolver {
+	return &CustStmtMsgResolver{r}
+}
 
 func (r *CustStmtMsgResolver) ID(ctx context.Context, obj *models.CustStmtMsg) (*int, error) {
 	if obj == nil {

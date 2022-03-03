@@ -4,13 +4,25 @@ import (
 	"context"
 	"time"
 
+	"github.com/riviatechs/mt940_server/graph/generated"
 	"github.com/riviatechs/mt940_server/models"
 	"github.com/riviatechs/mt940_server/util"
 )
 
 type SlInputResolver struct{ *Resolver }
 
-func (r *SlInputResolver) Amount(ctx context.Context, obj *models.Sl, data float64) error {
+func (r *Resolver) SlInput() generated.SlInputResolver { return &SlInputResolver{r} }
+
+func (r *SlInputResolver) CustStmtMsgID(ctx context.Context, obj *models.SlInput, data int) error {
+	if obj == nil {
+		return nil
+	}
+
+	obj.CustStmtMsgID = uint(data)
+	return nil
+}
+
+func (r *SlInputResolver) Amount(ctx context.Context, obj *models.SlInput, data float64) error {
 	if obj == nil {
 		return nil
 	}
@@ -18,7 +30,7 @@ func (r *SlInputResolver) Amount(ctx context.Context, obj *models.Sl, data float
 	return nil
 }
 
-func (r *SlInputResolver) ValueDate(ctx context.Context, obj *models.Sl, data *string) error {
+func (r *SlInputResolver) ValueDate(ctx context.Context, obj *models.SlInput, data *string) error {
 	if obj == nil {
 		return nil
 	}
@@ -39,7 +51,7 @@ func (r *SlInputResolver) ValueDate(ctx context.Context, obj *models.Sl, data *s
 	return nil
 }
 
-func (r *SlInputResolver) EntryDate(ctx context.Context, obj *models.Sl, data *string) error {
+func (r *SlInputResolver) EntryDate(ctx context.Context, obj *models.SlInput, data *string) error {
 	if obj == nil {
 		return nil
 	}

@@ -1,7 +1,7 @@
 type Ob @goModel(model: "github.com/riviatechs/mt940_server/models.Ob") {
   id: Int @goField(name: "ID")
 
-  custStmtMsgID: String! @goField(name: "CustStmtMsgID")
+  custStmtMsgID: Int! @goField(name: "CustStmtMsgID")
 
   """
   D/C Mark refers to Credit/Debit
@@ -27,8 +27,9 @@ type Ob @goModel(model: "github.com/riviatechs/mt940_server/models.Ob") {
   amount: Float! @goField(name: "Amount")
 }
 
-input ObInput @goModel(model: "github.com/riviatechs/mt940_server/models.Ob") {
-  custStmtMsgID: String! @goField(name: "CustStmtMsgID")
+input ObInput
+  @goModel(model: "github.com/riviatechs/mt940_server/models.ObInput") {
+  custStmtMsgID: Int! @goField(name: "CustStmtMsgID")
 
   """
   D/C Mark refers to Credit/Debit

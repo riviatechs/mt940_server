@@ -8,23 +8,41 @@ import (
 )
 
 type CustStmtMsg struct {
-	ID        *uint `gorm:"primarykey"`
+	ID        *uint `gorm:"type:SERIAL PRIMARY KEY"`
 	CreatedAt *time.Time
 	UpdatedAt *time.Time
 	DeletedAt *gorm.DeletedAt `gorm:"index"`
 
-	Trn  string  `gorm:"column:trn;not null;unique"`
-	Rr   *string `gorm:"column:rr;default null"`
-	Ai   Ai      `gorm:"foreignKey:CustStmtMsgID;references:trn"`
-	Sn   string  `gorm:"column:sn;not null"`
-	Ob   Ob      `gorm:"foreignKey:CustStmtMsgID;references:trn"`
-	Sl   []*Sl   `gorm:"foreignKey:CustStmtMsgID;references:trn"`
-	Cb   Cb      `gorm:"foreignKey:CustStmtMsgID;references:trn"`
-	Cab  *Cab    `gorm:"foreignKey:CustStmtMsgID;references:trn"`
-	Fwab []*Fwab `gorm:"foreignKey:CustStmtMsgID;references:trn"`
-	Iao  *string `gorm:"column:iao;default null"`
+	Trn  string  `gorm:"column:trn;type:VARCHAR(16) NOT NULL UNIQUE"`
+	Rr   *string `gorm:"column:rr;type:VARCHAR(16) DEFAULT NULL"`
+	Ai   Ai      `gorm:"foreignKey:CustStmtMsgID;references:id"`
+	Sn   string  `gorm:"column:sn;type:VARCHAR(5) NOT NULL"`
+	Ob   Ob      `gorm:"foreignKey:CustStmtMsgID;references:id"`
+	Sl   []*Sl   `gorm:"foreignKey:CustStmtMsgID;references:id"`
+	Cb   Cb      `gorm:"foreignKey:CustStmtMsgID;references:id"`
+	Cab  *Cab    `gorm:"foreignKey:CustStmtMsgID;references:id"`
+	Fwab []*Fwab `gorm:"foreignKey:CustStmtMsgID;references:id"`
+	Iao  *string `gorm:"column:iao;type:VARCHAR(390) DEFAULT NULL"`
 }
 
 func (CustStmtMsg) TableName() string {
+	return util.CusStmtMsgTable
+}
+
+type CustStmtMsgInput struct {
+	ID   *uint        `gorm:"primaryKey"`
+	Trn  string       `gorm:"column:trn;type:VARCHAR(16) NOT NULL UNIQUE"`
+	Rr   *string      `gorm:"column:rr;type:VARCHAR(16) DEFAULT NULL"`
+	Ai   AiInput      `gorm:"foreignKey:CustStmtMsgID;references:id"`
+	Sn   string       `gorm:"column:sn;type:VARCHAR(5) NOT NULL"`
+	Ob   ObInput      `gorm:"foreignKey:CustStmtMsgID;references:id"`
+	Sl   []*SlInput   `gorm:"foreignKey:CustStmtMsgID;references:id"`
+	Cb   CbInput      `gorm:"foreignKey:CustStmtMsgID;references:id"`
+	Cab  *CabInput    `gorm:"foreignKey:CustStmtMsgID;references:id"`
+	Fwab []*FwabInput `gorm:"foreignKey:CustStmtMsgID;references:id"`
+	Iao  *string      `gorm:"column:iao;type:VARCHAR(390) DEFAULT NULL"`
+}
+
+func (CustStmtMsgInput) TableName() string {
 	return util.CusStmtMsgTable
 }

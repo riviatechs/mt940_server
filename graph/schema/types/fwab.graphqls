@@ -1,7 +1,7 @@
 type Fwab @goModel(model: "github.com/riviatechs/mt940_server/models.Fwab") {
   id: Int @goField(name: "ID")
 
-  custStmtMsgID: String! @goField(name: "CustStmtMsgID")
+  custStmtMsgID: Int! @goField(name: "CustStmtMsgID")
 
   """
   D/C Mark refers to Credit/Debit
@@ -28,8 +28,8 @@ type Fwab @goModel(model: "github.com/riviatechs/mt940_server/models.Fwab") {
 }
 
 input FwabInput
-  @goModel(model: "github.com/riviatechs/mt940_server/models.Fwab") {
-  custStmtMsgID: String! @goField(name: "CustStmtMsgID")
+  @goModel(model: "github.com/riviatechs/mt940_server/models.FwabInput") {
+  custStmtMsgID: Int! @goField(name: "CustStmtMsgID")
 
   """
   D/C Mark refers to Credit/Debit

@@ -7,13 +7,21 @@ import (
 )
 
 type Transaction struct {
-	ID        *uint `gorm:"primarykey"`
-	CreatedAt *time.Time
-	UpdatedAt *time.Time
-	DeletedAt *gorm.DeletedAt `gorm:"index"`
+	ID        *uint           `gorm:"primarykey;type:SERIAL PRIMARY KEY"`
+	CreatedAt *time.Time      `gorm:"type:TIMESTAMP DEFAULT NULL"`
+	UpdatedAt *time.Time      `gorm:"type:TIMESTAMP DEFAULT NULL"`
+	DeletedAt *gorm.DeletedAt `gorm:"index;type:TIMESTAMP DEFAULT NULL"`
 
-	Mark     string    `gorm:"column:mark;not null"`
-	DateY    time.Time `gorm:"column:date_y;not null"`
-	Currency string    `gorm:"column:currency;not null"`
-	Amount   float32   `gorm:"column:amount;not null"`
+	Mark     string    `gorm:"column:mark;type:CHAR NOT NULL"`
+	DateY    time.Time `gorm:"column:date_y;type:TIMESTAMP NOT NULL"`
+	Currency string    `gorm:"column:currency;type:VARCHAR(3) NOT NULL"`
+	Amount   float32   `gorm:"column:amount;type:NUMERIC NOT NULL"`
+}
+
+type TransactionInput struct {
+	ID       *uint     `gorm:"primaryKey"`
+	Mark     string    `gorm:"column:mark;type:CHAR NOT NULL"`
+	DateY    time.Time `gorm:"column:date_y;type:TIMESTAMP NOT NULL"`
+	Currency string    `gorm:"column:currency;type:VARCHAR(3) NOT NULL"`
+	Amount   float32   `gorm:"column:amount;type:NUMERIC NOT NULL"`
 }

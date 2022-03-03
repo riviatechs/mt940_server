@@ -4,7 +4,7 @@ Statement Line and Information to Account Owner
 type Sl @goModel(model: "github.com/riviatechs/mt940_server/models.Sl") {
   id: Int @goField(name: "ID")
 
-  custStmtMsgID: String! @goField(name: "CustStmtMsgID")
+  custStmtMsgID: Int! @goField(name: "CustStmtMsgID")
 
   """
   Value Date
@@ -77,8 +77,9 @@ type Sl @goModel(model: "github.com/riviatechs/mt940_server/models.Sl") {
   iao: String @goField(name: "Iao")
 }
 
-input SlInput @goModel(model: "github.com/riviatechs/mt940_server/models.Sl") {
-  custStmtMsgID: String! @goField(name: "CustStmtMsgID")
+input SlInput
+  @goModel(model: "github.com/riviatechs/mt940_server/models.SlInput") {
+  custStmtMsgID: Int! @goField(name: "CustStmtMsgID")
   valueDate: String @goField(name: "ValueDate")
   entryDate: String @goField(name: "EntryDate")
   mark: String! @goField(name: "Mark")

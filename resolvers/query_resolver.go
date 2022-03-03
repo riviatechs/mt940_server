@@ -4,10 +4,14 @@ import (
 	"context"
 
 	"github.com/riviatechs/mt940_server/db"
+	"github.com/riviatechs/mt940_server/graph/generated"
 	"github.com/riviatechs/mt940_server/models"
 )
 
 type QueryResolver struct{ *Resolver }
+
+// Query returns generated.QueryResolver implementation.
+func (r *Resolver) Query() generated.QueryResolver { return &QueryResolver{r} }
 
 func (r *QueryResolver) CustStmtMsg(ctx context.Context, id int) (*models.CustStmtMsg, error) {
 	return db.GetCustStmtMsg(ctx, id)
