@@ -128,6 +128,7 @@ type ComplexityRoot struct {
 		GetStatementLines          func(childComplexity int) int
 		GetStmtLineGroupedByDate   func(childComplexity int) int
 		GetStmtLinesFilterByAmount func(childComplexity int, amount models.Amount) int
+		GetStmtLinesFilterByDc     func(childComplexity int, amount models.DCInput) int
 	}
 
 	Sl struct {
@@ -207,6 +208,7 @@ type QueryResolver interface {
 	GetStatementLines(ctx context.Context) ([]*models.Sl, error)
 	GetStmtLineGroupedByDate(ctx context.Context) ([]*models.SlGroups, error)
 	GetStmtLinesFilterByAmount(ctx context.Context, amount models.Amount) ([]*models.SlGroups, error)
+	GetStmtLinesFilterByDc(ctx context.Context, amount models.DCInput) ([]*models.SlGroups, error)
 }
 type SlResolver interface {
 	ID(ctx context.Context, obj *models.Sl) (*int, error)
@@ -636,6 +638,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Query.GetStmtLinesFilterByAmount(childComplexity, args["amount"].(models.Amount)), true
 
+	case "Query.getStmtLinesFilterByDC":
+		if e.complexity.Query.GetStmtLinesFilterByDc == nil {
+			break
+		}
+
+		args, err := ec.field_Query_getStmtLinesFilterByDC_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Query.GetStmtLinesFilterByDc(childComplexity, args["amount"].(models.DCInput)), true
+
 	case "Sl.amount":
 		if e.complexity.Sl.Amount == nil {
 			break
@@ -824,6 +838,7 @@ directive @goTag(
   getStatementLines: [Sl]
   getStmtLineGroupedByDate: [SlGroups]
   getStmtLinesFilterByAmount(amount: AmountInput!): [SlGroups]
+  getStmtLinesFilterByDC(amount: DCInput!): [SlGroups]
 }
 `, BuiltIn: false},
 	{Name: "graph/schema/schema.graphqls", Input: `# GraphQL schema example
@@ -1065,6 +1080,12 @@ input CustStmtMsgInput
   cab: CabInput @goField(name: "Cab")
   fwab: [FwabInput!] @goField(name: "Fwab", forceResolver: true)
   iao: String @goField(name: "Iao") @goField(name: "Iao")
+}
+`, BuiltIn: false},
+	{Name: "graph/schema/types/db.graphqls", Input: `input DCInput
+  @goModel(model: "github.com/riviatechs/mt940_server/models.DCInput") {
+  d: Boolean @goField(name: "D")
+  c: Boolean @goField(name: "C")
 }
 `, BuiltIn: false},
 	{Name: "graph/schema/types/fwab.graphqls", Input: `type Fwab @goModel(model: "github.com/riviatechs/mt940_server/models.Fwab") {
@@ -1355,6 +1376,21 @@ func (ec *executionContext) field_Query_getStmtLinesFilterByAmount_args(ctx cont
 	if tmp, ok := rawArgs["amount"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("amount"))
 		arg0, err = ec.unmarshalNAmountInput2githubᚗcomᚋriviatechsᚋmt940_serverᚋmodelsᚐAmount(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["amount"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Query_getStmtLinesFilterByDC_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 models.DCInput
+	if tmp, ok := rawArgs["amount"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("amount"))
+		arg0, err = ec.unmarshalNDCInput2githubᚗcomᚋriviatechsᚋmt940_serverᚋmodelsᚐDCInput(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -3033,6 +3069,45 @@ func (ec *executionContext) _Query_getStmtLinesFilterByAmount(ctx context.Contex
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
 		return ec.resolvers.Query().GetStmtLinesFilterByAmount(rctx, args["amount"].(models.Amount))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.([]*models.SlGroups)
+	fc.Result = res
+	return ec.marshalOSlGroups2ᚕᚖgithubᚗcomᚋriviatechsᚋmt940_serverᚋmodelsᚐSlGroups(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Query_getStmtLinesFilterByDC(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "Query",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   true,
+		IsResolver: true,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	rawArgs := field.ArgumentMap(ec.Variables)
+	args, err := ec.field_Query_getStmtLinesFilterByDC_args(ctx, rawArgs)
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	fc.Args = args
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Query().GetStmtLinesFilterByDc(rctx, args["amount"].(models.DCInput))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -5004,6 +5079,37 @@ func (ec *executionContext) unmarshalInputCustStmtMsgInput(ctx context.Context, 
 	return it, nil
 }
 
+func (ec *executionContext) unmarshalInputDCInput(ctx context.Context, obj interface{}) (models.DCInput, error) {
+	var it models.DCInput
+	asMap := map[string]interface{}{}
+	for k, v := range obj.(map[string]interface{}) {
+		asMap[k] = v
+	}
+
+	for k, v := range asMap {
+		switch k {
+		case "d":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("d"))
+			it.D, err = ec.unmarshalOBoolean2bool(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "c":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("c"))
+			it.C, err = ec.unmarshalOBoolean2bool(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		}
+	}
+
+	return it, nil
+}
+
 func (ec *executionContext) unmarshalInputFwabInput(ctx context.Context, obj interface{}) (models.FwabInput, error) {
 	var it models.FwabInput
 	asMap := map[string]interface{}{}
@@ -6155,6 +6261,26 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 			out.Concurrently(i, func() graphql.Marshaler {
 				return rrm(innerCtx)
 			})
+		case "getStmtLinesFilterByDC":
+			field := field
+
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query_getStmtLinesFilterByDC(ctx, field)
+				return res
+			}
+
+			rrm := func(ctx context.Context) graphql.Marshaler {
+				return ec.OperationContext.RootResolverMiddleware(ctx, innerFunc)
+			}
+
+			out.Concurrently(i, func() graphql.Marshaler {
+				return rrm(innerCtx)
+			})
 		case "__type":
 			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
 				return ec._Query___type(ctx, field)
@@ -6828,6 +6954,11 @@ func (ec *executionContext) unmarshalNCbInput2githubᚗcomᚋriviatechsᚋmt940_
 
 func (ec *executionContext) unmarshalNCustStmtMsgInput2githubᚗcomᚋriviatechsᚋmt940_serverᚋmodelsᚐCustStmtMsgInput(ctx context.Context, v interface{}) (models.CustStmtMsgInput, error) {
 	res, err := ec.unmarshalInputCustStmtMsgInput(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) unmarshalNDCInput2githubᚗcomᚋriviatechsᚋmt940_serverᚋmodelsᚐDCInput(ctx context.Context, v interface{}) (models.DCInput, error) {
+	res, err := ec.unmarshalInputDCInput(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 

@@ -5,4 +5,5 @@ type Query {
   getStatementLines: [Sl]
   getStmtLineGroupedByDate: [SlGroups]
   getStmtLinesFilterByAmount(amount: AmountInput!): [SlGroups]
+  getStmtLinesFilterByDC(amount: DCInput!): [SlGroups]
 }

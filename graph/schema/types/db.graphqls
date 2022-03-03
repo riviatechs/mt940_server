@@ -1,0 +1,5 @@
+input DCInput
+  @goModel(model: "github.com/riviatechs/mt940_server/models.DCInput") {
+  d: Boolean @goField(name: "D")
+  c: Boolean @goField(name: "C")
+}

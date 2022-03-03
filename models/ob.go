@@ -7,7 +7,7 @@ import (
 )
 
 type Ob struct {
-	CustStmtMsgID uint `gorm:"column:cus_stmt_msg;type:INTEGER REFERENCES cus_stmt_msgs(id)"`
+	CustStmtMsgID uint `gorm:"column:cus_stmt_msg;type:INTEGER"`
 	Transaction
 }
 
@@ -18,7 +18,7 @@ func (Ob) TableName() string {
 type ObInput struct {
 	ID *uint `gorm:"primaryKey"`
 
-	CustStmtMsgID uint `gorm:"column:cus_stmt_msg;type:INTEGER REFERENCES cus_stmt_msgs(id)"`
+	CustStmtMsgID uint `gorm:"column:cus_stmt_msg;type:INTEGER"`
 
 	Mark     string    `gorm:"column:mark;type:CHAR NOT NULL"`
 	DateY    time.Time `gorm:"column:date_y;type:TIMESTAMP NOT NULL"`

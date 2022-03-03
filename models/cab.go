@@ -7,7 +7,7 @@ import (
 )
 
 type Cab struct {
-	CustStmtMsgID uint `gorm:"column:cus_stmt_msg;type:INTEGER UNIQUE REFERENCES cus_stmt_msgs(id)"`
+	CustStmtMsgID uint `gorm:"column:cus_stmt_msg;uniqueIndex;type:INTEGER"`
 	Transaction
 }
 
@@ -18,7 +18,7 @@ func (Cab) TableName() string {
 type CabInput struct {
 	ID *uint `gorm:"primaryKey"`
 
-	CustStmtMsgID uint `gorm:"column:cus_stmt_msg;type:INTEGER UNIQUE REFERENCES cus_stmt_msgs(id)"`
+	CustStmtMsgID uint `gorm:"column:cus_stmt_msg;uniqueIndex;type:INTEGER"`
 
 	Mark     string    `gorm:"column:mark;type:CHAR NOT NULL"`
 	DateY    time.Time `gorm:"column:date_y;type:TIMESTAMP NOT NULL"`
