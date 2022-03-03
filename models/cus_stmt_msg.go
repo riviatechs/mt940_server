@@ -13,10 +13,10 @@ type CustStmtMsg struct {
 	UpdatedAt *time.Time
 	DeletedAt *gorm.DeletedAt `gorm:"index"`
 
-	Trn  string  `gorm:"column:trn;uniqueIndex;type:VARCHAR(16) NOT NULL"`
+	Trn  string  `gorm:"column:trn;index:idx_cus_stmt_msgs_trn,unique;type:VARCHAR(16);not null"`
 	Rr   *string `gorm:"column:rr;type:VARCHAR(16);default:NULL"`
 	Ai   Ai      `gorm:"foreignKey:CustStmtMsgID;references:id"`
-	Sn   string  `gorm:"column:sn;type:VARCHAR(5) NOT NULL"`
+	Sn   string  `gorm:"column:sn;type:VARCHAR(5);NOT NULL"`
 	Ob   Ob      `gorm:"foreignKey:CustStmtMsgID;references:id"`
 	Sl   []*Sl   `gorm:"foreignKey:CustStmtMsgID;references:id"`
 	Cb   Cb      `gorm:"foreignKey:CustStmtMsgID;references:id"`
@@ -31,10 +31,10 @@ func (CustStmtMsg) TableName() string {
 
 type CustStmtMsgInput struct {
 	ID   *uint        `gorm:"primaryKey"`
-	Trn  string       `gorm:"column:trn;uniqueIndex;type:VARCHAR(16) NOT NULL"`
+	Trn  string       `gorm:"column:trn;index:idx_cus_stmt_msgs_trn,unique;type:VARCHAR(16);not null"`
 	Rr   *string      `gorm:"column:rr;type:VARCHAR(16);default:NULL"`
 	Ai   AiInput      `gorm:"foreignKey:CustStmtMsgID;references:id"`
-	Sn   string       `gorm:"column:sn;type:VARCHAR(5) NOT NULL"`
+	Sn   string       `gorm:"column:sn;type:VARCHAR(5):NOT NULL"`
 	Ob   ObInput      `gorm:"foreignKey:CustStmtMsgID;references:id"`
 	Sl   []*SlInput   `gorm:"foreignKey:CustStmtMsgID;references:id"`
 	Cb   CbInput      `gorm:"foreignKey:CustStmtMsgID;references:id"`

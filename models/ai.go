@@ -14,7 +14,7 @@ type Ai struct {
 	DeletedAt *gorm.DeletedAt `gorm:"index"`
 
 	CustStmtMsgID uint    `gorm:"column:cus_stmt_msg;uniqueIndex;type:INTEGER"`
-	Account       string  `gorm:"column:account;type:VARCHAR(35) NOT NULL"`
+	Account       string  `gorm:"column:account;type:VARCHAR(35);NOT NULL"`
 	Ic            *string `gorm:"column:ic;type:VARCHAR(11);default:NULL"`
 }
 
@@ -25,7 +25,7 @@ func (Ai) TableName() string {
 type AiInput struct {
 	ID            *uint   `gorm:"primaryKey"`
 	CustStmtMsgID uint    `gorm:"column:cus_stmt_msg;uniqueIndex;type:INTEGER"`
-	Account       string  `gorm:"column:account;type:VARCHAR(35) NOT NULL"`
+	Account       string  `gorm:"column:account;type:VARCHAR(35);NOT NULL"`
 	Ic            *string `gorm:"column:ic;type:VARCHAR(11);default:NULL"`
 }
 
