@@ -1,5 +1,7 @@
 package resolver
 
+//go:generate go run github.com/99designs/gqlgen generate
+
 // THIS CODE IS A STARTING POINT ONLY. IT WILL NOT BE UPDATED WITH SCHEMA CHANGES.
 
 import (
@@ -45,7 +47,7 @@ func (r *Resolver) Ob() generated.ObResolver {
 func (r *Resolver) Query() generated.QueryResolver { return &QueryResolver{r} }
 
 // Sl returns generated.SlResolver implementation.
-func (r *Resolver) Sl() generated.SlResolver { return &slResolver{r} }
+func (r *Resolver) Sl() generated.SlResolver { return &SlResolver{r} }
 
 func (r *Resolver) CustStmtMsgInput() generated.CustStmtMsgInputResolver {
 	return &CustStmtMsgInputResolver{r}
@@ -60,3 +62,7 @@ func (r *Resolver) CbInput() generated.CbInputResolver { return &CbInputResolver
 func (r *Resolver) FwabInput() generated.FwabInputResolver { return &FwabInputResolver{r} }
 
 func (r *Resolver) ObInput() generated.ObInputResolver { return &ObInputResolver{r} }
+
+func (r *Resolver) AmountInput() generated.AmountInputResolver {
+	return &AmountInputResolver{r}
+}

@@ -1,0 +1,5 @@
+input AmountInput
+  @goModel(model: "github.com/riviatechs/mt940_server/models.Amount") {
+  lower: Float! @goField(name: "Lower")
+  upper: Float! @goField(name: "Upper")
+}

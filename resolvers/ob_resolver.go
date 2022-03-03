@@ -2,8 +2,13 @@ package resolver
 
 import (
 	"context"
+	"fmt"
+	"time"
 
+	"github.com/MalukiMuthusi/logger"
 	"github.com/riviatechs/mt940_server/models"
+	"github.com/riviatechs/mt940_server/util"
+	"go.uber.org/zap"
 )
 
 type ObResolver struct{ *Resolver }
@@ -33,5 +38,27 @@ func (r *ObInputResolver) Amount(ctx context.Context, obj *models.Ob, data float
 		return nil
 	}
 	obj.Amount = float32(data)
+	return nil
+}
+
+func (r *ObResolver) DateY(ctx context.Context, obj *models.Ob) (string, error) {
+	if obj == nil {
+		return "", nil
+	}
+
+	return obj.DateY.Format(util.TimeFormat), nil
+}
+
+func (r *ObInputResolver) DateY(ctx context.Context, obj *models.Ob, data string) error {
+	if obj == nil {
+		return nil
+	}
+
+	t, err := time.Parse(util.TimeFormat, data)
+	if err != nil {
+		logger.Info("Date", zap.Error(err))
+		return fmt.Errorf("invalid date format")
+	}
+	obj.DateY = t
 	return nil
 }

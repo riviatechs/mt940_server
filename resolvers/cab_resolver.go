@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"github.com/riviatechs/mt940_server/models"
+	"github.com/riviatechs/mt940_server/util"
 )
 
 type CabResolver struct{ *Resolver }
@@ -24,4 +25,12 @@ func (r *CabResolver) Amount(ctx context.Context, obj *models.Cab) (float64, err
 		return 0, nil
 	}
 	return float64(obj.Amount), nil
+}
+
+func (r *CabResolver) DateY(ctx context.Context, obj *models.Cab) (string, error) {
+	if obj == nil {
+		return "", nil
+	}
+
+	return obj.DateY.Format(util.TimeFormat), nil
 }

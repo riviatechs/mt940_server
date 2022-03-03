@@ -28,3 +28,7 @@ func (r *QueryResolver) GetCustStmtMsgByTrn(ctx context.Context, trn string) (*m
 func (r *QueryResolver) GetStmtLineGroupedByDate(ctx context.Context) ([]*models.SlGroups, error) {
 	return db.GetStmtLineGroupedByDate(ctx)
 }
+
+func (r *QueryResolver) GetStmtLinesFilterByAmount(ctx context.Context, amount models.Amount) ([]*models.SlGroups, error) {
+	return db.GetStmtLinesFilterByPeriod(ctx, amount)
+}
