@@ -8,4 +8,5 @@ type Query {
   getStmtLinesFilterByDC(amount: DCInput!): [SlGroups]
 
   statements: [ConfGroup]
+  statementsFiltered(input: FilterInput): [ConfGroup]
 }

@@ -53,3 +53,7 @@ models:
       - github.com/99designs/gqlgen/graphql.Int
       - github.com/99designs/gqlgen/graphql.Int64
       - github.com/99designs/gqlgen/graphql.Int32
+
+  Float32:
+    model:
+      - github.com/riviatechs/mt940_server/models.Float32

@@ -49,6 +49,7 @@ type ResolverRoot interface {
 	Statement() StatementResolver
 	AiInput() AiInputResolver
 	AmountInput() AmountInputResolver
+	AmountRangeInput() AmountRangeInputResolver
 	CabInput() CabInputResolver
 	CbInput() CbInputResolver
 	CustStmtMsgInput() CustStmtMsgInputResolver
@@ -151,6 +152,7 @@ type ComplexityRoot struct {
 		GetStmtLinesFilterByAmount func(childComplexity int, amount models.Amount) int
 		GetStmtLinesFilterByDc     func(childComplexity int, amount models.DCInput) int
 		Statements                 func(childComplexity int) int
+		StatementsFiltered         func(childComplexity int, input *models.FilterInput) int
 	}
 
 	Sl struct {
@@ -248,6 +250,7 @@ type QueryResolver interface {
 	GetStmtLinesFilterByAmount(ctx context.Context, amount models.Amount) ([]*models.SlGroups, error)
 	GetStmtLinesFilterByDc(ctx context.Context, amount models.DCInput) ([]*models.SlGroups, error)
 	Statements(ctx context.Context) ([]*models.ConfGroup, error)
+	StatementsFiltered(ctx context.Context, input *models.FilterInput) ([]*models.ConfGroup, error)
 }
 type SlResolver interface {
 	ID(ctx context.Context, obj *models.Sl) (*int, error)
@@ -269,6 +272,11 @@ type AiInputResolver interface {
 type AmountInputResolver interface {
 	Lower(ctx context.Context, obj *models.Amount, data float64) error
 	Upper(ctx context.Context, obj *models.Amount, data float64) error
+}
+type AmountRangeInputResolver interface {
+	Lower(ctx context.Context, obj *models.AmountRangeInput, data *float64) error
+	Upper(ctx context.Context, obj *models.AmountRangeInput, data *float64) error
+	Amount(ctx context.Context, obj *models.AmountRangeInput, data *float64) error
 }
 type CabInputResolver interface {
 	CustStmtMsgID(ctx context.Context, obj *models.CabInput, data int) error
@@ -785,6 +793,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Query.Statements(childComplexity), true
 
+	case "Query.statementsFiltered":
+		if e.complexity.Query.StatementsFiltered == nil {
+			break
+		}
+
+		args, err := ec.field_Query_statementsFiltered_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Query.StatementsFiltered(childComplexity, args["input"].(*models.FilterInput)), true
+
 	case "Sl.amount":
 		if e.complexity.Sl.Amount == nil {
 			break
@@ -1004,6 +1024,7 @@ directive @goTag(
   getStmtLinesFilterByDC(amount: DCInput!): [SlGroups]
 
   statements: [ConfGroup]
+  statementsFiltered(input: FilterInput): [ConfGroup]
 }
 `, BuiltIn: false},
 	{Name: "graph/schema/schema.graphqls", Input: `# GraphQL schema example
@@ -1272,6 +1293,41 @@ input CustStmtMsgInput
   d: Boolean @goField(name: "D")
   c: Boolean @goField(name: "C")
 }
+`, BuiltIn: false},
+	{Name: "graph/schema/types/filter.graphqls", Input: `"""
+FilterInput has the main filters of the system.
+"""
+input FilterInput
+  @goModel(model: "github.com/riviatechs/mt940_server/models.FilterInput") {
+  currency: String @goField(name: "Currency")
+  tt: String @goField(name: "Tt")
+  period: PeriodInput @goField(name: "Period")
+  amountRange: AmountRangeInput @goField(name: "AmountRange")
+}
+
+"""
+PeriodInput helps to filter the statements by date. You can specify both the start and end date or specify an exact date
+"""
+input PeriodInput
+  @goModel(model: "github.com/riviatechs/mt940_server/models.PeriodInput") {
+  start: String @goField(name: "Start")
+  end: String @goField(name: "End")
+  date: String @goField(name: "Date")
+}
+
+"""
+AmountRangeInput helps to filter the statements by amount. You can specify both the lower and the upper amount or specify an exact date.
+"""
+input AmountRangeInput
+  @goModel(
+    model: "github.com/riviatechs/mt940_server/models.AmountRangeInput"
+  ) {
+  lower: Float @goField(name: "Lower")
+  upper: Float @goField(name: "Upper")
+  amount: Float @goField(name: "Amount")
+}
+
+scalar Float32
 `, BuiltIn: false},
 	{Name: "graph/schema/types/fwab.graphqls", Input: `type Fwab @goModel(model: "github.com/riviatechs/mt940_server/models.Fwab") {
   id: Int @goField(name: "ID")
@@ -1589,6 +1645,21 @@ func (ec *executionContext) field_Query_getStmtLinesFilterByDC_args(ctx context.
 		}
 	}
 	args["amount"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Query_statementsFiltered_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 *models.FilterInput
+	if tmp, ok := rawArgs["input"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
+		arg0, err = ec.unmarshalOFilterInput2ᚖgithubᚗcomᚋriviatechsᚋmt940_serverᚋmodelsᚐFilterInput(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["input"] = arg0
 	return args, nil
 }
 
@@ -3757,6 +3828,45 @@ func (ec *executionContext) _Query_statements(ctx context.Context, field graphql
 	return ec.marshalOConfGroup2ᚕᚖgithubᚗcomᚋriviatechsᚋmt940_serverᚋmodelsᚐConfGroup(ctx, field.Selections, res)
 }
 
+func (ec *executionContext) _Query_statementsFiltered(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "Query",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   true,
+		IsResolver: true,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	rawArgs := field.ArgumentMap(ec.Variables)
+	args, err := ec.field_Query_statementsFiltered_args(ctx, rawArgs)
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	fc.Args = args
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Query().StatementsFiltered(rctx, args["input"].(*models.FilterInput))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.([]*models.ConfGroup)
+	fc.Result = res
+	return ec.marshalOConfGroup2ᚕᚖgithubᚗcomᚋriviatechsᚋmt940_serverᚋmodelsᚐConfGroup(ctx, field.Selections, res)
+}
+
 func (ec *executionContext) _Query___type(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
@@ -5626,6 +5736,54 @@ func (ec *executionContext) unmarshalInputAmountInput(ctx context.Context, obj i
 	return it, nil
 }
 
+func (ec *executionContext) unmarshalInputAmountRangeInput(ctx context.Context, obj interface{}) (models.AmountRangeInput, error) {
+	var it models.AmountRangeInput
+	asMap := map[string]interface{}{}
+	for k, v := range obj.(map[string]interface{}) {
+		asMap[k] = v
+	}
+
+	for k, v := range asMap {
+		switch k {
+		case "lower":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("lower"))
+			data, err := ec.unmarshalOFloat2ᚖfloat64(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			if err = ec.resolvers.AmountRangeInput().Lower(ctx, &it, data); err != nil {
+				return it, err
+			}
+		case "upper":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("upper"))
+			data, err := ec.unmarshalOFloat2ᚖfloat64(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			if err = ec.resolvers.AmountRangeInput().Upper(ctx, &it, data); err != nil {
+				return it, err
+			}
+		case "amount":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("amount"))
+			data, err := ec.unmarshalOFloat2ᚖfloat64(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			if err = ec.resolvers.AmountRangeInput().Amount(ctx, &it, data); err != nil {
+				return it, err
+			}
+		}
+	}
+
+	return it, nil
+}
+
 func (ec *executionContext) unmarshalInputCabInput(ctx context.Context, obj interface{}) (models.CabInput, error) {
 	var it models.CabInput
 	asMap := map[string]interface{}{}
@@ -5886,6 +6044,53 @@ func (ec *executionContext) unmarshalInputDCInput(ctx context.Context, obj inter
 	return it, nil
 }
 
+func (ec *executionContext) unmarshalInputFilterInput(ctx context.Context, obj interface{}) (models.FilterInput, error) {
+	var it models.FilterInput
+	asMap := map[string]interface{}{}
+	for k, v := range obj.(map[string]interface{}) {
+		asMap[k] = v
+	}
+
+	for k, v := range asMap {
+		switch k {
+		case "currency":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("currency"))
+			it.Currency, err = ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "tt":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("tt"))
+			it.Tt, err = ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "period":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("period"))
+			it.Period, err = ec.unmarshalOPeriodInput2ᚖgithubᚗcomᚋriviatechsᚋmt940_serverᚋmodelsᚐPeriodInput(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "amountRange":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("amountRange"))
+			it.AmountRange, err = ec.unmarshalOAmountRangeInput2ᚖgithubᚗcomᚋriviatechsᚋmt940_serverᚋmodelsᚐAmountRangeInput(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		}
+	}
+
+	return it, nil
+}
+
 func (ec *executionContext) unmarshalInputFwabInput(ctx context.Context, obj interface{}) (models.FwabInput, error) {
 	var it models.FwabInput
 	asMap := map[string]interface{}{}
@@ -6006,6 +6211,45 @@ func (ec *executionContext) unmarshalInputObInput(ctx context.Context, obj inter
 				return it, err
 			}
 			if err = ec.resolvers.ObInput().Amount(ctx, &it, data); err != nil {
+				return it, err
+			}
+		}
+	}
+
+	return it, nil
+}
+
+func (ec *executionContext) unmarshalInputPeriodInput(ctx context.Context, obj interface{}) (models.PeriodInput, error) {
+	var it models.PeriodInput
+	asMap := map[string]interface{}{}
+	for k, v := range obj.(map[string]interface{}) {
+		asMap[k] = v
+	}
+
+	for k, v := range asMap {
+		switch k {
+		case "start":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("start"))
+			it.Start, err = ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "end":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("end"))
+			it.End, err = ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "date":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("date"))
+			it.Date, err = ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
 				return it, err
 			}
 		}
@@ -7270,6 +7514,26 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 			out.Concurrently(i, func() graphql.Marshaler {
 				return rrm(innerCtx)
 			})
+		case "statementsFiltered":
+			field := field
+
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query_statementsFiltered(ctx, field)
+				return res
+			}
+
+			rrm := func(ctx context.Context) graphql.Marshaler {
+				return ec.OperationContext.RootResolverMiddleware(ctx, innerFunc)
+			}
+
+			out.Concurrently(i, func() graphql.Marshaler {
+				return rrm(innerCtx)
+			})
 		case "__type":
 			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
 				return ec._Query___type(ctx, field)
@@ -8417,6 +8681,14 @@ func (ec *executionContext) marshalN__TypeKind2string(ctx context.Context, sel a
 	return res
 }
 
+func (ec *executionContext) unmarshalOAmountRangeInput2ᚖgithubᚗcomᚋriviatechsᚋmt940_serverᚋmodelsᚐAmountRangeInput(ctx context.Context, v interface{}) (*models.AmountRangeInput, error) {
+	if v == nil {
+		return nil, nil
+	}
+	res, err := ec.unmarshalInputAmountRangeInput(ctx, v)
+	return &res, graphql.ErrorOnPath(ctx, err)
+}
+
 func (ec *executionContext) unmarshalOBoolean2bool(ctx context.Context, v interface{}) (bool, error) {
 	res, err := graphql.UnmarshalBoolean(v)
 	return res, graphql.ErrorOnPath(ctx, err)
@@ -8606,6 +8878,30 @@ func (ec *executionContext) marshalOCustStmtMsg2ᚖgithubᚗcomᚋriviatechsᚋm
 	return ec._CustStmtMsg(ctx, sel, v)
 }
 
+func (ec *executionContext) unmarshalOFilterInput2ᚖgithubᚗcomᚋriviatechsᚋmt940_serverᚋmodelsᚐFilterInput(ctx context.Context, v interface{}) (*models.FilterInput, error) {
+	if v == nil {
+		return nil, nil
+	}
+	res, err := ec.unmarshalInputFilterInput(ctx, v)
+	return &res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) unmarshalOFloat2ᚖfloat64(ctx context.Context, v interface{}) (*float64, error) {
+	if v == nil {
+		return nil, nil
+	}
+	res, err := graphql.UnmarshalFloatContext(ctx, v)
+	return &res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalOFloat2ᚖfloat64(ctx context.Context, sel ast.SelectionSet, v *float64) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	res := graphql.MarshalFloatContext(*v)
+	return graphql.WrapContextMarshaler(ctx, res)
+}
+
 func (ec *executionContext) marshalOFwab2ᚕᚖgithubᚗcomᚋriviatechsᚋmt940_serverᚋmodelsᚐFwabᚄ(ctx context.Context, sel ast.SelectionSet, v []*models.Fwab) graphql.Marshaler {
 	if v == nil {
 		return graphql.Null
@@ -8687,6 +8983,14 @@ func (ec *executionContext) marshalOInt2ᚖint(ctx context.Context, sel ast.Sele
 	}
 	res := graphql.MarshalInt(*v)
 	return res
+}
+
+func (ec *executionContext) unmarshalOPeriodInput2ᚖgithubᚗcomᚋriviatechsᚋmt940_serverᚋmodelsᚐPeriodInput(ctx context.Context, v interface{}) (*models.PeriodInput, error) {
+	if v == nil {
+		return nil, nil
+	}
+	res, err := ec.unmarshalInputPeriodInput(ctx, v)
+	return &res, graphql.ErrorOnPath(ctx, err)
 }
 
 func (ec *executionContext) marshalOSl2ᚕᚖgithubᚗcomᚋriviatechsᚋmt940_serverᚋmodelsᚐSl(ctx context.Context, sel ast.SelectionSet, v []*models.Sl) graphql.Marshaler {

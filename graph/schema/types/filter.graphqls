@@ -1,0 +1,34 @@
+"""
+FilterInput has the main filters of the system.
+"""
+input FilterInput
+  @goModel(model: "github.com/riviatechs/mt940_server/models.FilterInput") {
+  currency: String @goField(name: "Currency")
+  tt: String @goField(name: "Tt")
+  period: PeriodInput @goField(name: "Period")
+  amountRange: AmountRangeInput @goField(name: "AmountRange")
+}
+
+"""
+PeriodInput helps to filter the statements by date. You can specify both the start and end date or specify an exact date
+"""
+input PeriodInput
+  @goModel(model: "github.com/riviatechs/mt940_server/models.PeriodInput") {
+  start: String @goField(name: "Start")
+  end: String @goField(name: "End")
+  date: String @goField(name: "Date")
+}
+
+"""
+AmountRangeInput helps to filter the statements by amount. You can specify both the lower and the upper amount or specify an exact date.
+"""
+input AmountRangeInput
+  @goModel(
+    model: "github.com/riviatechs/mt940_server/models.AmountRangeInput"
+  ) {
+  lower: Float @goField(name: "Lower")
+  upper: Float @goField(name: "Upper")
+  amount: Float @goField(name: "Amount")
+}
+
+scalar Float32
