@@ -6,4 +6,6 @@ type Query {
   getStmtLineGroupedByDate: [SlGroups]
   getStmtLinesFilterByAmount(amount: AmountInput!): [SlGroups]
   getStmtLinesFilterByDC(amount: DCInput!): [SlGroups]
+
+  statements: [ConfGroup]
 }

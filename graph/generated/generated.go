@@ -38,6 +38,7 @@ type ResolverRoot interface {
 	Ai() AiResolver
 	Cab() CabResolver
 	Cb() CbResolver
+	ConfGroup() ConfGroupResolver
 	Confirmation() ConfirmationResolver
 	CustStmtMsg() CustStmtMsgResolver
 	Fwab() FwabResolver
@@ -85,6 +86,11 @@ type ComplexityRoot struct {
 		DateY         func(childComplexity int) int
 		ID            func(childComplexity int) int
 		Mark          func(childComplexity int) int
+	}
+
+	ConfGroup struct {
+		Confirmations func(childComplexity int) int
+		DateTime      func(childComplexity int) int
 	}
 
 	Confirmation struct {
@@ -144,6 +150,7 @@ type ComplexityRoot struct {
 		GetStmtLineGroupedByDate   func(childComplexity int) int
 		GetStmtLinesFilterByAmount func(childComplexity int, amount models.Amount) int
 		GetStmtLinesFilterByDc     func(childComplexity int, amount models.DCInput) int
+		Statements                 func(childComplexity int) int
 	}
 
 	Sl struct {
@@ -197,6 +204,9 @@ type CbResolver interface {
 
 	Amount(ctx context.Context, obj *models.Cb) (float64, error)
 }
+type ConfGroupResolver interface {
+	DateTime(ctx context.Context, obj *models.ConfGroup) (*string, error)
+}
 type ConfirmationResolver interface {
 	ID(ctx context.Context, obj *models.Confirmation) (int, error)
 
@@ -237,6 +247,7 @@ type QueryResolver interface {
 	GetStmtLineGroupedByDate(ctx context.Context) ([]*models.SlGroups, error)
 	GetStmtLinesFilterByAmount(ctx context.Context, amount models.Amount) ([]*models.SlGroups, error)
 	GetStmtLinesFilterByDc(ctx context.Context, amount models.DCInput) ([]*models.SlGroups, error)
+	Statements(ctx context.Context) ([]*models.ConfGroup, error)
 }
 type SlResolver interface {
 	ID(ctx context.Context, obj *models.Sl) (*int, error)
@@ -441,6 +452,20 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Cb.Mark(childComplexity), true
 
+	case "ConfGroup.confirmations":
+		if e.complexity.ConfGroup.Confirmations == nil {
+			break
+		}
+
+		return e.complexity.ConfGroup.Confirmations(childComplexity), true
+
+	case "ConfGroup.DateTime":
+		if e.complexity.ConfGroup.DateTime == nil {
+			break
+		}
+
+		return e.complexity.ConfGroup.DateTime(childComplexity), true
+
 	case "Confirmation.amount":
 		if e.complexity.Confirmation.Amount == nil {
 			break
@@ -497,14 +522,14 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Confirmation.PartyAName(childComplexity), true
 
-	case "Confirmation.partyBName":
+	case "Confirmation.partyBAccount":
 		if e.complexity.Confirmation.PartyBAccount == nil {
 			break
 		}
 
 		return e.complexity.Confirmation.PartyBAccount(childComplexity), true
 
-	case "Confirmation.partyBAccount":
+	case "Confirmation.partyBName":
 		if e.complexity.Confirmation.PartyBName == nil {
 			break
 		}
@@ -753,6 +778,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Query.GetStmtLinesFilterByDc(childComplexity, args["amount"].(models.DCInput)), true
 
+	case "Query.statements":
+		if e.complexity.Query.Statements == nil {
+			break
+		}
+
+		return e.complexity.Query.Statements(childComplexity), true
+
 	case "Sl.amount":
 		if e.complexity.Sl.Amount == nil {
 			break
@@ -970,6 +1002,8 @@ directive @goTag(
   getStmtLineGroupedByDate: [SlGroups]
   getStmtLinesFilterByAmount(amount: AmountInput!): [SlGroups]
   getStmtLinesFilterByDC(amount: DCInput!): [SlGroups]
+
+  statements: [ConfGroup]
 }
 `, BuiltIn: false},
 	{Name: "graph/schema/schema.graphqls", Input: `# GraphQL schema example
@@ -1129,12 +1163,18 @@ input CbInput
   amount: Float! @goField(name: "Amount")
 }
 `, BuiltIn: false},
+	{Name: "graph/schema/types/conf_group.graphqls", Input: `type ConfGroup
+  @goModel(model: "github.com/riviatechs/mt940_server/models.ConfGroup") {
+  DateTime: String @goField(name: "DateTime")
+  confirmations: [Confirmation] @goField(name: "Confirmations")
+}
+`, BuiltIn: false},
 	{Name: "graph/schema/types/confirmations.graphqls", Input: `type Confirmation
   @goModel(model: "github.com/riviatechs/mt940_server/models.Confirmation") {
   id: Int! @goField(name: "ID")
   currency: String! @goField(name: "Currency")
-  partyBName: String! @goField(name: "PartyBAccount")
-  partyBAccount: String! @goField(name: "PartyBName")
+  partyBName: String! @goField(name: "PartyBName")
+  partyBAccount: String! @goField(name: "PartyBAccount")
   amount: Float! @goField(name: "Amount")
   dateTime: String! @goField(name: "DateTime")
   narrative: String! @goField(name: "Narrative")
@@ -2202,6 +2242,70 @@ func (ec *executionContext) _Cb_amount(ctx context.Context, field graphql.Collec
 	return ec.marshalNFloat2float64(ctx, field.Selections, res)
 }
 
+func (ec *executionContext) _ConfGroup_DateTime(ctx context.Context, field graphql.CollectedField, obj *models.ConfGroup) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "ConfGroup",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   true,
+		IsResolver: true,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.ConfGroup().DateTime(rctx, obj)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*string)
+	fc.Result = res
+	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _ConfGroup_confirmations(ctx context.Context, field graphql.CollectedField, obj *models.ConfGroup) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "ConfGroup",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   false,
+		IsResolver: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Confirmations, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.([]*models.Confirmation)
+	fc.Result = res
+	return ec.marshalOConfirmation2ᚕᚖgithubᚗcomᚋriviatechsᚋmt940_serverᚋmodelsᚐConfirmation(ctx, field.Selections, res)
+}
+
 func (ec *executionContext) _Confirmation_id(ctx context.Context, field graphql.CollectedField, obj *models.Confirmation) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
@@ -2290,7 +2394,7 @@ func (ec *executionContext) _Confirmation_partyBName(ctx context.Context, field 
 	ctx = graphql.WithFieldContext(ctx, fc)
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.PartyBAccount, nil
+		return obj.PartyBName, nil
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -2325,7 +2429,7 @@ func (ec *executionContext) _Confirmation_partyBAccount(ctx context.Context, fie
 	ctx = graphql.WithFieldContext(ctx, fc)
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.PartyBName, nil
+		return obj.PartyBAccount, nil
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -3619,6 +3723,38 @@ func (ec *executionContext) _Query_getStmtLinesFilterByDC(ctx context.Context, f
 	res := resTmp.([]*models.SlGroups)
 	fc.Result = res
 	return ec.marshalOSlGroups2ᚕᚖgithubᚗcomᚋriviatechsᚋmt940_serverᚋmodelsᚐSlGroups(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Query_statements(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "Query",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   true,
+		IsResolver: true,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Query().Statements(rctx)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.([]*models.ConfGroup)
+	fc.Result = res
+	return ec.marshalOConfGroup2ᚕᚖgithubᚗcomᚋriviatechsᚋmt940_serverᚋmodelsᚐConfGroup(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _Query___type(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
@@ -6346,6 +6482,51 @@ func (ec *executionContext) _Cb(ctx context.Context, sel ast.SelectionSet, obj *
 	return out
 }
 
+var confGroupImplementors = []string{"ConfGroup"}
+
+func (ec *executionContext) _ConfGroup(ctx context.Context, sel ast.SelectionSet, obj *models.ConfGroup) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, confGroupImplementors)
+	out := graphql.NewFieldSet(fields)
+	var invalids uint32
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("ConfGroup")
+		case "DateTime":
+			field := field
+
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._ConfGroup_DateTime(ctx, field, obj)
+				return res
+			}
+
+			out.Concurrently(i, func() graphql.Marshaler {
+				return innerFunc(ctx)
+
+			})
+		case "confirmations":
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._ConfGroup_confirmations(ctx, field, obj)
+			}
+
+			out.Values[i] = innerFunc(ctx)
+
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch()
+	if invalids > 0 {
+		return graphql.Null
+	}
+	return out
+}
+
 var confirmationImplementors = []string{"Confirmation"}
 
 func (ec *executionContext) _Confirmation(ctx context.Context, sel ast.SelectionSet, obj *models.Confirmation) graphql.Marshaler {
@@ -7059,6 +7240,26 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 					}
 				}()
 				res = ec._Query_getStmtLinesFilterByDC(ctx, field)
+				return res
+			}
+
+			rrm := func(ctx context.Context) graphql.Marshaler {
+				return ec.OperationContext.RootResolverMiddleware(ctx, innerFunc)
+			}
+
+			out.Concurrently(i, func() graphql.Marshaler {
+				return rrm(innerCtx)
+			})
+		case "statements":
+			field := field
+
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query_statements(ctx, field)
 				return res
 			}
 
@@ -8257,8 +8458,104 @@ func (ec *executionContext) unmarshalOCabInput2ᚖgithubᚗcomᚋriviatechsᚋmt
 	return &res, graphql.ErrorOnPath(ctx, err)
 }
 
+func (ec *executionContext) marshalOConfGroup2ᚕᚖgithubᚗcomᚋriviatechsᚋmt940_serverᚋmodelsᚐConfGroup(ctx context.Context, sel ast.SelectionSet, v []*models.ConfGroup) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	ret := make(graphql.Array, len(v))
+	var wg sync.WaitGroup
+	isLen1 := len(v) == 1
+	if !isLen1 {
+		wg.Add(len(v))
+	}
+	for i := range v {
+		i := i
+		fc := &graphql.FieldContext{
+			Index:  &i,
+			Result: &v[i],
+		}
+		ctx := graphql.WithFieldContext(ctx, fc)
+		f := func(i int) {
+			defer func() {
+				if r := recover(); r != nil {
+					ec.Error(ctx, ec.Recover(ctx, r))
+					ret = nil
+				}
+			}()
+			if !isLen1 {
+				defer wg.Done()
+			}
+			ret[i] = ec.marshalOConfGroup2ᚖgithubᚗcomᚋriviatechsᚋmt940_serverᚋmodelsᚐConfGroup(ctx, sel, v[i])
+		}
+		if isLen1 {
+			f(i)
+		} else {
+			go f(i)
+		}
+
+	}
+	wg.Wait()
+
+	return ret
+}
+
+func (ec *executionContext) marshalOConfGroup2ᚖgithubᚗcomᚋriviatechsᚋmt940_serverᚋmodelsᚐConfGroup(ctx context.Context, sel ast.SelectionSet, v *models.ConfGroup) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return ec._ConfGroup(ctx, sel, v)
+}
+
 func (ec *executionContext) marshalOConfirmation2githubᚗcomᚋriviatechsᚋmt940_serverᚋmodelsᚐConfirmation(ctx context.Context, sel ast.SelectionSet, v models.Confirmation) graphql.Marshaler {
 	return ec._Confirmation(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalOConfirmation2ᚕᚖgithubᚗcomᚋriviatechsᚋmt940_serverᚋmodelsᚐConfirmation(ctx context.Context, sel ast.SelectionSet, v []*models.Confirmation) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	ret := make(graphql.Array, len(v))
+	var wg sync.WaitGroup
+	isLen1 := len(v) == 1
+	if !isLen1 {
+		wg.Add(len(v))
+	}
+	for i := range v {
+		i := i
+		fc := &graphql.FieldContext{
+			Index:  &i,
+			Result: &v[i],
+		}
+		ctx := graphql.WithFieldContext(ctx, fc)
+		f := func(i int) {
+			defer func() {
+				if r := recover(); r != nil {
+					ec.Error(ctx, ec.Recover(ctx, r))
+					ret = nil
+				}
+			}()
+			if !isLen1 {
+				defer wg.Done()
+			}
+			ret[i] = ec.marshalOConfirmation2ᚖgithubᚗcomᚋriviatechsᚋmt940_serverᚋmodelsᚐConfirmation(ctx, sel, v[i])
+		}
+		if isLen1 {
+			f(i)
+		} else {
+			go f(i)
+		}
+
+	}
+	wg.Wait()
+
+	return ret
+}
+
+func (ec *executionContext) marshalOConfirmation2ᚖgithubᚗcomᚋriviatechsᚋmt940_serverᚋmodelsᚐConfirmation(ctx context.Context, sel ast.SelectionSet, v *models.Confirmation) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return ec._Confirmation(ctx, sel, v)
 }
 
 func (ec *executionContext) marshalOCustStmtMsg2ᚕᚖgithubᚗcomᚋriviatechsᚋmt940_serverᚋmodelsᚐCustStmtMsg(ctx context.Context, sel ast.SelectionSet, v []*models.CustStmtMsg) graphql.Marshaler {

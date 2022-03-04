@@ -3,6 +3,8 @@ package db
 import (
 	"fmt"
 	"os"
+	"sort"
+	"time"
 
 	"github.com/MalukiMuthusi/logger"
 	"github.com/riviatechs/mt940_server/models"
@@ -72,4 +74,32 @@ func GroupStmtLinesByDate(sl []*models.Sl) ([]*models.SlGroups, error) {
 	}
 
 	return slg, nil
+}
+
+func GroupStmtsByDate(confirmations []*models.Confirmation) ([]*models.ConfGroup, error) {
+	confirmationsMap := make(map[string][]*models.Confirmation)
+
+	for _, conf := range confirmations {
+		if l, ok := confirmationsMap[conf.DateTime.Format(util.TimeFormat)]; ok {
+			s := append(l, conf)
+			confirmationsMap[conf.DateTime.Format(util.TimeFormat)] = s
+		} else {
+			confList := confirmationsMap[conf.DateTime.Format(util.TimeFormat)]
+			confList = append(confList, conf)
+			confirmationsMap[conf.DateTime.Format(util.TimeFormat)] = confList
+		}
+	}
+
+	var confirmationGroups []*models.ConfGroup
+
+	for dateTime, conf := range confirmationsMap {
+		t, _ := time.Parse(util.TimeFormat, dateTime)
+		singleConfirmationGroup := models.ConfGroup{DateTime: t, Confirmations: conf}
+
+		confirmationGroups = append(confirmationGroups, &singleConfirmationGroup)
+	}
+
+	sort.Sort(models.GroupByDateTime(confirmationGroups))
+
+	return confirmationGroups, nil
 }

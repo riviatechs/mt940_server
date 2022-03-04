@@ -1,0 +1,5 @@
+type ConfGroup
+  @goModel(model: "github.com/riviatechs/mt940_server/models.ConfGroup") {
+  DateTime: String @goField(name: "DateTime")
+  confirmations: [Confirmation] @goField(name: "Confirmations")
+}

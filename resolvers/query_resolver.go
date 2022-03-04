@@ -13,6 +13,10 @@ type QueryResolver struct{ *Resolver }
 // Query returns generated.QueryResolver implementation.
 func (r *Resolver) Query() generated.QueryResolver { return &QueryResolver{r} }
 
+func (r *QueryResolver) Statements(ctx context.Context) ([]*models.ConfGroup, error) {
+	return db.Statements(ctx)
+}
+
 func (r *Resolver) GetStmtLinesFilterByDc(ctx context.Context, dcInput models.DCInput) ([]*models.SlGroups, error) {
 	return db.FilterByDC(ctx, dcInput)
 }
