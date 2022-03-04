@@ -18,5 +18,5 @@ func (c GroupByDateTime) Swap(i, j int) {
 }
 
 func (c GroupByDateTime) Less(i, j int) bool {
-	return c[i].DateTime.Before(c[j].DateTime)
+	return c[i].DateTime.After(c[j].DateTime)
 }
