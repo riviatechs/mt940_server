@@ -46,3 +46,4 @@ type CustStmtMsgInput struct {
 func (CustStmtMsgInput) TableName() string {
 	return util.CusStmtMsgTable
 }
+

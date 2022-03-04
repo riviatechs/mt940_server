@@ -3,13 +3,16 @@ package util
 import "time"
 
 const (
-	CusStmtMsgTable = "cus_stmt_msgs"
-	AiTable         = "ais"
-	ObTable         = "obs"
-	SlTable         = "sls"
-	CbTable         = "cbs"
-	CabTable        = "cabs"
-	FwabTable       = "fwabs"
+	CusStmtMsgTable              = "cus_stmt_msgs"
+	AiTable                      = "ais"
+	ObTable                      = "obs"
+	SlTable                      = "sls"
+	CbTable                      = "cbs"
+	CabTable                     = "cabs"
+	FwabTable                    = "fwabs"
+	StatementsConfirmationsTable = "statements_confirmations"
+	StatementsTable              = "statements"
+	ConfirmationsTable           = "confirmations"
 )
 
 const (
