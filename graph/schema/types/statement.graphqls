@@ -1,0 +1,7 @@
+type Statement
+  @goModel(model: "github.com/riviatechs/mt940_server/models.Statement") {
+  id: Int! @goField(name: "ID")
+  ob: Float! @goField(name: "Ob")
+  cb: Float! @goField(name: "Cb")
+  sl: [Confirmation]! @goField(name: "Sl")
+}

@@ -42,7 +42,7 @@ func Start() {
 		logger.Fatalf("StartDB", zap.Error(err))
 	}
 
-	err = db.AutoMigrate(&models.CustStmtMsg{}, &models.Ai{}, &models.Ob{}, &models.Sl{}, &models.Sl{}, &models.Cb{}, &models.Cab{}, &models.Fwab{})
+	err = db.AutoMigrate(&models.CustStmtMsg{}, &models.Ai{}, &models.Ob{}, &models.Sl{}, &models.Sl{}, &models.Cb{}, &models.Cab{}, &models.Fwab{}, &models.Confirmation{}, &models.Statement{}, &models.StatementConfirmation{})
 	if err != nil {
 		logger.Fatalf("db.AutoMigrate", zap.Error(err))
 	}

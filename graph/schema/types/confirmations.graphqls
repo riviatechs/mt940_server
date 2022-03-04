@@ -1,0 +1,13 @@
+type Confirmation
+  @goModel(model: "github.com/riviatechs/mt940_server/models.Confirmation") {
+  id: Int! @goField(name: "ID")
+  currency: String! @goField(name: "Currency")
+  partyBName: String! @goField(name: "PartyBAccount")
+  partyBAccount: String! @goField(name: "PartyBName")
+  amount: Float! @goField(name: "Amount")
+  dateTime: String! @goField(name: "DateTime")
+  narrative: String! @goField(name: "Narrative")
+  partyAName: String! @goField(name: "PartyAName")
+  partAAccount: String! @goField(name: "PartyAAccount")
+  mark: String @goField(name: "Mark")
+}

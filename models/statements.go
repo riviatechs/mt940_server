@@ -6,7 +6,7 @@ type Statement struct {
 	ID uint           `gorm:"type:SERIAL PRIMARY KEY"`
 	Ob float32        `gorm:"column:ob;type:NUMERIC;NOT NULL"`
 	Cb float32        `gorm:"column:cb;type:NUMERIC;NOT NULL"`
-	Sl []Confirmation `gorm:"many2many:statement_confirmations;"`
+	Sl []Confirmation `gorm:"many2many:statements_confirmations;"`
 }
 
 func (Statement) TableName() string {

@@ -38,12 +38,14 @@ type ResolverRoot interface {
 	Ai() AiResolver
 	Cab() CabResolver
 	Cb() CbResolver
+	Confirmation() ConfirmationResolver
 	CustStmtMsg() CustStmtMsgResolver
 	Fwab() FwabResolver
 	Mutation() MutationResolver
 	Ob() ObResolver
 	Query() QueryResolver
 	Sl() SlResolver
+	Statement() StatementResolver
 	AiInput() AiInputResolver
 	AmountInput() AmountInputResolver
 	CabInput() CabInputResolver
@@ -83,6 +85,19 @@ type ComplexityRoot struct {
 		DateY         func(childComplexity int) int
 		ID            func(childComplexity int) int
 		Mark          func(childComplexity int) int
+	}
+
+	Confirmation struct {
+		Amount        func(childComplexity int) int
+		Currency      func(childComplexity int) int
+		DateTime      func(childComplexity int) int
+		ID            func(childComplexity int) int
+		Mark          func(childComplexity int) int
+		Narrative     func(childComplexity int) int
+		PartyAAccount func(childComplexity int) int
+		PartyAName    func(childComplexity int) int
+		PartyBAccount func(childComplexity int) int
+		PartyBName    func(childComplexity int) int
 	}
 
 	CustStmtMsg struct {
@@ -150,6 +165,13 @@ type ComplexityRoot struct {
 		Sls       func(childComplexity int) int
 		ValueDate func(childComplexity int) int
 	}
+
+	Statement struct {
+		Cb func(childComplexity int) int
+		ID func(childComplexity int) int
+		Ob func(childComplexity int) int
+		Sl func(childComplexity int) int
+	}
 }
 
 type AiResolver interface {
@@ -174,6 +196,12 @@ type CbResolver interface {
 	DateY(ctx context.Context, obj *models.Cb) (string, error)
 
 	Amount(ctx context.Context, obj *models.Cb) (float64, error)
+}
+type ConfirmationResolver interface {
+	ID(ctx context.Context, obj *models.Confirmation) (int, error)
+
+	Amount(ctx context.Context, obj *models.Confirmation) (float64, error)
+	DateTime(ctx context.Context, obj *models.Confirmation) (string, error)
 }
 type CustStmtMsgResolver interface {
 	ID(ctx context.Context, obj *models.CustStmtMsg) (*int, error)
@@ -217,6 +245,11 @@ type SlResolver interface {
 	EntryDate(ctx context.Context, obj *models.Sl) (*string, error)
 
 	Amount(ctx context.Context, obj *models.Sl) (float64, error)
+}
+type StatementResolver interface {
+	ID(ctx context.Context, obj *models.Statement) (int, error)
+	Ob(ctx context.Context, obj *models.Statement) (float64, error)
+	Cb(ctx context.Context, obj *models.Statement) (float64, error)
 }
 
 type AiInputResolver interface {
@@ -407,6 +440,76 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Cb.Mark(childComplexity), true
+
+	case "Confirmation.amount":
+		if e.complexity.Confirmation.Amount == nil {
+			break
+		}
+
+		return e.complexity.Confirmation.Amount(childComplexity), true
+
+	case "Confirmation.currency":
+		if e.complexity.Confirmation.Currency == nil {
+			break
+		}
+
+		return e.complexity.Confirmation.Currency(childComplexity), true
+
+	case "Confirmation.dateTime":
+		if e.complexity.Confirmation.DateTime == nil {
+			break
+		}
+
+		return e.complexity.Confirmation.DateTime(childComplexity), true
+
+	case "Confirmation.id":
+		if e.complexity.Confirmation.ID == nil {
+			break
+		}
+
+		return e.complexity.Confirmation.ID(childComplexity), true
+
+	case "Confirmation.mark":
+		if e.complexity.Confirmation.Mark == nil {
+			break
+		}
+
+		return e.complexity.Confirmation.Mark(childComplexity), true
+
+	case "Confirmation.narrative":
+		if e.complexity.Confirmation.Narrative == nil {
+			break
+		}
+
+		return e.complexity.Confirmation.Narrative(childComplexity), true
+
+	case "Confirmation.partAAccount":
+		if e.complexity.Confirmation.PartyAAccount == nil {
+			break
+		}
+
+		return e.complexity.Confirmation.PartyAAccount(childComplexity), true
+
+	case "Confirmation.partyAName":
+		if e.complexity.Confirmation.PartyAName == nil {
+			break
+		}
+
+		return e.complexity.Confirmation.PartyAName(childComplexity), true
+
+	case "Confirmation.partyBName":
+		if e.complexity.Confirmation.PartyBAccount == nil {
+			break
+		}
+
+		return e.complexity.Confirmation.PartyBAccount(childComplexity), true
+
+	case "Confirmation.partyBAccount":
+		if e.complexity.Confirmation.PartyBName == nil {
+			break
+		}
+
+		return e.complexity.Confirmation.PartyBName(childComplexity), true
 
 	case "CustStmtMsg.ai":
 		if e.complexity.CustStmtMsg.Ai == nil {
@@ -748,6 +851,34 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.SlGroups.ValueDate(childComplexity), true
 
+	case "Statement.cb":
+		if e.complexity.Statement.Cb == nil {
+			break
+		}
+
+		return e.complexity.Statement.Cb(childComplexity), true
+
+	case "Statement.id":
+		if e.complexity.Statement.ID == nil {
+			break
+		}
+
+		return e.complexity.Statement.ID(childComplexity), true
+
+	case "Statement.ob":
+		if e.complexity.Statement.Ob == nil {
+			break
+		}
+
+		return e.complexity.Statement.Ob(childComplexity), true
+
+	case "Statement.sl":
+		if e.complexity.Statement.Sl == nil {
+			break
+		}
+
+		return e.complexity.Statement.Sl(childComplexity), true
+
 	}
 	return 0, false
 }
@@ -996,6 +1127,20 @@ input CbInput
   The integer part of Amount must contain at least one digit. The decimal comma ',' is mandatory and is  included in the maximum length. The number of digits following the comma must not exceed the maximum number allowed for that specific currency as specified in ISO 4217
   """
   amount: Float! @goField(name: "Amount")
+}
+`, BuiltIn: false},
+	{Name: "graph/schema/types/confirmations.graphqls", Input: `type Confirmation
+  @goModel(model: "github.com/riviatechs/mt940_server/models.Confirmation") {
+  id: Int! @goField(name: "ID")
+  currency: String! @goField(name: "Currency")
+  partyBName: String! @goField(name: "PartyBAccount")
+  partyBAccount: String! @goField(name: "PartyBName")
+  amount: Float! @goField(name: "Amount")
+  dateTime: String! @goField(name: "DateTime")
+  narrative: String! @goField(name: "Narrative")
+  partyAName: String! @goField(name: "PartyAName")
+  partAAccount: String! @goField(name: "PartyAAccount")
+  mark: String @goField(name: "Mark")
 }
 `, BuiltIn: false},
 	{Name: "graph/schema/types/cus_stmt_msg.graphqls", Input: `"""
@@ -1300,6 +1445,14 @@ input SlInput
   @goModel(model: "github.com/riviatechs/mt940_server/models.SlGroups") {
   ValueDate: String @goField(name: "ValueDate")
   Sls: [Sl] @goField(name: "Sls")
+}
+`, BuiltIn: false},
+	{Name: "graph/schema/types/statement.graphqls", Input: `type Statement
+  @goModel(model: "github.com/riviatechs/mt940_server/models.Statement") {
+  id: Int! @goField(name: "ID")
+  ob: Float! @goField(name: "Ob")
+  cb: Float! @goField(name: "Cb")
+  sl: [Confirmation]! @goField(name: "Sl")
 }
 `, BuiltIn: false},
 }
@@ -2047,6 +2200,353 @@ func (ec *executionContext) _Cb_amount(ctx context.Context, field graphql.Collec
 	res := resTmp.(float64)
 	fc.Result = res
 	return ec.marshalNFloat2float64(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Confirmation_id(ctx context.Context, field graphql.CollectedField, obj *models.Confirmation) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "Confirmation",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   true,
+		IsResolver: true,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Confirmation().ID(rctx, obj)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(int)
+	fc.Result = res
+	return ec.marshalNInt2int(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Confirmation_currency(ctx context.Context, field graphql.CollectedField, obj *models.Confirmation) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "Confirmation",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   false,
+		IsResolver: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Currency, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Confirmation_partyBName(ctx context.Context, field graphql.CollectedField, obj *models.Confirmation) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "Confirmation",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   false,
+		IsResolver: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.PartyBAccount, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Confirmation_partyBAccount(ctx context.Context, field graphql.CollectedField, obj *models.Confirmation) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "Confirmation",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   false,
+		IsResolver: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.PartyBName, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Confirmation_amount(ctx context.Context, field graphql.CollectedField, obj *models.Confirmation) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "Confirmation",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   true,
+		IsResolver: true,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Confirmation().Amount(rctx, obj)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(float64)
+	fc.Result = res
+	return ec.marshalNFloat2float64(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Confirmation_dateTime(ctx context.Context, field graphql.CollectedField, obj *models.Confirmation) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "Confirmation",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   true,
+		IsResolver: true,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Confirmation().DateTime(rctx, obj)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Confirmation_narrative(ctx context.Context, field graphql.CollectedField, obj *models.Confirmation) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "Confirmation",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   false,
+		IsResolver: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Narrative, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Confirmation_partyAName(ctx context.Context, field graphql.CollectedField, obj *models.Confirmation) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "Confirmation",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   false,
+		IsResolver: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.PartyAName, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Confirmation_partAAccount(ctx context.Context, field graphql.CollectedField, obj *models.Confirmation) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "Confirmation",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   false,
+		IsResolver: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.PartyAAccount, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Confirmation_mark(ctx context.Context, field graphql.CollectedField, obj *models.Confirmation) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "Confirmation",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   false,
+		IsResolver: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Mark, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalOString2string(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _CustStmtMsg_id(ctx context.Context, field graphql.CollectedField, obj *models.CustStmtMsg) (ret graphql.Marshaler) {
@@ -3647,6 +4147,146 @@ func (ec *executionContext) _SlGroups_Sls(ctx context.Context, field graphql.Col
 	res := resTmp.([]*models.Sl)
 	fc.Result = res
 	return ec.marshalOSl2ᚕᚖgithubᚗcomᚋriviatechsᚋmt940_serverᚋmodelsᚐSl(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Statement_id(ctx context.Context, field graphql.CollectedField, obj *models.Statement) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "Statement",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   true,
+		IsResolver: true,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Statement().ID(rctx, obj)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(int)
+	fc.Result = res
+	return ec.marshalNInt2int(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Statement_ob(ctx context.Context, field graphql.CollectedField, obj *models.Statement) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "Statement",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   true,
+		IsResolver: true,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Statement().Ob(rctx, obj)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(float64)
+	fc.Result = res
+	return ec.marshalNFloat2float64(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Statement_cb(ctx context.Context, field graphql.CollectedField, obj *models.Statement) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "Statement",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   true,
+		IsResolver: true,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Statement().Cb(rctx, obj)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(float64)
+	fc.Result = res
+	return ec.marshalNFloat2float64(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Statement_sl(ctx context.Context, field graphql.CollectedField, obj *models.Statement) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "Statement",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   false,
+		IsResolver: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Sl, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]models.Confirmation)
+	fc.Result = res
+	return ec.marshalNConfirmation2ᚕgithubᚗcomᚋriviatechsᚋmt940_serverᚋmodelsᚐConfirmation(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) ___Directive_name(ctx context.Context, field graphql.CollectedField, obj *introspection.Directive) (ret graphql.Marshaler) {
@@ -5706,6 +6346,154 @@ func (ec *executionContext) _Cb(ctx context.Context, sel ast.SelectionSet, obj *
 	return out
 }
 
+var confirmationImplementors = []string{"Confirmation"}
+
+func (ec *executionContext) _Confirmation(ctx context.Context, sel ast.SelectionSet, obj *models.Confirmation) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, confirmationImplementors)
+	out := graphql.NewFieldSet(fields)
+	var invalids uint32
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("Confirmation")
+		case "id":
+			field := field
+
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Confirmation_id(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
+				return res
+			}
+
+			out.Concurrently(i, func() graphql.Marshaler {
+				return innerFunc(ctx)
+
+			})
+		case "currency":
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._Confirmation_currency(ctx, field, obj)
+			}
+
+			out.Values[i] = innerFunc(ctx)
+
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&invalids, 1)
+			}
+		case "partyBName":
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._Confirmation_partyBName(ctx, field, obj)
+			}
+
+			out.Values[i] = innerFunc(ctx)
+
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&invalids, 1)
+			}
+		case "partyBAccount":
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._Confirmation_partyBAccount(ctx, field, obj)
+			}
+
+			out.Values[i] = innerFunc(ctx)
+
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&invalids, 1)
+			}
+		case "amount":
+			field := field
+
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Confirmation_amount(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
+				return res
+			}
+
+			out.Concurrently(i, func() graphql.Marshaler {
+				return innerFunc(ctx)
+
+			})
+		case "dateTime":
+			field := field
+
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Confirmation_dateTime(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
+				return res
+			}
+
+			out.Concurrently(i, func() graphql.Marshaler {
+				return innerFunc(ctx)
+
+			})
+		case "narrative":
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._Confirmation_narrative(ctx, field, obj)
+			}
+
+			out.Values[i] = innerFunc(ctx)
+
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&invalids, 1)
+			}
+		case "partyAName":
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._Confirmation_partyAName(ctx, field, obj)
+			}
+
+			out.Values[i] = innerFunc(ctx)
+
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&invalids, 1)
+			}
+		case "partAAccount":
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._Confirmation_partAAccount(ctx, field, obj)
+			}
+
+			out.Values[i] = innerFunc(ctx)
+
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&invalids, 1)
+			}
+		case "mark":
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._Confirmation_mark(ctx, field, obj)
+			}
+
+			out.Values[i] = innerFunc(ctx)
+
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch()
+	if invalids > 0 {
+		return graphql.Null
+	}
+	return out
+}
+
 var custStmtMsgImplementors = []string{"CustStmtMsg"}
 
 func (ec *executionContext) _CustStmtMsg(ctx context.Context, sel ast.SelectionSet, obj *models.CustStmtMsg) graphql.Marshaler {
@@ -6505,6 +7293,97 @@ func (ec *executionContext) _SlGroups(ctx context.Context, sel ast.SelectionSet,
 	return out
 }
 
+var statementImplementors = []string{"Statement"}
+
+func (ec *executionContext) _Statement(ctx context.Context, sel ast.SelectionSet, obj *models.Statement) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, statementImplementors)
+	out := graphql.NewFieldSet(fields)
+	var invalids uint32
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("Statement")
+		case "id":
+			field := field
+
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Statement_id(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
+				return res
+			}
+
+			out.Concurrently(i, func() graphql.Marshaler {
+				return innerFunc(ctx)
+
+			})
+		case "ob":
+			field := field
+
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Statement_ob(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
+				return res
+			}
+
+			out.Concurrently(i, func() graphql.Marshaler {
+				return innerFunc(ctx)
+
+			})
+		case "cb":
+			field := field
+
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Statement_cb(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
+				return res
+			}
+
+			out.Concurrently(i, func() graphql.Marshaler {
+				return innerFunc(ctx)
+
+			})
+		case "sl":
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._Statement_sl(ctx, field, obj)
+			}
+
+			out.Values[i] = innerFunc(ctx)
+
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&invalids, 1)
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch()
+	if invalids > 0 {
+		return graphql.Null
+	}
+	return out
+}
+
 var __DirectiveImplementors = []string{"__Directive"}
 
 func (ec *executionContext) ___Directive(ctx context.Context, sel ast.SelectionSet, obj *introspection.Directive) graphql.Marshaler {
@@ -6952,6 +7831,44 @@ func (ec *executionContext) unmarshalNCbInput2githubᚗcomᚋriviatechsᚋmt940_
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
+func (ec *executionContext) marshalNConfirmation2ᚕgithubᚗcomᚋriviatechsᚋmt940_serverᚋmodelsᚐConfirmation(ctx context.Context, sel ast.SelectionSet, v []models.Confirmation) graphql.Marshaler {
+	ret := make(graphql.Array, len(v))
+	var wg sync.WaitGroup
+	isLen1 := len(v) == 1
+	if !isLen1 {
+		wg.Add(len(v))
+	}
+	for i := range v {
+		i := i
+		fc := &graphql.FieldContext{
+			Index:  &i,
+			Result: &v[i],
+		}
+		ctx := graphql.WithFieldContext(ctx, fc)
+		f := func(i int) {
+			defer func() {
+				if r := recover(); r != nil {
+					ec.Error(ctx, ec.Recover(ctx, r))
+					ret = nil
+				}
+			}()
+			if !isLen1 {
+				defer wg.Done()
+			}
+			ret[i] = ec.marshalOConfirmation2githubᚗcomᚋriviatechsᚋmt940_serverᚋmodelsᚐConfirmation(ctx, sel, v[i])
+		}
+		if isLen1 {
+			f(i)
+		} else {
+			go f(i)
+		}
+
+	}
+	wg.Wait()
+
+	return ret
+}
+
 func (ec *executionContext) unmarshalNCustStmtMsgInput2githubᚗcomᚋriviatechsᚋmt940_serverᚋmodelsᚐCustStmtMsgInput(ctx context.Context, v interface{}) (models.CustStmtMsgInput, error) {
 	res, err := ec.unmarshalInputCustStmtMsgInput(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
@@ -7338,6 +8255,10 @@ func (ec *executionContext) unmarshalOCabInput2ᚖgithubᚗcomᚋriviatechsᚋmt
 	}
 	res, err := ec.unmarshalInputCabInput(ctx, v)
 	return &res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalOConfirmation2githubᚗcomᚋriviatechsᚋmt940_serverᚋmodelsᚐConfirmation(ctx context.Context, sel ast.SelectionSet, v models.Confirmation) graphql.Marshaler {
+	return ec._Confirmation(ctx, sel, &v)
 }
 
 func (ec *executionContext) marshalOCustStmtMsg2ᚕᚖgithubᚗcomᚋriviatechsᚋmt940_serverᚋmodelsᚐCustStmtMsg(ctx context.Context, sel ast.SelectionSet, v []*models.CustStmtMsg) graphql.Marshaler {
