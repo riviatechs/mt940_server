@@ -56,13 +56,13 @@ func GroupStmtLinesByDate(sl []*models.Sl) ([]*models.SlGroups, error) {
 	sls := make(map[string][]*models.Sl)
 
 	for _, v := range sl {
-		if l, ok := sls[v.ValueDate.Format(util.TimeFormat)]; ok {
+		if l, ok := sls[v.ValueDate.Format(util.DateFormat)]; ok {
 			s := append(l, v)
-			sls[v.ValueDate.Format(util.TimeFormat)] = s
+			sls[v.ValueDate.Format(util.DateFormat)] = s
 		} else {
-			vv := sls[v.ValueDate.Format(util.TimeFormat)]
+			vv := sls[v.ValueDate.Format(util.DateFormat)]
 			vv = append(vv, v)
-			sls[v.ValueDate.Format(util.TimeFormat)] = vv
+			sls[v.ValueDate.Format(util.DateFormat)] = vv
 		}
 	}
 
