@@ -80,21 +80,21 @@ func GroupStmtsByDate(confirmations []*models.Confirmation) ([]*models.ConfGroup
 	confirmationsMap := make(map[string][]*models.Confirmation)
 
 	for _, conf := range confirmations {
-		if l, ok := confirmationsMap[conf.DateTime.Format(util.TimeFormat)]; ok {
+		dateString := CreateDate(conf.DateTime)
+		if l, ok := confirmationsMap[dateString]; ok {
 			s := append(l, conf)
-			confirmationsMap[conf.DateTime.Format(util.TimeFormat)] = s
+			confirmationsMap[dateString] = s
 		} else {
-			confList := confirmationsMap[conf.DateTime.Format(util.TimeFormat)]
+			confList := confirmationsMap[dateString]
 			confList = append(confList, conf)
-			confirmationsMap[conf.DateTime.Format(util.TimeFormat)] = confList
+			confirmationsMap[dateString] = confList
 		}
 	}
 
 	var confirmationGroups []*models.ConfGroup
 
-	for dateTime, conf := range confirmationsMap {
-		t, _ := time.Parse(util.TimeFormat, dateTime)
-		singleConfirmationGroup := models.ConfGroup{DateTime: t, Confirmations: conf}
+	for _, conf := range confirmationsMap {
+		singleConfirmationGroup := models.ConfGroup{DateTime: conf[0].DateTime, Confirmations: conf}
 
 		confirmationGroups = append(confirmationGroups, &singleConfirmationGroup)
 	}
@@ -102,4 +102,9 @@ func GroupStmtsByDate(confirmations []*models.Confirmation) ([]*models.ConfGroup
 	sort.Sort(models.GroupByDateTime(confirmationGroups))
 
 	return confirmationGroups, nil
+}
+
+func CreateDate(t time.Time) string {
+	s := fmt.Sprintf("%d%d%d", t.Year(), t.Month(), t.Day())
+	return s
 }
