@@ -13,6 +13,10 @@ type QueryResolver struct{ *Resolver }
 // Query returns generated.QueryResolver implementation.
 func (r *Resolver) Query() generated.QueryResolver { return &QueryResolver{r} }
 
+func (r *QueryResolver) Search(ctx context.Context, input string) ([]*models.ConfGroup, error) {
+	return db.Search(ctx, input)
+}
+
 func (r *QueryResolver) StatementsFiltered(ctx context.Context, input *models.FilterInput) ([]*models.ConfGroup, error) {
 	return db.StatementsFiltered(ctx, input)
 }

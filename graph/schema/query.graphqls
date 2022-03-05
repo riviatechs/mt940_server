@@ -9,4 +9,5 @@ type Query {
 
   statements: [ConfGroup]
   statementsFiltered(input: FilterInput): [ConfGroup]
+  search(input: String!): [ConfGroup]
 }

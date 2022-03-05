@@ -150,6 +150,7 @@ type ComplexityRoot struct {
 		GetStmtLineGroupedByDate   func(childComplexity int) int
 		GetStmtLinesFilterByAmount func(childComplexity int, amount models.Amount) int
 		GetStmtLinesFilterByDc     func(childComplexity int, amount models.DCInput) int
+		Search                     func(childComplexity int, input string) int
 		Statements                 func(childComplexity int) int
 		StatementsFiltered         func(childComplexity int, input *models.FilterInput) int
 	}
@@ -250,6 +251,7 @@ type QueryResolver interface {
 	GetStmtLinesFilterByDc(ctx context.Context, amount models.DCInput) ([]*models.SlGroups, error)
 	Statements(ctx context.Context) ([]*models.ConfGroup, error)
 	StatementsFiltered(ctx context.Context, input *models.FilterInput) ([]*models.ConfGroup, error)
+	Search(ctx context.Context, input string) ([]*models.ConfGroup, error)
 }
 type SlResolver interface {
 	ID(ctx context.Context, obj *models.Sl) (*int, error)
@@ -780,6 +782,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Query.GetStmtLinesFilterByDc(childComplexity, args["amount"].(models.DCInput)), true
 
+	case "Query.search":
+		if e.complexity.Query.Search == nil {
+			break
+		}
+
+		args, err := ec.field_Query_search_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Query.Search(childComplexity, args["input"].(string)), true
+
 	case "Query.statements":
 		if e.complexity.Query.Statements == nil {
 			break
@@ -1019,6 +1033,7 @@ directive @goTag(
 
   statements: [ConfGroup]
   statementsFiltered(input: FilterInput): [ConfGroup]
+  search(input: String!): [ConfGroup]
 }
 `, BuiltIn: false},
 	{Name: "graph/schema/schema.graphqls", Input: `# GraphQL schema example
@@ -1639,6 +1654,21 @@ func (ec *executionContext) field_Query_getStmtLinesFilterByDC_args(ctx context.
 		}
 	}
 	args["amount"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Query_search_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 string
+	if tmp, ok := rawArgs["input"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
+		arg0, err = ec.unmarshalNString2string(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["input"] = arg0
 	return args, nil
 }
 
@@ -3848,6 +3878,45 @@ func (ec *executionContext) _Query_statementsFiltered(ctx context.Context, field
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
 		return ec.resolvers.Query().StatementsFiltered(rctx, args["input"].(*models.FilterInput))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.([]*models.ConfGroup)
+	fc.Result = res
+	return ec.marshalOConfGroup2ᚕᚖgithubᚗcomᚋriviatechsᚋmt940_serverᚋmodelsᚐConfGroup(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Query_search(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "Query",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   true,
+		IsResolver: true,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	rawArgs := field.ArgumentMap(ec.Variables)
+	args, err := ec.field_Query_search_args(ctx, rawArgs)
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	fc.Args = args
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Query().Search(rctx, args["input"].(string))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -7509,6 +7578,26 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 					}
 				}()
 				res = ec._Query_statementsFiltered(ctx, field)
+				return res
+			}
+
+			rrm := func(ctx context.Context) graphql.Marshaler {
+				return ec.OperationContext.RootResolverMiddleware(ctx, innerFunc)
+			}
+
+			out.Concurrently(i, func() graphql.Marshaler {
+				return rrm(innerCtx)
+			})
+		case "search":
+			field := field
+
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query_search(ctx, field)
 				return res
 			}
 
