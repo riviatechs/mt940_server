@@ -13,43 +13,6 @@ type QueryResolver struct{ *Resolver }
 // Query returns generated.QueryResolver implementation.
 func (r *Resolver) Query() generated.QueryResolver { return &QueryResolver{r} }
 
-type AmountRangeInputResolver struct {
-	*Resolver
-}
-
-func (r *Resolver) AmountRangeInput() generated.AmountRangeInputResolver {
-	return &AmountRangeInputResolver{r}
-}
-
-func (r *AmountRangeInputResolver) Lower(ctx context.Context, obj *models.AmountRangeInput, data *float64) error {
-	if obj == nil {
-		return nil
-	}
-
-	amount := float32(*data)
-	obj.Lower = &amount
-	return nil
-}
-func (r *AmountRangeInputResolver) Upper(ctx context.Context, obj *models.AmountRangeInput, data *float64) error {
-	if obj == nil {
-		return nil
-	}
-
-	amount := float32(*data)
-	obj.Upper = &amount
-	return nil
-}
-
-func (r *AmountRangeInputResolver) Amount(ctx context.Context, obj *models.AmountRangeInput, data *float64) error {
-	if obj == nil {
-		return nil
-	}
-
-	amount := float32(*data)
-	obj.Amount = &amount
-	return nil
-}
-
 func (r *QueryResolver) StatementsFiltered(ctx context.Context, input *models.FilterInput) ([]*models.ConfGroup, error) {
 	return db.StatementsFiltered(ctx, input)
 }

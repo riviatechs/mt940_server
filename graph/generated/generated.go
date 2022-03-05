@@ -49,7 +49,6 @@ type ResolverRoot interface {
 	Statement() StatementResolver
 	AiInput() AiInputResolver
 	AmountInput() AmountInputResolver
-	AmountRangeInput() AmountRangeInputResolver
 	CabInput() CabInputResolver
 	CbInput() CbInputResolver
 	CustStmtMsgInput() CustStmtMsgInputResolver
@@ -272,11 +271,6 @@ type AiInputResolver interface {
 type AmountInputResolver interface {
 	Lower(ctx context.Context, obj *models.Amount, data float64) error
 	Upper(ctx context.Context, obj *models.Amount, data float64) error
-}
-type AmountRangeInputResolver interface {
-	Lower(ctx context.Context, obj *models.AmountRangeInput, data *float64) error
-	Upper(ctx context.Context, obj *models.AmountRangeInput, data *float64) error
-	Amount(ctx context.Context, obj *models.AmountRangeInput, data *float64) error
 }
 type CabInputResolver interface {
 	CustStmtMsgID(ctx context.Context, obj *models.CabInput, data int) error
@@ -1322,9 +1316,9 @@ input AmountRangeInput
   @goModel(
     model: "github.com/riviatechs/mt940_server/models.AmountRangeInput"
   ) {
-  lower: Float @goField(name: "Lower")
-  upper: Float @goField(name: "Upper")
-  amount: Float @goField(name: "Amount")
+  lower: String @goField(name: "Lower")
+  upper: String @goField(name: "Upper")
+  amount: String @goField(name: "Amount")
 }
 
 scalar Float32
@@ -5749,33 +5743,24 @@ func (ec *executionContext) unmarshalInputAmountRangeInput(ctx context.Context, 
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("lower"))
-			data, err := ec.unmarshalOFloat2ᚖfloat64(ctx, v)
+			it.Lower, err = ec.unmarshalOString2ᚖstring(ctx, v)
 			if err != nil {
-				return it, err
-			}
-			if err = ec.resolvers.AmountRangeInput().Lower(ctx, &it, data); err != nil {
 				return it, err
 			}
 		case "upper":
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("upper"))
-			data, err := ec.unmarshalOFloat2ᚖfloat64(ctx, v)
+			it.Upper, err = ec.unmarshalOString2ᚖstring(ctx, v)
 			if err != nil {
-				return it, err
-			}
-			if err = ec.resolvers.AmountRangeInput().Upper(ctx, &it, data); err != nil {
 				return it, err
 			}
 		case "amount":
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("amount"))
-			data, err := ec.unmarshalOFloat2ᚖfloat64(ctx, v)
+			it.Amount, err = ec.unmarshalOString2ᚖstring(ctx, v)
 			if err != nil {
-				return it, err
-			}
-			if err = ec.resolvers.AmountRangeInput().Amount(ctx, &it, data); err != nil {
 				return it, err
 			}
 		}
@@ -8884,22 +8869,6 @@ func (ec *executionContext) unmarshalOFilterInput2ᚖgithubᚗcomᚋriviatechs�
 	}
 	res, err := ec.unmarshalInputFilterInput(ctx, v)
 	return &res, graphql.ErrorOnPath(ctx, err)
-}
-
-func (ec *executionContext) unmarshalOFloat2ᚖfloat64(ctx context.Context, v interface{}) (*float64, error) {
-	if v == nil {
-		return nil, nil
-	}
-	res, err := graphql.UnmarshalFloatContext(ctx, v)
-	return &res, graphql.ErrorOnPath(ctx, err)
-}
-
-func (ec *executionContext) marshalOFloat2ᚖfloat64(ctx context.Context, sel ast.SelectionSet, v *float64) graphql.Marshaler {
-	if v == nil {
-		return graphql.Null
-	}
-	res := graphql.MarshalFloatContext(*v)
-	return graphql.WrapContextMarshaler(ctx, res)
 }
 
 func (ec *executionContext) marshalOFwab2ᚕᚖgithubᚗcomᚋriviatechsᚋmt940_serverᚋmodelsᚐFwabᚄ(ctx context.Context, sel ast.SelectionSet, v []*models.Fwab) graphql.Marshaler {

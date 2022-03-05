@@ -14,16 +14,16 @@ func StatementsFiltered(ctx context.Context, input *models.FilterInput) ([]*mode
 
 	db := Db
 	if input.Currency != nil {
-		db = db.Where("currency LIKE ?", input.Currency)
+		db = db.Where("currency LIKE ?", *input.Currency)
 	}
 
 	if input.Tt != nil {
-		db = db.Where("mark LIKE ?", input.Tt)
+		db = db.Where("mark LIKE ?", *input.Tt)
 	}
 
 	if input.Period != nil {
 		if input.Period.Date != nil {
-			db = db.Where("date_time >= ?::date AND date_time <(?::date + '1 day'::interval)", input.Period.Date, input.Period.Date)
+			db = db.Where("date_time >= ?::date AND date_time <(?::date + '1 day'::interval)", *input.Period.Date, *input.Period.Date)
 
 		} else {
 			if input.Period.Start != nil && input.Period.End != nil {
@@ -34,10 +34,12 @@ func StatementsFiltered(ctx context.Context, input *models.FilterInput) ([]*mode
 
 	if input.AmountRange != nil {
 		if input.AmountRange.Amount != nil {
-			db = db.Where("amount = ?", input.AmountRange.Amount)
+
+			db = db.Where("ceil(amount) = ceil((?::NUMERIC))", *input.AmountRange.Amount)
 		} else {
 			if input.AmountRange.Lower != nil && input.AmountRange.Upper != nil {
-				db = db.Where("amount BETWEEN ? AND ?", input.AmountRange.Lower, input.AmountRange.Upper)
+
+				db = db.Where("ceil(amount) >= ceil((?::NUMERIC)) AND amount <= ceil((?::NUMERIC))", *input.AmountRange.Lower, *input.AmountRange.Upper)
 			}
 		}
 	}

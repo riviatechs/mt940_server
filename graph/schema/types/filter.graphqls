@@ -26,9 +26,9 @@ input AmountRangeInput
   @goModel(
     model: "github.com/riviatechs/mt940_server/models.AmountRangeInput"
   ) {
-  lower: Float @goField(name: "Lower")
-  upper: Float @goField(name: "Upper")
-  amount: Float @goField(name: "Amount")
+  lower: String @goField(name: "Lower")
+  upper: String @goField(name: "Upper")
+  amount: String @goField(name: "Amount")
 }
 
 scalar Float32
