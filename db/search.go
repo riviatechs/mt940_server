@@ -8,7 +8,7 @@ import (
 )
 
 func Search(ctx context.Context, input string) ([]*models.ConfGroup, error) {
-	db := Db.Where("searchable @@ websearch_to_tsquery(?)", input)
+	db := Db.Debug().Where("searchable_part_b_name @@ websearch_to_tsquery('english',?) OR searchable_part_b_account @@ websearch_to_tsquery('english',?) ", input, input)
 
 	var confirmations []*models.Confirmation
 
