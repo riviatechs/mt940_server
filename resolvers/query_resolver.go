@@ -6,12 +6,18 @@ import (
 	"github.com/riviatechs/mt940_server/db"
 	"github.com/riviatechs/mt940_server/graph/generated"
 	"github.com/riviatechs/mt940_server/models"
+	"github.com/riviatechs/mt940_server/pdf"
 )
 
 type QueryResolver struct{ *Resolver }
 
 // Query returns generated.QueryResolver implementation.
 func (r *Resolver) Query() generated.QueryResolver { return &QueryResolver{r} }
+
+func (r *Resolver) DownloadStatements(ctx context.Context, input *models.FilterInput) ([]*string, error) {
+	pdf.PDFGenerator()
+	return nil, nil
+}
 
 func (r *QueryResolver) Search(ctx context.Context, input string) ([]*models.ConfGroup, error) {
 	return db.Search(ctx, input)

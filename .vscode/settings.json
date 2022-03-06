@@ -3,8 +3,10 @@
         "Cust",
         "dbname",
         "fwab",
+        "pdfg",
         "riviatechs",
-        "ttic"
+        "ttic",
+        "wkhtml"
     ],
     "[graphql]": {
         "editor.formatOnSave": true
