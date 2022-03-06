@@ -6,7 +6,7 @@ import (
 	"github.com/riviatechs/mt940_server/db"
 	"github.com/riviatechs/mt940_server/graph/generated"
 	"github.com/riviatechs/mt940_server/models"
-	"github.com/riviatechs/mt940_server/util"
+	"github.com/riviatechs/mt940_server/pdf"
 )
 
 type QueryResolver struct{ *Resolver }
@@ -15,7 +15,7 @@ type QueryResolver struct{ *Resolver }
 func (r *Resolver) Query() generated.QueryResolver { return &QueryResolver{r} }
 
 func (r *Resolver) DownloadStatements(ctx context.Context, input *models.FilterInput) ([]*string, error) {
-	s, err := util.ExchangeJWT()
+	s, err := pdf.GeneratePDF()
 	if err != nil {
 		return nil, err
 	}

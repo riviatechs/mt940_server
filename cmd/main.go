@@ -110,9 +110,15 @@ func init() {
 
 	// Adobe JWT
 	RootCmd.PersistentFlags().String(util.AdobeJWT, "", "Adobe JWT")
+	bind(util.AdobeJWT)
 
 	// Adobe JWT Exchange URL
 	RootCmd.PersistentFlags().String(util.AdobeExchangeJWTURL, "", "Adobe JWT Exchange URL")
+	bind(util.AdobeExchangeJWTURL)
+
+	// Adobe HTML To PDF URL
+	RootCmd.PersistentFlags().String(util.AdobeHTMLToPDFURL, "", "Adobe HTML To PDF URL")
+	bind(util.AdobeHTMLToPDFURL)
 
 	// Set up the structured logging library
 	log.Setup(viper.GetBool(util.Debug))

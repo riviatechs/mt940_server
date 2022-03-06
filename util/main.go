@@ -40,6 +40,7 @@ const (
 	AdobeClientID       = "ADOBE_CLIENT_ID"
 	AdobeClientSecret   = "ADOBE_CLIENT_SECRET"
 	AdobeJWT            = "ADOBE_JWT"
+	AdobeHTMLToPDFURL   = "ADOBE_HTML_TO_PDF_URL"
 )
 
 const (
@@ -61,3 +62,23 @@ func FormatDate(d string) string {
 
 	return t.Format(TimeFormat)
 }
+
+const (
+	ContentAnalyzerRequest = `{
+		"cpf:inputs": {
+			"documentIn": {
+				"cpf:location": "InputFile0",
+				"dc:format": "text/html"
+			}
+		},
+		"cpf:engine": {
+			"repo:assetId": "urn:aaid:cpf:Service-e2ee120a2b06427cb449592f5db967e7"
+		},
+		"cpf:outputs": {
+			"documentOut": {
+				"cpf:location": "multipartLabelOut",
+				"dc:format": "application/pdf"
+			}
+		}
+	}`
+)
