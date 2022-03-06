@@ -36,9 +36,22 @@ const (
 )
 
 const (
+	AdobeExchangeJWTURL = "ADOBE_JWT_EXCHANGE_URL"
+	AdobeClientID       = "ADOBE_CLIENT_ID"
+	AdobeClientSecret   = "ADOBE_CLIENT_SECRET"
+	AdobeJWT            = "ADOBE_JWT"
+)
+
+const (
 	TimeFormat = "2006-01-02T15:04:05Z"
 	DateFormat = "2006-01-02"
 )
+
+type TokenResponse struct {
+	TokenType   string `json:"token_type"`
+	AccessToken string `json:"access_token"`
+	ExpiresIn   uint   `json:"expires_in"`
+}
 
 func FormatDate(d string) string {
 	t, err := time.Parse(time.RFC3339, d)

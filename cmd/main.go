@@ -40,32 +40,7 @@ var RootCmd = &cobra.Command{
 	},
 }
 
-func checkMustBeSet() {
-	mustBeSet(util.ProjectID)
-
-	mustBeSet(util.DbUser)
-
-	mustBeSet(util.DbName)
-
-	mustBeSet(util.DbPwd)
-
-	mustBeSet(util.DbHost)
-
-	mustBeSet(util.DbPort)
-
-	mustBeSet(util.DbConnectionName)
-
-	mustBeSet(util.DbTimeZone)
-}
-
-func mustBeSet(env string) {
-	if viper.GetString(env) == "" {
-		log.Fatalf(fmt.Sprintf("%s is not set", env))
-	}
-}
-
 func StartServer() {
-
 	RootCmd.Execute()
 }
 
@@ -125,14 +100,23 @@ func init() {
 	RootCmd.PersistentFlags().Bool(util.DbHostedCloud, false, "Database hosted on cloud")
 	bind(util.DbHostedCloud)
 
+	// Adobe Client ID
+	RootCmd.PersistentFlags().String(util.AdobeClientID, "", "Adobe Client ID")
+	bind(util.AdobeClientID)
+
+	// Adobe Client Secret
+	RootCmd.PersistentFlags().String(util.AdobeClientSecret, "", "Adobe Client Secret")
+	bind(util.AdobeClientSecret)
+
+	// Adobe JWT
+	RootCmd.PersistentFlags().String(util.AdobeJWT, "", "Adobe JWT")
+
+	// Adobe JWT Exchange URL
+	RootCmd.PersistentFlags().String(util.AdobeExchangeJWTURL, "", "Adobe JWT Exchange URL")
+
 	// Set up the structured logging library
 	log.Setup(viper.GetBool(util.Debug))
 
-}
-
-// bind viper flags to the cobra command
-func bind(flag string) {
-	viper.BindPFlag(flag, RootCmd.Flags().Lookup(flag))
 }
 
 func Start() {
