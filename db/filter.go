@@ -7,7 +7,7 @@ import (
 	"github.com/riviatechs/mt940_server/models"
 )
 
-func StatementsFiltered(ctx context.Context, input *models.FilterInput) ([]*models.ConfGroup, error) {
+func StatementsFiltered(ctx context.Context, input *models.FilterInput) ([]*models.Confirmation, error) {
 	if input == nil {
 		return Statements(ctx)
 	}
@@ -52,5 +52,6 @@ func StatementsFiltered(ctx context.Context, input *models.FilterInput) ([]*mode
 		return nil, fmt.Errorf("failed to get statements")
 	}
 
-	return GroupStmtsByDate(confirmations)
+	return confirmations, nil
 }
+

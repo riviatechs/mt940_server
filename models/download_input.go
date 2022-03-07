@@ -13,4 +13,5 @@ type FieldsInput struct {
 	AccountName   *string
 	Date          *string
 	Narrative     *string
+	Mark          *string
 }

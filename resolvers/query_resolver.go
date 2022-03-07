@@ -4,9 +4,9 @@ import (
 	"context"
 
 	"github.com/riviatechs/mt940_server/db"
+	"github.com/riviatechs/mt940_server/download"
 	"github.com/riviatechs/mt940_server/graph/generated"
 	"github.com/riviatechs/mt940_server/models"
-	"github.com/riviatechs/mt940_server/download"
 )
 
 type QueryResolver struct{ *Resolver }
@@ -23,11 +23,31 @@ func (r *QueryResolver) Search(ctx context.Context, input string) ([]*models.Con
 }
 
 func (r *QueryResolver) StatementsFiltered(ctx context.Context, input *models.FilterInput) ([]*models.ConfGroup, error) {
-	return db.StatementsFiltered(ctx, input)
+	stmts, err := db.StatementsFiltered(ctx, input)
+	if err != nil {
+		return nil, err
+	}
+
+	confs, err := db.GroupStmtsByDate(stmts)
+	if err != nil {
+		return nil, err
+	}
+
+	return confs, nil
 }
 
 func (r *QueryResolver) Statements(ctx context.Context) ([]*models.ConfGroup, error) {
-	return db.Statements(ctx)
+	stmts, err := db.Statements(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	confs, err := db.GroupStmtsByDate(stmts)
+	if err != nil {
+		return nil, err
+	}
+
+	return confs, nil
 }
 
 func (r *Resolver) GetStmtLinesFilterByDc(ctx context.Context, dcInput models.DCInput) ([]*models.SlGroups, error) {

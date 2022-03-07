@@ -76,7 +76,12 @@ func CreateCSVHeader(fields *models.FieldsInput) []string {
 }
 
 func GetRecords(ctx context.Context, input *models.FilterInput, fields models.FieldsInput) [][]string {
-	confGroups, err := db.StatementsFiltered(ctx, input)
+	stmts, err := db.StatementsFiltered(ctx, input)
+	if err != nil {
+		return nil
+	}
+
+	confGroups, err := db.GroupStmtsByDate(stmts)
 	if err != nil {
 		return nil
 	}

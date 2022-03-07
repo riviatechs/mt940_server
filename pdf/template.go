@@ -102,7 +102,10 @@ const TPL = `<!DOCTYPE html>
     <div class="content-container">
       <div class="top">
         <div class="title">
-          <img class="logo" src="./logo.png" />
+        <image class="logo"
+          src="https://storage.googleapis.com/riviatech_public/logo.png"
+        />
+      </div>
 
           <h1>Statements History</h1>
         </div>
@@ -110,11 +113,11 @@ const TPL = `<!DOCTYPE html>
           <div class="sender-info-details">
             <div class="sender-info-details-1">
               <div class="name">Opening Balance</div>
-              <div class="info">45453.32</div>
+              <div class="info">{{.Ob}}</div>
             </div>
             <div class="sender-info-details-2">
               <div class="name">Closing Balance</div>
-              <div class="info">56789.00</div>
+              <div class="info">{{.Cb}}</div>
             </div>
           </div>
         </div>
@@ -122,22 +125,22 @@ const TPL = `<!DOCTYPE html>
           <div class="sender-info-details">
             <div class="sender-info-details-1">
               <div class="name">Account Number</div>
-              <div class="info">01123456789</div>
+              <div class="info">{{.AccountNumber}}</div>
             </div>
             <div class="sender-info-details-2">
               <div class="name">Account Name</div>
-              <div class="info">Maluki Muthusi</div>
+              <div class="info">{{.AccountName}}</div>
             </div>
           </div>
 
           <div class="sender-info-dates">
             <div class="sender-info-details-1">
               <div class="name">Date From</div>
-              <div class="info">23/01/2022</div>
+              <div class="info">{{.StartDate}}</div>
             </div>
             <div class="sender-info-details-2">
               <div class="name">Date To</div>
-              <div class="info">04/03/2022</div>
+              <div class="info">{{.EndDate}}</div>
             </div>
           </div>
         </div>
@@ -147,13 +150,41 @@ const TPL = `<!DOCTYPE html>
       <div>
         <table class="table">
           <tr>
-            <th>Date</th>
-            <th>Account Name</th>
-            <th>Account Number</th>
-            <th>Credit/Debit</th>
-            <th>Amount</th>
-            <th>Description</th>
+
+            {{if .Fields.TRF}} <th>Transaction No.</th> {{end}}
+
+            {{if .Fields.Date}} <th>Date</th> {{end}}
+
+            {{if .Fields.AccountNumber}} <th>Account Number</th> {{end}}
+
+            {{if .Fields.AccountName}} <th>Account Name</th> {{end}}
+
+            {{if .Fields.Mark}} <th>Credit/Debit</th> {{end}}
+
+            {{if .Fields.Amount}} <th>Amount</th> {{end}}
+
+            {{if .Fields.Narrative}} <th>Narrative</th> {{end}}
+            
           </tr>
+          {{range .Conf}}
+            <tr>
+
+              {{if $.Fields.TRF}} <td>{{.ID}}</td> {{end}} 
+
+              {{if $.Fields.Date}} <td>{{.DateTime}}</td> {{end}} 
+
+              {{if $.Fields.AccountNumber}} <td>{{.PartyBAccount}}</td> {{end}} 
+
+              {{if $.Fields.AccountName}} <td>{{.PartyBName}}</td> {{end}} 
+
+              {{if $.Fields.Mark}} <td>{{.Mark}}</td> {{end}} 
+
+              {{if $.Fields.Amount}} <td>{{.Amount}}</td> {{end}} 
+
+              {{if $.Fields.Narrative}} <td>{{.Narrative}}</td> {{end}} 
+
+            </tr>
+          {{end}}
         </table>
       </div>
     </div>

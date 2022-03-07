@@ -7,7 +7,7 @@ import (
 	"github.com/riviatechs/mt940_server/models"
 )
 
-func Statements(ctx context.Context) ([]*models.ConfGroup, error) {
+func Statements(ctx context.Context) ([]*models.Confirmation, error) {
 	var confirmations []*models.Confirmation
 
 	Db.Order("date_time desc").Find(&confirmations)
@@ -16,5 +16,5 @@ func Statements(ctx context.Context) ([]*models.ConfGroup, error) {
 		return nil, fmt.Errorf("failed to get statements")
 	}
 
-	return GroupStmtsByDate(confirmations)
+	return confirmations, nil
 }
