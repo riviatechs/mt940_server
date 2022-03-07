@@ -12,4 +12,5 @@ type Query {
   search(input: String!): [ConfGroup]
 
   downloadStatements(input: FilterInput): [String]
+  download(input: DownloadInput!): String
 }

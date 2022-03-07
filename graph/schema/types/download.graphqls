@@ -1,0 +1,16 @@
+input DownloadInput
+  @goModel(model: "github.com/riviatechs/mt940_server/models.DownloadInput") {
+  filters: FilterInput @goField(name: "FilterInput")
+  fields: FieldsInput @goField(name: "FieldsInput")
+  downLoadType: String @goField(name: "DownLoadType")
+}
+
+input FieldsInput
+  @goModel(model: "github.com/riviatechs/mt940_server/models.FieldsInput") {
+  trf: String @goField(name: "TRF")
+  amount: String @goField(name: "Amount")
+  accountNumber: String @goField(name: "AccountNumber")
+  accountName: String @goField(name: "AccountName")
+  date: String @goField(name: "Date")
+  narrative: String @goField(name: "Narrative")
+}

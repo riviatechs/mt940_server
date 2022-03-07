@@ -52,6 +52,7 @@ type ResolverRoot interface {
 	CabInput() CabInputResolver
 	CbInput() CbInputResolver
 	CustStmtMsgInput() CustStmtMsgInputResolver
+	DownloadInput() DownloadInputResolver
 	FwabInput() FwabInputResolver
 	ObInput() ObInputResolver
 	SlInput() SlInputResolver
@@ -145,6 +146,7 @@ type ComplexityRoot struct {
 	Query struct {
 		CustStmtMsg                func(childComplexity int, id int) int
 		CustStmtMsgs               func(childComplexity int) int
+		Download                   func(childComplexity int, input models.DownloadInput) int
 		DownloadStatements         func(childComplexity int, input *models.FilterInput) int
 		GetCustStmtMsgByTrn        func(childComplexity int, trn string) int
 		GetStatementLines          func(childComplexity int) int
@@ -254,6 +256,7 @@ type QueryResolver interface {
 	StatementsFiltered(ctx context.Context, input *models.FilterInput) ([]*models.ConfGroup, error)
 	Search(ctx context.Context, input string) ([]*models.ConfGroup, error)
 	DownloadStatements(ctx context.Context, input *models.FilterInput) ([]*string, error)
+	Download(ctx context.Context, input models.DownloadInput) (*string, error)
 }
 type SlResolver interface {
 	ID(ctx context.Context, obj *models.Sl) (*int, error)
@@ -294,6 +297,10 @@ type CustStmtMsgInputResolver interface {
 	Sl(ctx context.Context, obj *models.CustStmtMsgInput, data []*models.SlInput) error
 
 	Fwab(ctx context.Context, obj *models.CustStmtMsgInput, data []*models.FwabInput) error
+}
+type DownloadInputResolver interface {
+	FilterInput(ctx context.Context, obj *models.DownloadInput, data *models.FilterInput) error
+	FieldsInput(ctx context.Context, obj *models.DownloadInput, data *models.FieldsInput) error
 }
 type FwabInputResolver interface {
 	CustStmtMsgID(ctx context.Context, obj *models.FwabInput, data int) error
@@ -734,6 +741,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Query.CustStmtMsgs(childComplexity), true
 
+	case "Query.download":
+		if e.complexity.Query.Download == nil {
+			break
+		}
+
+		args, err := ec.field_Query_download_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Query.Download(childComplexity, args["input"].(models.DownloadInput)), true
+
 	case "Query.downloadStatements":
 		if e.complexity.Query.DownloadStatements == nil {
 			break
@@ -1050,6 +1069,7 @@ directive @goTag(
   search(input: String!): [ConfGroup]
 
   downloadStatements(input: FilterInput): [String]
+  download(input: DownloadInput!): String
 }
 `, BuiltIn: false},
 	{Name: "graph/schema/schema.graphqls", Input: `# GraphQL schema example
@@ -1317,6 +1337,23 @@ input CustStmtMsgInput
   @goModel(model: "github.com/riviatechs/mt940_server/models.DCInput") {
   d: Boolean @goField(name: "D")
   c: Boolean @goField(name: "C")
+}
+`, BuiltIn: false},
+	{Name: "graph/schema/types/download.graphqls", Input: `input DownloadInput
+  @goModel(model: "github.com/riviatechs/mt940_server/models.DownloadInput") {
+  filters: FilterInput @goField(name: "FilterInput")
+  fields: FieldsInput @goField(name: "FieldsInput")
+  downLoadType: String @goField(name: "DownLoadType")
+}
+
+input FieldsInput
+  @goModel(model: "github.com/riviatechs/mt940_server/models.FieldsInput") {
+  trf: String @goField(name: "TRF")
+  amount: String @goField(name: "Amount")
+  accountNumber: String @goField(name: "AccountNumber")
+  accountName: String @goField(name: "AccountName")
+  date: String @goField(name: "Date")
+  narrative: String @goField(name: "Narrative")
 }
 `, BuiltIn: false},
 	{Name: "graph/schema/types/filter.graphqls", Input: `"""
@@ -1635,6 +1672,21 @@ func (ec *executionContext) field_Query_downloadStatements_args(ctx context.Cont
 	if tmp, ok := rawArgs["input"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
 		arg0, err = ec.unmarshalOFilterInput2ᚖgithubᚗcomᚋriviatechsᚋmt940_serverᚋmodelsᚐFilterInput(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["input"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Query_download_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 models.DownloadInput
+	if tmp, ok := rawArgs["input"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
+		arg0, err = ec.unmarshalNDownloadInput2githubᚗcomᚋriviatechsᚋmt940_serverᚋmodelsᚐDownloadInput(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -4000,6 +4052,45 @@ func (ec *executionContext) _Query_downloadStatements(ctx context.Context, field
 	return ec.marshalOString2ᚕᚖstring(ctx, field.Selections, res)
 }
 
+func (ec *executionContext) _Query_download(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "Query",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   true,
+		IsResolver: true,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	rawArgs := field.ArgumentMap(ec.Variables)
+	args, err := ec.field_Query_download_args(ctx, rawArgs)
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	fc.Args = args
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Query().Download(rctx, args["input"].(models.DownloadInput))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*string)
+	fc.Result = res
+	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
+}
+
 func (ec *executionContext) _Query___type(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
@@ -6168,6 +6259,114 @@ func (ec *executionContext) unmarshalInputDCInput(ctx context.Context, obj inter
 	return it, nil
 }
 
+func (ec *executionContext) unmarshalInputDownloadInput(ctx context.Context, obj interface{}) (models.DownloadInput, error) {
+	var it models.DownloadInput
+	asMap := map[string]interface{}{}
+	for k, v := range obj.(map[string]interface{}) {
+		asMap[k] = v
+	}
+
+	for k, v := range asMap {
+		switch k {
+		case "filters":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("filters"))
+			data, err := ec.unmarshalOFilterInput2ᚖgithubᚗcomᚋriviatechsᚋmt940_serverᚋmodelsᚐFilterInput(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			if err = ec.resolvers.DownloadInput().FilterInput(ctx, &it, data); err != nil {
+				return it, err
+			}
+		case "fields":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("fields"))
+			data, err := ec.unmarshalOFieldsInput2ᚖgithubᚗcomᚋriviatechsᚋmt940_serverᚋmodelsᚐFieldsInput(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			if err = ec.resolvers.DownloadInput().FieldsInput(ctx, &it, data); err != nil {
+				return it, err
+			}
+		case "downLoadType":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("downLoadType"))
+			it.DownLoadType, err = ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		}
+	}
+
+	return it, nil
+}
+
+func (ec *executionContext) unmarshalInputFieldsInput(ctx context.Context, obj interface{}) (models.FieldsInput, error) {
+	var it models.FieldsInput
+	asMap := map[string]interface{}{}
+	for k, v := range obj.(map[string]interface{}) {
+		asMap[k] = v
+	}
+
+	for k, v := range asMap {
+		switch k {
+		case "trf":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("trf"))
+			it.TRF, err = ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "amount":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("amount"))
+			it.Amount, err = ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "accountNumber":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("accountNumber"))
+			it.AccountNumber, err = ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "accountName":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("accountName"))
+			it.AccountName, err = ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "date":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("date"))
+			it.Date, err = ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "narrative":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("narrative"))
+			it.Narrative, err = ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		}
+	}
+
+	return it, nil
+}
+
 func (ec *executionContext) unmarshalInputFilterInput(ctx context.Context, obj interface{}) (models.FilterInput, error) {
 	var it models.FilterInput
 	asMap := map[string]interface{}{}
@@ -7698,6 +7897,26 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 			out.Concurrently(i, func() graphql.Marshaler {
 				return rrm(innerCtx)
 			})
+		case "download":
+			field := field
+
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query_download(ctx, field)
+				return res
+			}
+
+			rrm := func(ctx context.Context) graphql.Marshaler {
+				return ec.OperationContext.RootResolverMiddleware(ctx, innerFunc)
+			}
+
+			out.Concurrently(i, func() graphql.Marshaler {
+				return rrm(innerCtx)
+			})
 		case "__type":
 			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
 				return ec._Query___type(ctx, field)
@@ -8508,6 +8727,11 @@ func (ec *executionContext) unmarshalNDCInput2githubᚗcomᚋriviatechsᚋmt940_
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
+func (ec *executionContext) unmarshalNDownloadInput2githubᚗcomᚋriviatechsᚋmt940_serverᚋmodelsᚐDownloadInput(ctx context.Context, v interface{}) (models.DownloadInput, error) {
+	res, err := ec.unmarshalInputDownloadInput(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
 func (ec *executionContext) unmarshalNFloat2float64(ctx context.Context, v interface{}) (float64, error) {
 	res, err := graphql.UnmarshalFloatContext(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
@@ -9040,6 +9264,14 @@ func (ec *executionContext) marshalOCustStmtMsg2ᚖgithubᚗcomᚋriviatechsᚋm
 		return graphql.Null
 	}
 	return ec._CustStmtMsg(ctx, sel, v)
+}
+
+func (ec *executionContext) unmarshalOFieldsInput2ᚖgithubᚗcomᚋriviatechsᚋmt940_serverᚋmodelsᚐFieldsInput(ctx context.Context, v interface{}) (*models.FieldsInput, error) {
+	if v == nil {
+		return nil, nil
+	}
+	res, err := ec.unmarshalInputFieldsInput(ctx, v)
+	return &res, graphql.ErrorOnPath(ctx, err)
 }
 
 func (ec *executionContext) unmarshalOFilterInput2ᚖgithubᚗcomᚋriviatechsᚋmt940_serverᚋmodelsᚐFilterInput(ctx context.Context, v interface{}) (*models.FilterInput, error) {

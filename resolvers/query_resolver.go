@@ -14,7 +14,11 @@ type QueryResolver struct{ *Resolver }
 // Query returns generated.QueryResolver implementation.
 func (r *Resolver) Query() generated.QueryResolver { return &QueryResolver{r} }
 
-func (r *Resolver) DownloadStatements(ctx context.Context, input *models.FilterInput) ([]*string, error) {
+func (r *QueryResolver) Download(ctx context.Context, input models.DownloadInput) (*string, error) {
+	return nil, nil
+}
+
+func (r *QueryResolver) DownloadStatements(ctx context.Context, input *models.FilterInput) ([]*string, error) {
 	s, err := pdf.GeneratePDF()
 	if err != nil {
 		return nil, err
