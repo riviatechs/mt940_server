@@ -147,7 +147,6 @@ type ComplexityRoot struct {
 		CustStmtMsg                func(childComplexity int, id int) int
 		CustStmtMsgs               func(childComplexity int) int
 		Download                   func(childComplexity int, input models.DownloadInput) int
-		DownloadStatements         func(childComplexity int, input *models.FilterInput) int
 		GetCustStmtMsgByTrn        func(childComplexity int, trn string) int
 		GetStatementLines          func(childComplexity int) int
 		GetStmtLineGroupedByDate   func(childComplexity int) int
@@ -255,7 +254,6 @@ type QueryResolver interface {
 	Statements(ctx context.Context) ([]*models.ConfGroup, error)
 	StatementsFiltered(ctx context.Context, input *models.FilterInput) ([]*models.ConfGroup, error)
 	Search(ctx context.Context, input string) ([]*models.ConfGroup, error)
-	DownloadStatements(ctx context.Context, input *models.FilterInput) ([]*string, error)
 	Download(ctx context.Context, input models.DownloadInput) (*string, error)
 }
 type SlResolver interface {
@@ -753,18 +751,6 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Query.Download(childComplexity, args["input"].(models.DownloadInput)), true
 
-	case "Query.downloadStatements":
-		if e.complexity.Query.DownloadStatements == nil {
-			break
-		}
-
-		args, err := ec.field_Query_downloadStatements_args(context.TODO(), rawArgs)
-		if err != nil {
-			return 0, false
-		}
-
-		return e.complexity.Query.DownloadStatements(childComplexity, args["input"].(*models.FilterInput)), true
-
 	case "Query.getCustStmtMsgByTRN":
 		if e.complexity.Query.GetCustStmtMsgByTrn == nil {
 			break
@@ -1068,7 +1054,6 @@ directive @goTag(
   statementsFiltered(input: FilterInput): [ConfGroup]
   search(input: String!): [ConfGroup]
 
-  downloadStatements(input: FilterInput): [String]
   download(input: DownloadInput!): String
 }
 `, BuiltIn: false},
@@ -1662,21 +1647,6 @@ func (ec *executionContext) field_Query_custStmtMsg_args(ctx context.Context, ra
 		}
 	}
 	args["id"] = arg0
-	return args, nil
-}
-
-func (ec *executionContext) field_Query_downloadStatements_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
-	var err error
-	args := map[string]interface{}{}
-	var arg0 *models.FilterInput
-	if tmp, ok := rawArgs["input"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
-		arg0, err = ec.unmarshalOFilterInput2ᚖgithubᚗcomᚋriviatechsᚋmt940_serverᚋmodelsᚐFilterInput(ctx, tmp)
-		if err != nil {
-			return nil, err
-		}
-	}
-	args["input"] = arg0
 	return args, nil
 }
 
@@ -4011,45 +3981,6 @@ func (ec *executionContext) _Query_search(ctx context.Context, field graphql.Col
 	res := resTmp.([]*models.ConfGroup)
 	fc.Result = res
 	return ec.marshalOConfGroup2ᚕᚖgithubᚗcomᚋriviatechsᚋmt940_serverᚋmodelsᚐConfGroup(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) _Query_downloadStatements(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	fc := &graphql.FieldContext{
-		Object:     "Query",
-		Field:      field,
-		Args:       nil,
-		IsMethod:   true,
-		IsResolver: true,
-	}
-
-	ctx = graphql.WithFieldContext(ctx, fc)
-	rawArgs := field.ArgumentMap(ec.Variables)
-	args, err := ec.field_Query_downloadStatements_args(ctx, rawArgs)
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	fc.Args = args
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().DownloadStatements(rctx, args["input"].(*models.FilterInput))
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		return graphql.Null
-	}
-	res := resTmp.([]*string)
-	fc.Result = res
-	return ec.marshalOString2ᚕᚖstring(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _Query_download(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
@@ -7877,26 +7808,6 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 			out.Concurrently(i, func() graphql.Marshaler {
 				return rrm(innerCtx)
 			})
-		case "downloadStatements":
-			field := field
-
-			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
-				defer func() {
-					if r := recover(); r != nil {
-						ec.Error(ctx, ec.Recover(ctx, r))
-					}
-				}()
-				res = ec._Query_downloadStatements(ctx, field)
-				return res
-			}
-
-			rrm := func(ctx context.Context) graphql.Marshaler {
-				return ec.OperationContext.RootResolverMiddleware(ctx, innerFunc)
-			}
-
-			out.Concurrently(i, func() graphql.Marshaler {
-				return rrm(innerCtx)
-			})
 		case "download":
 			field := field
 
@@ -9579,38 +9490,6 @@ func (ec *executionContext) marshalOString2ᚕstringᚄ(ctx context.Context, sel
 		if e == graphql.Null {
 			return graphql.Null
 		}
-	}
-
-	return ret
-}
-
-func (ec *executionContext) unmarshalOString2ᚕᚖstring(ctx context.Context, v interface{}) ([]*string, error) {
-	if v == nil {
-		return nil, nil
-	}
-	var vSlice []interface{}
-	if v != nil {
-		vSlice = graphql.CoerceList(v)
-	}
-	var err error
-	res := make([]*string, len(vSlice))
-	for i := range vSlice {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithIndex(i))
-		res[i], err = ec.unmarshalOString2ᚖstring(ctx, vSlice[i])
-		if err != nil {
-			return nil, err
-		}
-	}
-	return res, nil
-}
-
-func (ec *executionContext) marshalOString2ᚕᚖstring(ctx context.Context, sel ast.SelectionSet, v []*string) graphql.Marshaler {
-	if v == nil {
-		return graphql.Null
-	}
-	ret := make(graphql.Array, len(v))
-	for i := range v {
-		ret[i] = ec.marshalOString2ᚖstring(ctx, sel, v[i])
 	}
 
 	return ret

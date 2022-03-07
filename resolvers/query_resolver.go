@@ -3,11 +3,10 @@ package resolver
 import (
 	"context"
 
-	"github.com/riviatechs/mt940_server/csv"
 	"github.com/riviatechs/mt940_server/db"
 	"github.com/riviatechs/mt940_server/graph/generated"
 	"github.com/riviatechs/mt940_server/models"
-	"github.com/riviatechs/mt940_server/pdf"
+	"github.com/riviatechs/mt940_server/download"
 )
 
 type QueryResolver struct{ *Resolver }
@@ -16,15 +15,7 @@ type QueryResolver struct{ *Resolver }
 func (r *Resolver) Query() generated.QueryResolver { return &QueryResolver{r} }
 
 func (r *QueryResolver) Download(ctx context.Context, input models.DownloadInput) (*string, error) {
-	return csv.DownloadCSV(ctx, input)
-}
-
-func (r *QueryResolver) DownloadStatements(ctx context.Context, input *models.FilterInput) ([]*string, error) {
-	s, err := pdf.GeneratePDF()
-	if err != nil {
-		return nil, err
-	}
-	return []*string{s}, nil
+	return download.HandleDownload(ctx, input)
 }
 
 func (r *QueryResolver) Search(ctx context.Context, input string) ([]*models.ConfGroup, error) {

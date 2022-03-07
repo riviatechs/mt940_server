@@ -44,10 +44,7 @@ func WriteCSVInfo(ctx context.Context, input models.DownloadInput) (*string, err
 		return nil, err
 	}
 
-	fileType, err := GetFileType(input.DownLoadType)
-	if err != nil {
-		return nil, err
-	}
+	fileType := input.DownLoadType
 
 	fileName := cloudstore.CreateFileName(*fileType)
 	fileURL := cloudstore.CreateFileURL(fileName)
@@ -82,7 +79,6 @@ func GetRecords(ctx context.Context, input *models.FilterInput, fields models.Fi
 	confGroups, err := db.StatementsFiltered(ctx, input)
 	if err != nil {
 		return nil
-		// TODO: Handle error
 	}
 
 	csvInfo := [][]string{}
@@ -128,17 +124,4 @@ func CreateCSVRow(conf models.Confirmation, fields models.FieldsInput) []string 
 	}
 
 	return csvRow
-}
-
-func GetFileType(fileType *string) (*string, error) {
-	f := fileType
-	if f == nil {
-		return nil, fmt.Errorf("accepted file types are pdf or csv")
-	}
-
-	if *f == "pdf" || *f == "csv" {
-		return f, nil
-	} else {
-		return nil, fmt.Errorf("accepted file types are pdf or csv")
-	}
 }

@@ -12,19 +12,22 @@ import (
 )
 
 func ExchangeJWT() (*string, error) {
-	u := viper.GetString(AdobeExchangeJWTURL)
+	oauthToken, err := GenerateToken()
+	logger.Info("ExchangeJWT", zap.String("TOKEN", *oauthToken))
+	if err != nil {
+		return nil, err
+	}
 
 	clientID := viper.GetString(AdobeClientID)
 	clientSecret := viper.GetString(AdobeClientSecret)
-	jwt := viper.GetString(AdobeJWT)
 
 	formData := url.Values{
 		"client_id":     {clientID},
 		"client_secret": {clientSecret},
-		"jwt_token":     {jwt},
+		"jwt_token":     {*oauthToken},
 	}
 
-	resp, err := http.PostForm(u, formData)
+	resp, err := http.PostForm(viper.GetString(AdobeExchangeJWTURL), formData)
 	if err != nil {
 		logger.Info("ExchangeJWT", zap.Error(err))
 		return nil, err

@@ -2,6 +2,7 @@ package pdf
 
 import (
 	"bytes"
+	"context"
 	"fmt"
 	"html/template"
 	"io"
@@ -9,12 +10,13 @@ import (
 	"net/http"
 
 	"github.com/MalukiMuthusi/logger"
+	"github.com/riviatechs/mt940_server/models"
 	"github.com/riviatechs/mt940_server/util"
 	"github.com/spf13/viper"
 	"go.uber.org/zap"
 )
 
-func GeneratePDF() (*string, error) {
+func GeneratePDF(ctx context.Context, input models.DownloadInput) (*string, error) {
 	t, err := template.New("statements").Parse(TPL)
 	if err != nil {
 		logger.Info("GeneratePDF", zap.Error(err))

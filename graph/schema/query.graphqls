@@ -11,6 +11,5 @@ type Query {
   statementsFiltered(input: FilterInput): [ConfGroup]
   search(input: String!): [ConfGroup]
 
-  downloadStatements(input: FilterInput): [String]
   download(input: DownloadInput!): String
 }

@@ -26,6 +26,10 @@ func checkMustBeSet() {
 	mustBeSet(util.AdobeClientSecret)
 	mustBeSet(util.AdobeExchangeJWTURL)
 	mustBeSet(util.AdobeHTMLToPDFURL)
+	mustBeSet(util.AdobePrivateKey)
+	mustBeSet(util.AdobeISS)
+	mustBeSet(util.AdobeSUB)
+	mustBeSet(util.AdobeAUD)
 }
 
 func mustBeSet(env string) {

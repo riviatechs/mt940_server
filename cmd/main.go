@@ -120,6 +120,22 @@ func init() {
 	RootCmd.PersistentFlags().String(util.AdobeHTMLToPDFURL, "", "Adobe HTML To PDF URL")
 	bind(util.AdobeHTMLToPDFURL)
 
+	// Adobe Private Key
+	RootCmd.PersistentFlags().String(util.AdobePrivateKey, "", "Adobe Private Key")
+	bind(util.AdobePrivateKey)
+
+	// Adobe ISS
+	RootCmd.PersistentFlags().String(util.AdobeISS, "", "Adobe ISS")
+	bind(util.AdobeISS)
+
+	// Adobe SUB
+	RootCmd.PersistentFlags().String(util.AdobeSUB, "", "Adobe SUB")
+	bind(util.AdobeSUB)
+
+	// Adobe SUB
+	RootCmd.PersistentFlags().String(util.AdobeAUD, "", "Adobe AUD")
+	bind(util.AdobeAUD)
+
 	// Set up the structured logging library
 	log.Setup(viper.GetBool(util.Debug))
 

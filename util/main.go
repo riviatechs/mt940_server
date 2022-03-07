@@ -41,6 +41,10 @@ const (
 	AdobeClientSecret   = "ADOBE_CLIENT_SECRET"
 	AdobeJWT            = "ADOBE_JWT"
 	AdobeHTMLToPDFURL   = "ADOBE_HTML_TO_PDF_URL"
+	AdobePrivateKey     = "ADOBE_PRIVATE_KEY"
+	AdobeISS            = "ADOBE_ISS"
+	AdobeSUB            = "ADOBE_SUB"
+	AdobeAUD            = "ADOBE_AUD"
 )
 
 const (
