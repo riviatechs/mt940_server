@@ -7,6 +7,7 @@ require (
 	github.com/99designs/gqlgen v0.16.0
 	github.com/MalukiMuthusi/logger v1.0.3
 	github.com/gorilla/mux v1.8.0
+	github.com/satori/go.uuid v1.2.0
 	github.com/spf13/cobra v1.3.0
 	github.com/spf13/viper v1.10.1
 	github.com/vektah/gqlparser/v2 v2.2.0

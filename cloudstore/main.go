@@ -8,12 +8,11 @@ import (
 
 	"cloud.google.com/go/storage"
 	"github.com/riviatechs/mt940_server/util"
+	uuid "github.com/satori/go.uuid"
 	"github.com/spf13/viper"
 )
 
-type CloudStore struct{}
-
-func (c *CloudStore) UploadFile(w io.Reader, fileName string) error {
+func UploadFile(w io.Reader, fileName string) error {
 	ctx := context.Background()
 	client, err := storage.NewClient(ctx)
 
@@ -35,4 +34,15 @@ func (c *CloudStore) UploadFile(w io.Reader, fileName string) error {
 	}
 
 	return nil
+}
+
+func CreateFileName(fileType string) string {
+	id := uuid.NewV4().String()
+	return fmt.Sprintf("%s.%s", id, fileType)
+}
+
+// create a cloud storage file name that will be publicly accessible
+func CreateFileURL(fileName string) string {
+
+	return fmt.Sprintf("https://storage.googleapis.com/%s/%s", viper.GetString(util.Bucket), fileName)
 }
