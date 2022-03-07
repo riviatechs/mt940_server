@@ -18,7 +18,7 @@ func GenerateToken() (*string, error) {
 		after30Minutes = time.Date(now.Year(), now.Month(), now.Day(), now.Hour(), now.Minute()+15, now.Second(), now.Nanosecond(), time.UTC)
 
 	} else if now.Minute() > 45 {
-		after30Minutes = time.Date(now.Year(), now.Month(), now.Day(), now.Hour()+1, now.Minute(), now.Second(), now.Nanosecond(), nil)
+		after30Minutes = time.Date(now.Year(), now.Month(), now.Day(), now.Hour()+1, now.Minute(), now.Second(), now.Nanosecond(), time.UTC)
 	}
 
 	iss := viper.GetString(AdobeISS)
