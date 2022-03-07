@@ -5,7 +5,6 @@ import (
 	"time"
 
 	"github.com/MalukiMuthusi/logger"
-	"github.com/Mtickets-Limited/golf-server/util"
 	"github.com/golang-jwt/jwt"
 	"github.com/spf13/viper"
 	"go.uber.org/zap"
@@ -36,7 +35,7 @@ func GenerateToken() (*string, error) {
 	token := jwt.NewWithClaims(jwt.SigningMethodRS256, claims)
 
 	var pFile []byte
-	if viper.GetBool(util.DbHostedCloud) {
+	if viper.GetBool(DbHostedCloud) {
 		p, err := ioutil.ReadFile("/out/private.key")
 		if err != nil {
 			logger.Info("GenerateToken", zap.Error(err))
