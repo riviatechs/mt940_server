@@ -23,10 +23,25 @@ func (r *QueryResolver) Download(ctx context.Context, input models.DownloadInput
 }
 
 func (r *QueryResolver) Search(ctx context.Context, input string) ([]*models.ConfGroup, error) {
-	return db.Search(ctx, input)
+	stmts, err := db.Search(ctx, input)
+	if err != nil {
+		return nil, err
+	}
+
+	return db.GroupStmtsByDate(stmts)
 }
 
 func (r *QueryResolver) StatementsFiltered(ctx context.Context, input *models.FilterInput) ([]*models.ConfGroup, error) {
+	if input.Search != nil {
+		s, err := db.Search(ctx, *input.Search)
+		if err != nil {
+			return nil, err
+		}
+
+		return db.GroupStmtsByDate(s)
+
+	}
+
 	stmts, err := db.StatementsFiltered(ctx, input)
 	if err != nil {
 		return nil, err

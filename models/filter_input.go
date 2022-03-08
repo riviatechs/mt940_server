@@ -5,6 +5,7 @@ type FilterInput struct {
 	Tt          *string
 	Period      *PeriodInput
 	AmountRange *AmountRangeInput
+	Search      *string
 }
 
 type PeriodInput struct {

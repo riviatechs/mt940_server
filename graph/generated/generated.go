@@ -1370,6 +1370,7 @@ input FilterInput
   tt: String @goField(name: "Tt")
   period: PeriodInput @goField(name: "Period")
   amountRange: AmountRangeInput @goField(name: "AmountRange")
+  search: String @goField(name: "Search")
 }
 
 """
@@ -6418,6 +6419,14 @@ func (ec *executionContext) unmarshalInputFilterInput(ctx context.Context, obj i
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("amountRange"))
 			it.AmountRange, err = ec.unmarshalOAmountRangeInput2ᚖgithubᚗcomᚋriviatechsᚋmt940_serverᚋmodelsᚐAmountRangeInput(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "search":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("search"))
+			it.Search, err = ec.unmarshalOString2ᚖstring(ctx, v)
 			if err != nil {
 				return it, err
 			}

@@ -7,7 +7,7 @@ import (
 	"github.com/riviatechs/mt940_server/models"
 )
 
-func Search(ctx context.Context, input string) ([]*models.ConfGroup, error) {
+func Search(ctx context.Context, input string) ([]*models.Confirmation, error) {
 	db := Db.Where("searchable_part_b_name @@ websearch_to_tsquery(?) OR searchable_part_b_account @@ websearch_to_tsquery(?) ", input, input)
 
 	var confirmations []*models.Confirmation
@@ -18,5 +18,5 @@ func Search(ctx context.Context, input string) ([]*models.ConfGroup, error) {
 		return nil, fmt.Errorf("failed to get statements")
 	}
 
-	return GroupStmtsByDate(confirmations)
+	return confirmations, nil
 }
