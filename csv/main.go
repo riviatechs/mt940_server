@@ -6,6 +6,7 @@ import (
 	"encoding/csv"
 	"fmt"
 	"strconv"
+	"strings"
 
 	"github.com/MalukiMuthusi/logger"
 	"github.com/riviatechs/mt940_server/cloudstore"
@@ -71,6 +72,7 @@ func CreateCSVHeader(fields *models.FieldsInput) []string {
 	csvHeader = AddToHeader(csvHeader, fields.AccountNumber, "Account Number")
 	csvHeader = AddToHeader(csvHeader, fields.Amount, "Amount")
 	csvHeader = AddToHeader(csvHeader, fields.Narrative, "Narrative")
+	csvHeader = AddToHeader(csvHeader, fields.Mark, "Debit/Credit")
 
 	return csvHeader
 }
@@ -125,7 +127,15 @@ func CreateCSVRow(conf models.Confirmation, fields models.FieldsInput) []string 
 	}
 
 	if fields.Narrative != nil {
-		csvRow = append(csvRow, *fields.Narrative)
+		csvRow = append(csvRow, conf.Narrative)
+	}
+
+	if fields.Mark != nil {
+		if strings.ToLower(conf.Mark) == "c" {
+			csvRow = append(csvRow, "Credit")
+		} else {
+			csvRow = append(csvRow, "Debit")
+		}
 	}
 
 	return csvRow

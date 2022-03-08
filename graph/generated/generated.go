@@ -1339,6 +1339,7 @@ input FieldsInput
   accountName: String @goField(name: "AccountName")
   date: String @goField(name: "Date")
   narrative: String @goField(name: "Narrative")
+  tt: String @goField(name: "Mark")
 }
 `, BuiltIn: false},
 	{Name: "graph/schema/types/filter.graphqls", Input: `"""
@@ -6289,6 +6290,14 @@ func (ec *executionContext) unmarshalInputFieldsInput(ctx context.Context, obj i
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("narrative"))
 			it.Narrative, err = ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "tt":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("tt"))
+			it.Mark, err = ec.unmarshalOString2ᚖstring(ctx, v)
 			if err != nil {
 				return it, err
 			}

@@ -6,6 +6,7 @@ require (
 	cloud.google.com/go/storage v1.10.0
 	github.com/99designs/gqlgen v0.16.0
 	github.com/MalukiMuthusi/logger v1.0.3
+	github.com/golang-jwt/jwt v3.2.2+incompatible
 	github.com/gorilla/mux v1.8.0
 	github.com/satori/go.uuid v1.2.0
 	github.com/spf13/cobra v1.3.0
@@ -21,7 +22,6 @@ require (
 	github.com/agnivade/levenshtein v1.1.0 // indirect
 	github.com/cpuguy83/go-md2man/v2 v2.0.1 // indirect
 	github.com/fsnotify/fsnotify v1.5.1 // indirect
-	github.com/golang-jwt/jwt v3.2.2+incompatible // indirect
 	github.com/golang/groupcache v0.0.0-20210331224755-41bb18bfe9da // indirect
 	github.com/golang/protobuf v1.5.2 // indirect
 	github.com/googleapis/gax-go/v2 v2.1.1 // indirect

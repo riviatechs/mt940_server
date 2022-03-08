@@ -13,4 +13,5 @@ input FieldsInput
   accountName: String @goField(name: "AccountName")
   date: String @goField(name: "Date")
   narrative: String @goField(name: "Narrative")
+  tt: String @goField(name: "Mark")
 }
