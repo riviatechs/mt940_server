@@ -1,5 +1,15 @@
 """
 FilterInput has the main filters of the system.
+
+You can filter through combination of
+  currency
+  Transaction Type
+  Period
+  Exact Date
+  Amount Range
+  Exact Amount
+
+The API also enables user to search transaction by account number or account name
 """
 input FilterInput
   @goModel(model: "github.com/riviatechs/mt940_server/models.FilterInput") {
@@ -11,7 +21,7 @@ input FilterInput
 }
 
 """
-PeriodInput helps to filter the statements by date. You can specify both the start and end date or specify an exact date
+PeriodInput helps to filter the statements by date. User can specify both the start and end date or specify an exact date
 """
 input PeriodInput
   @goModel(model: "github.com/riviatechs/mt940_server/models.PeriodInput") {
@@ -21,7 +31,7 @@ input PeriodInput
 }
 
 """
-AmountRangeInput helps to filter the statements by amount. You can specify both the lower and the upper amount or specify an exact date.
+AmountRangeInput helps to filter the statements by amount. User can specify both the lower and the upper amount or specify an exact date.
 """
 input AmountRangeInput
   @goModel(

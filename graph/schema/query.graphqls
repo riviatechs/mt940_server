@@ -1,20 +1,65 @@
 type Query {
+  """
+  custStmtMsg returns a single MT940 MT
+  """
   custStmtMsg(id: Int!): CustStmtMsg
+
+  """
+  getCustStmtMsgByTRN returns a single MT940 MT referred by the Transaction Reference Number
+  """
   getCustStmtMsgByTRN(trn: String!): CustStmtMsg
+
+  """
+  custStmtMsgs returns all the MT940 records that have been saved in the system
+  """
   custStmtMsgs: [CustStmtMsg]
+
+  """
+  getStatementLines returns statement lines for a particular MT940
+  """
   getStatementLines: [Sl]
+
+  """
+  getStmtLineGroupedByDate returns statement lines grouped by date
+  """
   getStmtLineGroupedByDate: [SlGroups]
+
+  """
+  getStmtLineGroupedByDate returns filtered by amount
+  """
   getStmtLinesFilterByAmount(amount: AmountInput!): [SlGroups]
+
+  """
+  getStmtLineGroupedByDate returns statement lines filtered by Debit/Credit
+  """
   getStmtLinesFilterByDC(amount: DCInput!): [SlGroups]
 
+  """
+  statements returns all the transactions for the user ordered by date
+  """
   statements: [ConfGroup]
 
   """
   getStatement Returns a single statement record
   """
   getStatement(ID: Int!): Confirmation
+
+  """
+  statementsFiltered is the main query that accepts inputs and filters from the user.
+
+  The query returns a list of transactions group by date
+  """
   statementsFiltered(input: FilterInput): [ConfGroup]
+
+  """
+  search provides capabilities to search by account name and account number
+  """
   search(input: String!): [ConfGroup]
 
+  """
+  download enables user to specify the data they want to download and the file formats they should get.
+
+  The API returns a link to the file the user has requested.
+  """
   download(input: DownloadInput!): String
 }

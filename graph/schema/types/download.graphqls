@@ -1,3 +1,6 @@
+"""
+DownloadInput enables user to filter and download transaction in various file formats
+"""
 input DownloadInput
   @goModel(model: "github.com/riviatechs/mt940_server/models.DownloadInput") {
   filters: FilterInput @goField(name: "FilterInput")
@@ -5,6 +8,9 @@ input DownloadInput
   downLoadType: String @goField(name: "DownLoadType")
 }
 
+"""
+FieldsInput enable users to select the fields they want to be included in their transaction report file.
+"""
 input FieldsInput
   @goModel(model: "github.com/riviatechs/mt940_server/models.FieldsInput") {
   trf: String @goField(name: "TRF")

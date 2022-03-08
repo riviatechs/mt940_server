@@ -1,3 +1,6 @@
 type Mutation {
+  """
+  createCustStmtMsg creates an MT940 Customer Statement Record
+  """
   createCustStmtMsg(input: CustStmtMsgInput!): Int
 }

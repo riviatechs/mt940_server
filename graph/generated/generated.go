@@ -1052,27 +1052,75 @@ directive @goTag(
 ) on INPUT_FIELD_DEFINITION | FIELD_DEFINITION
 `, BuiltIn: false},
 	{Name: "graph/schema/mutation.graphqls", Input: `type Mutation {
+  """
+  createCustStmtMsg creates an MT940 Customer Statement Record
+  """
   createCustStmtMsg(input: CustStmtMsgInput!): Int
 }
 `, BuiltIn: false},
 	{Name: "graph/schema/query.graphqls", Input: `type Query {
+  """
+  custStmtMsg returns a single MT940 MT
+  """
   custStmtMsg(id: Int!): CustStmtMsg
+
+  """
+  getCustStmtMsgByTRN returns a single MT940 MT referred by the Transaction Reference Number
+  """
   getCustStmtMsgByTRN(trn: String!): CustStmtMsg
+
+  """
+  custStmtMsgs returns all the MT940 records that have been saved in the system
+  """
   custStmtMsgs: [CustStmtMsg]
+
+  """
+  getStatementLines returns statement lines for a particular MT940
+  """
   getStatementLines: [Sl]
+
+  """
+  getStmtLineGroupedByDate returns statement lines grouped by date
+  """
   getStmtLineGroupedByDate: [SlGroups]
+
+  """
+  getStmtLineGroupedByDate returns filtered by amount
+  """
   getStmtLinesFilterByAmount(amount: AmountInput!): [SlGroups]
+
+  """
+  getStmtLineGroupedByDate returns statement lines filtered by Debit/Credit
+  """
   getStmtLinesFilterByDC(amount: DCInput!): [SlGroups]
 
+  """
+  statements returns all the transactions for the user ordered by date
+  """
   statements: [ConfGroup]
 
   """
   getStatement Returns a single statement record
   """
   getStatement(ID: Int!): Confirmation
+
+  """
+  statementsFiltered is the main query that accepts inputs and filters from the user.
+
+  The query returns a list of transactions group by date
+  """
   statementsFiltered(input: FilterInput): [ConfGroup]
+
+  """
+  search provides capabilities to search by account name and account number
+  """
   search(input: String!): [ConfGroup]
 
+  """
+  download enables user to specify the data they want to download and the file formats they should get.
+
+  The API returns a link to the file the user has requested.
+  """
   download(input: DownloadInput!): String
 }
 `, BuiltIn: false},
@@ -1083,7 +1131,8 @@ directive @goTag(
 schema {
   query: Query
   mutation: Mutation
-}`, BuiltIn: false},
+}
+`, BuiltIn: false},
 	{Name: "graph/schema/types/ai.graphqls", Input: `"""
 Account Identification
 """
@@ -1239,10 +1288,18 @@ input CbInput
   confirmations: [Confirmation] @goField(name: "Confirmations")
 }
 `, BuiltIn: false},
-	{Name: "graph/schema/types/confirmations.graphqls", Input: `type Confirmation
+	{Name: "graph/schema/types/confirmations.graphqls", Input: `"""
+Confirmations refers to either a credit or debit.
+It maps to MT910 and MT900 SWIFT Message Types
+"""
+type Confirmation
   @goModel(model: "github.com/riviatechs/mt940_server/models.Confirmation") {
   id: Int! @goField(name: "ID")
   currency: String! @goField(name: "Currency")
+
+  """
+  partyBName refers to the names of the account sending money in credit transaction
+  """
   partyBName: String! @goField(name: "PartyBName")
   partyBAccount: String! @goField(name: "PartyBAccount")
   amount: Float! @goField(name: "Amount")
@@ -1343,13 +1400,19 @@ input CustStmtMsgInput
   c: Boolean @goField(name: "C")
 }
 `, BuiltIn: false},
-	{Name: "graph/schema/types/download.graphqls", Input: `input DownloadInput
+	{Name: "graph/schema/types/download.graphqls", Input: `"""
+DownloadInput enables user to filter and download transaction in various file formats
+"""
+input DownloadInput
   @goModel(model: "github.com/riviatechs/mt940_server/models.DownloadInput") {
   filters: FilterInput @goField(name: "FilterInput")
   fields: FieldsInput @goField(name: "FieldsInput")
   downLoadType: String @goField(name: "DownLoadType")
 }
 
+"""
+FieldsInput enable users to select the fields they want to be included in their transaction report file.
+"""
 input FieldsInput
   @goModel(model: "github.com/riviatechs/mt940_server/models.FieldsInput") {
   trf: String @goField(name: "TRF")
@@ -1363,6 +1426,16 @@ input FieldsInput
 `, BuiltIn: false},
 	{Name: "graph/schema/types/filter.graphqls", Input: `"""
 FilterInput has the main filters of the system.
+
+You can filter through combination of
+  currency
+  Transaction Type
+  Period
+  Exact Date
+  Amount Range
+  Exact Amount
+
+The API also enables user to search transaction by account number or account name
 """
 input FilterInput
   @goModel(model: "github.com/riviatechs/mt940_server/models.FilterInput") {
@@ -1374,7 +1447,7 @@ input FilterInput
 }
 
 """
-PeriodInput helps to filter the statements by date. You can specify both the start and end date or specify an exact date
+PeriodInput helps to filter the statements by date. User can specify both the start and end date or specify an exact date
 """
 input PeriodInput
   @goModel(model: "github.com/riviatechs/mt940_server/models.PeriodInput") {
@@ -1384,7 +1457,7 @@ input PeriodInput
 }
 
 """
-AmountRangeInput helps to filter the statements by amount. You can specify both the lower and the upper amount or specify an exact date.
+AmountRangeInput helps to filter the statements by amount. User can specify both the lower and the upper amount or specify an exact date.
 """
 input AmountRangeInput
   @goModel(

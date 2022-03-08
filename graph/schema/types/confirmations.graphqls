@@ -1,7 +1,15 @@
+"""
+Confirmations refers to either a credit or debit.
+It maps to MT910 and MT900 SWIFT Message Types
+"""
 type Confirmation
   @goModel(model: "github.com/riviatechs/mt940_server/models.Confirmation") {
   id: Int! @goField(name: "ID")
   currency: String! @goField(name: "Currency")
+
+  """
+  partyBName refers to the names of the account sending money in credit transaction
+  """
   partyBName: String! @goField(name: "PartyBName")
   partyBAccount: String! @goField(name: "PartyBAccount")
   amount: Float! @goField(name: "Amount")
