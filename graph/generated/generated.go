@@ -148,6 +148,7 @@ type ComplexityRoot struct {
 		CustStmtMsgs               func(childComplexity int) int
 		Download                   func(childComplexity int, input models.DownloadInput) int
 		GetCustStmtMsgByTrn        func(childComplexity int, trn string) int
+		GetStatement               func(childComplexity int, id int) int
 		GetStatementLines          func(childComplexity int) int
 		GetStmtLineGroupedByDate   func(childComplexity int) int
 		GetStmtLinesFilterByAmount func(childComplexity int, amount models.Amount) int
@@ -252,6 +253,7 @@ type QueryResolver interface {
 	GetStmtLinesFilterByAmount(ctx context.Context, amount models.Amount) ([]*models.SlGroups, error)
 	GetStmtLinesFilterByDc(ctx context.Context, amount models.DCInput) ([]*models.SlGroups, error)
 	Statements(ctx context.Context) ([]*models.ConfGroup, error)
+	GetStatement(ctx context.Context, id int) (*models.Confirmation, error)
 	StatementsFiltered(ctx context.Context, input *models.FilterInput) ([]*models.ConfGroup, error)
 	Search(ctx context.Context, input string) ([]*models.ConfGroup, error)
 	Download(ctx context.Context, input models.DownloadInput) (*string, error)
@@ -763,6 +765,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Query.GetCustStmtMsgByTrn(childComplexity, args["trn"].(string)), true
 
+	case "Query.getStatement":
+		if e.complexity.Query.GetStatement == nil {
+			break
+		}
+
+		args, err := ec.field_Query_getStatement_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Query.GetStatement(childComplexity, args["ID"].(int)), true
+
 	case "Query.getStatementLines":
 		if e.complexity.Query.GetStatementLines == nil {
 			break
@@ -1051,6 +1065,11 @@ directive @goTag(
   getStmtLinesFilterByDC(amount: DCInput!): [SlGroups]
 
   statements: [ConfGroup]
+
+  """
+  getStatement Returns a single statement record
+  """
+  getStatement(ID: Int!): Confirmation
   statementsFiltered(input: FilterInput): [ConfGroup]
   search(input: String!): [ConfGroup]
 
@@ -1678,6 +1697,21 @@ func (ec *executionContext) field_Query_getCustStmtMsgByTRN_args(ctx context.Con
 		}
 	}
 	args["trn"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Query_getStatement_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 int
+	if tmp, ok := rawArgs["ID"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("ID"))
+		arg0, err = ec.unmarshalNInt2int(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["ID"] = arg0
 	return args, nil
 }
 
@@ -3904,6 +3938,45 @@ func (ec *executionContext) _Query_statements(ctx context.Context, field graphql
 	res := resTmp.([]*models.ConfGroup)
 	fc.Result = res
 	return ec.marshalOConfGroup2ᚕᚖgithubᚗcomᚋriviatechsᚋmt940_serverᚋmodelsᚐConfGroup(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Query_getStatement(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "Query",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   true,
+		IsResolver: true,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	rawArgs := field.ArgumentMap(ec.Variables)
+	args, err := ec.field_Query_getStatement_args(ctx, rawArgs)
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	fc.Args = args
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Query().GetStatement(rctx, args["ID"].(int))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*models.Confirmation)
+	fc.Result = res
+	return ec.marshalOConfirmation2ᚖgithubᚗcomᚋriviatechsᚋmt940_serverᚋmodelsᚐConfirmation(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _Query_statementsFiltered(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
@@ -7767,6 +7840,26 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 					}
 				}()
 				res = ec._Query_statements(ctx, field)
+				return res
+			}
+
+			rrm := func(ctx context.Context) graphql.Marshaler {
+				return ec.OperationContext.RootResolverMiddleware(ctx, innerFunc)
+			}
+
+			out.Concurrently(i, func() graphql.Marshaler {
+				return rrm(innerCtx)
+			})
+		case "getStatement":
+			field := field
+
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query_getStatement(ctx, field)
 				return res
 			}
 

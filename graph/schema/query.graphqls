@@ -8,6 +8,11 @@ type Query {
   getStmtLinesFilterByDC(amount: DCInput!): [SlGroups]
 
   statements: [ConfGroup]
+
+  """
+  getStatement Returns a single statement record
+  """
+  getStatement(ID: Int!): Confirmation
   statementsFiltered(input: FilterInput): [ConfGroup]
   search(input: String!): [ConfGroup]
 

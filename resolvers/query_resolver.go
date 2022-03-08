@@ -14,6 +14,10 @@ type QueryResolver struct{ *Resolver }
 // Query returns generated.QueryResolver implementation.
 func (r *Resolver) Query() generated.QueryResolver { return &QueryResolver{r} }
 
+func (r *QueryResolver) GetStatement(ctx context.Context, id int) (*models.Confirmation, error) {
+	return db.GetStatement(ctx, uint(id))
+}
+
 func (r *QueryResolver) Download(ctx context.Context, input models.DownloadInput) (*string, error) {
 	return download.HandleDownload(ctx, input)
 }
