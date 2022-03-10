@@ -23,11 +23,11 @@ func StatementsFiltered(ctx context.Context, input *models.FilterInput) ([]*mode
 
 	if input.Period != nil {
 		if input.Period.Date != nil {
-			db = db.Where("date_time >= ?::date AND date_time <(?::date + '1 day'::interval)", *input.Period.Date, *input.Period.Date)
+			db = db.Where("date_time >= (?::date) AND date_time < (?::date + '1 day'::interval)", *input.Period.Date, *input.Period.Date)
 
 		} else {
 			if input.Period.Start != nil && input.Period.End != nil {
-				db = db.Where("date_time >= ?::date AND date_time <(?::date)", input.Period.Start, input.Period.End)
+				db = db.Where("date_time >= (?::date) AND date_time < (?::date + '1 day'::interval)", input.Period.Start, input.Period.End)
 			}
 		}
 	}
@@ -54,4 +54,3 @@ func StatementsFiltered(ctx context.Context, input *models.FilterInput) ([]*mode
 
 	return confirmations, nil
 }
-
