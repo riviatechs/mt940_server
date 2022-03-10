@@ -3,6 +3,7 @@ package db
 import (
 	"context"
 	"fmt"
+	"strings"
 
 	"github.com/riviatechs/mt940_server/models"
 )
@@ -18,7 +19,8 @@ func StatementsFiltered(ctx context.Context, input *models.FilterInput) ([]*mode
 	}
 
 	if input.Tt != nil {
-		db = db.Where("mark LIKE ?", *input.Tt)
+		tt := strings.ToUpper(*input.Tt)
+		db = db.Where("mark LIKE ?", tt)
 	}
 
 	if input.Period != nil {

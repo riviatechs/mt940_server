@@ -33,7 +33,7 @@ func (r *QueryResolver) Search(ctx context.Context, input string) ([]*models.Con
 
 func (r *QueryResolver) StatementsFiltered(ctx context.Context, input *models.FilterInput) ([]*models.ConfGroup, error) {
 	if input.Search != nil {
-		s, err := db.Search(ctx, *input.Search)
+		s, err := db.SearchWithFilters(ctx, input)
 		if err != nil {
 			return nil, err
 		}
