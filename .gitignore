@@ -1,3 +1,4 @@
 .env
 .env.ps1
 private.key
+cors.json
